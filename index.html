@@ -18,8 +18,8 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="최연준 ♥ 김유진 결혼합니다">
 <meta property="og:description" content="2027년 03월 13일 토요일 낮 12시 · L65호텔 웨딩컨벤션 가든홀. 두 사람의 새로운 시작을 축복해 주세요.">
-<meta property="og:image" content="https://s-imac.coati-bramble.ts.net/w/thumb.jpg">
-<meta property="og:url" content="https://s-imac.coati-bramble.ts.net/w">
+<meta property="og:image" content="https://jun6726.github.io/YJ_Wedding/thumb.jpg">
+<meta property="og:url" content="https://jun6726.github.io/YJ_Wedding/">
 <meta property="og:image:width" content="800">
 <meta property="og:image:height" content="800">
 <meta property="og:locale" content="ko_KR">
@@ -28,6 +28,8 @@
 <link rel="apple-touch-icon" href="thumb.jpg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://www.google.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
@@ -675,13 +677,11 @@
   <section id="mapSection">
     <div class="section-title">오시는 길</div>
     <div class="section-sub">LOCATION</div>
-    <div class="map-box">
-      <iframe
-        src="https://www.google.com/maps?q=서울%20동대문구%20왕산로%20200%20SKY-L65&output=embed"
-        style="width:100%; height:100%; border:0;"
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
+    <div class="map-box" id="mapBox" onclick="loadRealMap()">
+      <img src="map-thumb.jpg" alt="지도 미리보기" style="width:100%; height:100%; object-fit:cover; display:block;">
+      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.15);">
+        <span style="background:#fff; color:var(--ink); font-size:0.75rem; padding:8px 16px; border-radius:999px; box-shadow:0 2px 8px rgba(0,0,0,.2);">지도를 눌러 자세히 보기</span>
+      </div>
     </div>
     <div class="venue-name">L65호텔 웨딩컨벤션</div>
     <div class="venue-name" style="font-size:0.8125rem; font-weight:400; color:var(--ink-soft); margin-top:2px;">가든홀</div>
@@ -1394,9 +1394,37 @@ async function submitGuestbook(){
   showToast('방명록이 등록되었습니다');
 }
 
+function loadRealMap(){
+  const box = document.getElementById('mapBox');
+  if(!box || box.dataset.loaded) return;
+  box.dataset.loaded = '1';
+  box.onclick = null;
+  box.innerHTML = `<iframe
+      src="https://www.google.com/maps?q=서울%20동대문구%20왕산로%20200%20SKY-L65&output=embed"
+      style="width:100%; height:100%; border:0;"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+}
+
 /* ---------------- 공유 ---------------- */
+const KAKAO_JS_KEY = 'eae830b527d0222c0c41d019f13d8156';
+const SHARE_URL = 'https://jun6726.github.io/YJ_Wedding/';
+if(window.Kakao && !Kakao.isInitialized()){ Kakao.init(KAKAO_JS_KEY); }
+
 function shareKakao(){
-  showToast('카카오 SDK 연동 시 실제 공유가 전송됩니다 (데모)');
+  if(!window.Kakao || !Kakao.isInitialized()){ showToast('카카오 공유를 불러오지 못했어요'); return; }
+  Kakao.Share.sendDefault({
+    objectType: 'feed',
+    content: {
+      title: '최연준 ♥ 김유진 결혼합니다',
+      description: '2027년 03월 13일 토요일 낮 12시 · L65호텔 웨딩컨벤션 가든홀',
+      imageUrl: SHARE_URL + 'thumb.jpg',
+      link: { mobileWebUrl: SHARE_URL, webUrl: SHARE_URL }
+    },
+    buttons: [{
+      title: '청첩장 보기',
+      link: { mobileWebUrl: SHARE_URL, webUrl: SHARE_URL }
+    }]
+  });
 }
 
 /* ---------------- BGM ----------------
