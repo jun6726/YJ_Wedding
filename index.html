@@ -29,7 +29,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
-<link rel="preconnect" href="https://www.google.com">
+<link rel="preconnect" href="https://www.google.com" crossorigin>
+<link rel="preconnect" href="https://maps.google.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
@@ -264,7 +265,7 @@
   }
   .count-nums{ display:flex; justify-content:center; gap:14px; margin:18px 0 4px; }
   .count-nums .box{ width:62px; }
-  .count-nums .num{ font-size:1.5rem; font-weight:700; color:var(--celadon-deep); font-family:'Noto Serif KR',serif; }
+  .count-nums .num{ font-size:1.5rem; font-weight:700; color:var(--celadon-deep); font-family:'NexonMaplestory','Noto Sans KR',sans-serif; }
   .count-nums .lab{ font-size:0.6562rem; color:var(--ink-soft); margin-top:2px; }
   .cal{ margin-top:22px; }
   .cal-head{ font-size:0.8125rem; font-weight:600; margin-bottom:10px; }
@@ -399,7 +400,7 @@
   /* ---------- GUESTBOOK ---------- */
   .gb-form{ background:var(--white); border-radius:16px; padding:16px; box-shadow:var(--shadow); margin-bottom:20px; }
   .gb-form .row{ display:flex; gap:8px; margin-bottom:8px; }
-  .gb-form input[type=text]{ flex:1; padding:10px 12px; border:1px solid var(--paper-deep); border-radius:10px; font-size:0.8125rem; color:var(--ink); }
+  .gb-form input[type=text]{ flex:1; min-width:0; padding:10px 12px; border:1px solid var(--paper-deep); border-radius:10px; font-size:0.8125rem; color:var(--ink); }
   .gb-form textarea{ width:100%; padding:10px 12px; border:1px solid var(--paper-deep); border-radius:10px; font-size:0.8125rem; min-height:64px; resize:vertical; color:var(--ink); }
   .gb-bottom{ display:flex; justify-content:space-between; align-items:center; margin-top:8px; }
   .gb-private{ font-size:0.7188rem; color:var(--ink-soft); display:flex; align-items:center; gap:6px; }
@@ -1394,16 +1395,42 @@ async function submitGuestbook(){
   showToast('방명록이 등록되었습니다');
 }
 
+const GOOGLE_MAP_URL = "https://www.google.com/maps?q=서울%20동대문구%20왕산로%20200%20SKY-L65&output=embed";
+
 function loadRealMap(){
   const box = document.getElementById('mapBox');
   if(!box || box.dataset.loaded) return;
   box.dataset.loaded = '1';
   box.onclick = null;
   box.innerHTML = `<iframe
-      src="https://www.google.com/maps?q=서울%20동대문구%20왕산로%20200%20SKY-L65&output=embed"
+      src="${GOOGLE_MAP_URL}"
       style="width:100%; height:100%; border:0;"
       referrerpolicy="no-referrer-when-downgrade"></iframe>`;
 }
+
+// 지도 섹션이 화면에 가까워지면 미리 iframe을 백그라운드에 숨겨서 로드해둠 -> 클릭 시 즉시 표시
+(function preloadMapOnApproach(){
+  const box = document.getElementById('mapBox');
+  if(!box || !('IntersectionObserver' in window)) return;
+  const preload = document.createElement('iframe');
+  preload.src = GOOGLE_MAP_URL;
+  preload.style.cssText = 'position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; border:0;';
+  preload.referrerPolicy = 'no-referrer-when-downgrade';
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        document.body.appendChild(preload);
+        observer.disconnect();
+      }
+    });
+  }, { rootMargin: '600px 0px' });
+  observer.observe(box);
+
+  box.addEventListener('click', ()=>{
+    if(preload.parentNode) preload.parentNode.removeChild(preload);
+  }, { once: true });
+})();
 
 /* ---------------- 공유 ---------------- */
 const KAKAO_JS_KEY = 'eae830b527d0222c0c41d019f13d8156';
