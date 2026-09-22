@@ -97,6 +97,8 @@
   .play .typing{ animation: typeit .8s steps(9) forwards, caretblink .8s step-end infinite; }
   @keyframes typeit{ to{ width:9ch; } }
   @keyframes caretblink{ 50%{ border-color:transparent; } }
+  .kr-caret{ display:inline-block; width:2px; height:1em; background:#fff; margin-left:2px; vertical-align:-3px; animation: caretblink2 .8s step-end infinite; }
+  @keyframes caretblink2{ 50%{ opacity:0; } }
 
   .lines .ln{ opacity:0; transform:translateY(14px); }
   .play .lines .ln:nth-child(1){ animation:lnup .6s ease forwards; animation-delay:.2s; }
@@ -1064,7 +1066,7 @@ const CATS = {
     { t:'리본 풀기 오프닝', d:'가로지른 리본이 풀리며 초대장이 열림', stage:`<img class="bg" src="${THUMB}"><div class="ribbonopen"><div class="rb top"></div><div class="rb bottom"></div></div>` },
   ],
   b: [
-    { t:'타이핑 텍스트', d:'한 글자씩 써지는 효과 (현재 사이트 적용됨)', stage:`<div class="label"><div class="n typing">우리 결혼합니다</div></div>` },
+    { t:'타이핑 텍스트', d:'자음/모음이 실제 타이핑처럼 조합되며 한 글자씩 완성되는 효과', stage:`<div class="label"><div class="n"><span class="kr-type" data-text="우리 결혼합니다"></span><span class="kr-caret"></span></div></div>` },
     { t:'순차 페이드업', d:'이름→날짜→장소 순으로 한 줄씩 떠오름', stage:`<div class="lines"><div class="label ln">최연준 & 김유진</div><div class="label ln" style="margin-top:6px;">2027.03.13</div><div class="label ln" style="margin-top:6px;">L65호텔 가든홀</div></div>` },
     { t:'글자 단위 스태거', d:'글자 하나하나가 순서대로 튀어오르듯 등장', stage:`<div class="label n charstag" id="charstagA"></div>` },
     { t:'트래킹 확장', d:'자간이 좁게 시작해 서서히 넓어지며 등장', stage:`<div class="label n tracking">최연준 · 김유진</div>` },
@@ -1354,7 +1356,47 @@ makeParticles('snowD','snow',18);
 makeParticles('sparkD','spark',16);
 makeParticles('confettiD','confetti',16);
 
+const KR_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function decomposeHangul(ch){
+  const code = ch.charCodeAt(0) - 0xAC00;
+  if(code < 0 || code > 11171) return null;
+  return { cho: Math.floor(code/588), jung: Math.floor((code%588)/28), jong: code%28 };
+}
+function composeHangul(cho, jung, jong){
+  return String.fromCharCode(0xAC00 + cho*588 + jung*28 + jong);
+}
+function typeKorean(el, text){
+  if(el._krTimer) clearTimeout(el._krTimer);
+  const frames = [];
+  let out = '';
+  text.split('').forEach(ch => {
+    const d = decomposeHangul(ch);
+    if(!d){
+      out += ch;
+      frames.push(out);
+      return;
+    }
+    frames.push(out + KR_CHO[d.cho]);
+    frames.push(out + composeHangul(d.cho, d.jung, 0));
+    if(d.jong > 0) frames.push(out + composeHangul(d.cho, d.jung, d.jong));
+    out += ch;
+  });
+  frames.push(out);
+  let i = 0;
+  el.textContent = '';
+  (function step(){
+    if(i >= frames.length) return;
+    el.textContent = frames[i];
+    i++;
+    el._krTimer = setTimeout(step, 90);
+  })();
+}
 function playStage(stage){
+  const krEl = stage.querySelector('.kr-type');
+  if(krEl){
+    typeKorean(krEl, krEl.dataset.text);
+    return;
+  }
   stage.classList.remove('play');
   void stage.offsetWidth;
   stage.classList.add('play');
