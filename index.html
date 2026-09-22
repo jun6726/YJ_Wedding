@@ -29,6 +29,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=eae830b527d0222c0c41d019f13d8156&libraries=services&autoload=false"></script>
 <link rel="preconnect" href="https://www.google.com" crossorigin>
 <link rel="preconnect" href="https://maps.google.com" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1440,15 +1441,39 @@ async function submitGuestbook(){
   showToast('방명록이 등록되었습니다');
 }
 
-const GOOGLE_MAP_URL = "https://www.google.com/maps?q=서울%20동대문구%20왕산로%20200%20SKY-L65&output=embed";
+const VENUE_ADDRESS = "서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층";
+const VENUE_FALLBACK_LATLNG = { lat: 37.5805, lng: 127.0466 }; // 청량리역 인근 대략 좌표(주소 검색 실패 시 사용)
 
 (function loadRealMap(){
   const box = document.getElementById('mapBox');
   if(!box) return;
-  box.innerHTML = `<iframe
-      src="${GOOGLE_MAP_URL}"
-      style="width:100%; height:100%; border:0;"
-      referrerpolicy="no-referrer-when-downgrade"></iframe>`;
+
+  if(!window.kakao || !kakao.maps){
+    // SDK 로드 실패 시에만 앱/새 탭으로 이동하는 링크로 대체
+    box.innerHTML = `<a href="https://map.kakao.com/?q=${encodeURIComponent(VENUE_ADDRESS)}" target="_blank" rel="noopener"
+        style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; color:var(--ink-soft); font-size:0.8125rem;">지도를 불러오지 못했어요. 눌러서 카카오맵으로 보기</a>`;
+    return;
+  }
+
+  kakao.maps.load(function(){
+    const center = new kakao.maps.LatLng(VENUE_FALLBACK_LATLNG.lat, VENUE_FALLBACK_LATLNG.lng);
+    const map = new kakao.maps.Map(box, { center, level: 4 });
+    map.setZoomable(true);
+    map.setDraggable(true);
+
+    const marker = new kakao.maps.Marker({ position: center, map });
+
+    if(kakao.maps.services){
+      const geocoder = new kakao.maps.services.Geocoder();
+      geocoder.addressSearch(VENUE_ADDRESS, function(result, status){
+        if(status === kakao.maps.services.Status.OK && result[0]){
+          const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+          map.setCenter(coords);
+          marker.setPosition(coords);
+        }
+      });
+    }
+  });
 })();
 
 /* ---------------- 공유 ---------------- */

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>청첩장 애니메이션 시안 50</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing:border-box; }
+  body{ font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; background:#f3f1ec; color:#2b2b2b; }
+  header{ padding:32px 24px 14px; text-align:center; }
+  header h1{ font-size:20px; margin:0 0 8px; }
+  header p{ font-size:12.5px; color:#888; max-width:560px; margin:0 auto; line-height:1.7; }
+
+  .summary{ position:sticky; top:0; z-index:50; background:#2b2620; color:#f5efe4; padding:10px 16px; font-size:12px; text-align:center; }
+  .summary b{ color:#d8b978; }
+  .summary .list{ font-size:11px; color:#cbbfa4; margin-top:4px; }
+
+  .catnav{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:16px; padding:0 20px; }
+  .catnav a{ font-size:11px; padding:6px 12px; border-radius:999px; background:#fff; color:#8a6a3c; text-decoration:none; border:1px solid #e6dcc6; }
+  .cat-title{ max-width:960px; margin:40px auto 4px; padding:0 20px; font-size:13px; letter-spacing:.15em; color:#a08a5c; font-weight:700; }
+  .cat-title span{ color:#bbb; font-weight:400; margin-left:8px; }
+  .grid{ max-width:960px; margin:0 auto; padding:12px 20px 20px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
+  .card{ background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 5px 16px rgba(0,0,0,.08); position:relative; }
+  .card.picked{ outline:2.5px solid #d8b978; }
+  .card-head{ padding:12px 16px 0; }
+  .card-head .no{ font-size:9px; letter-spacing:.15em; color:#b08a4e; font-weight:700; }
+  .card-head h2{ font-size:14.5px; margin:3px 0 2px; }
+  .card-head .desc{ font-size:11px; color:#888; line-height:1.55; margin-bottom:8px; }
+  .stage{ height:190px; position:relative; overflow:hidden; background:#1c1a17; display:flex; align-items:center; justify-content:center; }
+  .stage img.bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .stage .dim{ position:absolute; inset:0; background:rgba(15,13,10,.28); }
+  .actions{ display:flex; }
+  .replay{ flex:1; padding:8px; border:none; background:#faf8f4; color:#8a6a3c; font-size:10.5px; letter-spacing:.03em; cursor:pointer; border-top:1px solid #eee; }
+  .replay:hover{ background:#f2ead9; }
+  .pick{ flex:1; padding:8px; border:none; background:#faf8f4; color:#b8a888; font-size:10.5px; letter-spacing:.03em; cursor:pointer; border-top:1px solid #eee; border-left:1px solid #eee; font-weight:700; }
+  .pick.on{ background:#d8b978; color:#fff; }
+  .label{ position:relative; z-index:2; color:#fff; text-align:center; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+  .label .n{ font-size:17px; font-weight:700; }
+  .label .d{ font-size:10.5px; margin-top:4px; letter-spacing:.05em; color:#f0e6d0; }
+
+  /* ---- 공용 트랜지션 프리미티브 ---- */
+  .panelL,.panelR,.panelT,.panelB{ position:absolute; background:#221f1a; z-index:3; }
+  .panelL{ left:0; top:0; bottom:0; width:50%; }
+  .panelR{ right:0; top:0; bottom:0; width:50%; }
+  .panelT{ top:0; left:0; right:0; height:50%; }
+  .panelB{ bottom:0; left:0; right:0; height:50%; }
+  .play .panelL.wipe{ animation: outL 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  .play .panelR.wipe{ animation: outR 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  .play .panelT.wipe{ animation: outT 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  .play .panelB.wipe{ animation: outB 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  @keyframes outL{ to{ transform:translateX(-100%);} }
+  @keyframes outR{ to{ transform:translateX(100%);} }
+  @keyframes outT{ to{ transform:translateY(-100%);} }
+  @keyframes outB{ to{ transform:translateY(100%);} }
+
+  .diag{ position:absolute; inset:-20% -20%; background:#221f1a; z-index:3; transform:skewX(-15deg) translateX(0); }
+  .play .diag.wipe{ animation: diagout 1.4s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  @keyframes diagout{ to{ transform:skewX(-15deg) translateX(140%); } }
+
+  .iris{ position:absolute; inset:0; background:#221f1a; z-index:3; clip-path:circle(0% at 50% 50%); }
+  .play .iris.wipe{ animation:irisout 1.4s ease forwards; animation-delay:.3s; }
+  @keyframes irisout{ to{ clip-path:circle(75% at 50% 50%); } }
+
+  .blinds{ position:absolute; inset:0; z-index:3; display:flex; }
+  .blinds .slat{ flex:1; background:#221f1a; transform:scaleY(1); transform-origin:top; }
+  .play .blinds .slat{ animation: slatout .8s ease forwards; }
+  @keyframes slatout{ to{ transform:scaleY(0); } }
+
+  .tilegrid{ position:absolute; inset:0; z-index:3; display:grid; grid-template-columns:repeat(6,1fr); grid-template-rows:repeat(4,1fr); }
+  .tilegrid .tile{ background:#221f1a; opacity:1; }
+  .play .tilegrid .tile{ animation: tilefade .5s ease forwards; }
+  @keyframes tilefade{ to{ opacity:0; } }
+
+  .zoomrevealimg{ transform:scale(1.4); opacity:.4; }
+  .play .zoomrevealimg{ animation: zoomrev 1.4s ease forwards; }
+  @keyframes zoomrev{ to{ transform:scale(1); opacity:1; } }
+
+  .blurimg{ filter:blur(12px); opacity:.5; }
+  .play .blurimg{ animation: unblur 1.3s ease forwards; }
+  @keyframes unblur{ to{ filter:blur(0); opacity:1; } }
+
+  .flash{ position:absolute; inset:0; background:#fff; z-index:3; opacity:1; }
+  .play .flash{ animation: flashout .9s ease forwards; animation-delay:.2s; }
+  @keyframes flashout{ to{ opacity:0; } }
+
+  /* 텍스트 등장 */
+  .typing{ display:inline-block; overflow:hidden; white-space:nowrap; width:0; border-right:2px solid #fff; }
+  .play .typing{ animation: typeit 2s steps(9) forwards, caretblink .8s step-end infinite; }
+  @keyframes typeit{ to{ width:9ch; } }
+  @keyframes caretblink{ 50%{ border-color:transparent; } }
+
+  .lines .ln{ opacity:0; transform:translateY(14px); }
+  .play .lines .ln:nth-child(1){ animation:lnup .6s ease forwards; animation-delay:.2s; }
+  .play .lines .ln:nth-child(2){ animation:lnup .6s ease forwards; animation-delay:.5s; }
+  .play .lines .ln:nth-child(3){ animation:lnup .6s ease forwards; animation-delay:.8s; }
+  @keyframes lnup{ to{ opacity:1; transform:translateY(0); } }
+
+  .charstag span{ opacity:0; display:inline-block; transform:translateY(8px); }
+  .play .charstag span{ animation:charup .4s ease forwards; }
+  @keyframes charup{ to{ opacity:1; transform:translateY(0); } }
+
+  .tracking{ letter-spacing:.6em; opacity:0; }
+  .play .tracking{ animation: trackin 1.4s ease forwards; }
+  @keyframes trackin{ to{ letter-spacing:.05em; opacity:1; } }
+
+  .underline{ position:relative; display:inline-block; }
+  .underline::after{ content:''; position:absolute; left:0; bottom:-4px; height:2px; width:0; background:#d8b978; }
+  .play .underline::after{ animation: udraw 1s ease forwards; animation-delay:.6s; }
+  @keyframes udraw{ to{ width:100%; } }
+
+  .shimmertext{ background:linear-gradient(90deg,#8a6a3c 0%, #f0d9a0 45%, #8a6a3c 90%); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .play .shimmertext{ animation: shim 2.2s linear infinite; }
+  @keyframes shim{ to{ background-position:-200% center; } }
+
+  .blurtext{ filter:blur(6px); opacity:0; }
+  .play .blurtext{ animation: btxt 1.2s ease forwards; animation-delay:.2s; }
+  @keyframes btxt{ to{ filter:blur(0); opacity:1; } }
+
+  .slidein{ transform:translateX(-40px); opacity:0; }
+  .play .slidein{ animation: sldin .8s ease forwards; animation-delay:.2s; }
+  @keyframes sldin{ to{ transform:translateX(0); opacity:1; } }
+
+  .maskreveal{ clip-path: inset(0 100% 0 0); }
+  .play .maskreveal{ animation: maskrev 1.4s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.2s; }
+  @keyframes maskrev{ to{ clip-path: inset(0 0 0 0); } }
+
+  .bouncein{ transform:scale(.3); opacity:0; }
+  .play .bouncein{ animation: bnc .7s cubic-bezier(.34,1.56,.64,1) forwards; animation-delay:.2s; }
+  @keyframes bnc{ to{ transform:scale(1); opacity:1; } }
+
+  /* 사진/갤러리 */
+  .xfade img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; }
+  .play .xfade img:nth-child(1){ animation: xf 4.5s ease infinite; }
+  .play .xfade img:nth-child(2){ animation: xf 4.5s ease infinite; animation-delay:1.5s; }
+  .play .xfade img:nth-child(3){ animation: xf 4.5s ease infinite; animation-delay:3s; }
+  @keyframes xf{ 0%{opacity:0;} 8%{opacity:1;} 30%{opacity:1;} 38%{opacity:0;} 100%{opacity:0;} }
+
+  .carousel{ display:flex; }
+  .carousel img{ width:100%; height:190px; object-fit:cover; flex-shrink:0; }
+  .play .carousel{ animation: carmove 4.5s ease infinite; }
+  @keyframes carmove{ 0%,20%{transform:translateX(0);} 45%,65%{transform:translateX(-100%);} 90%,100%{transform:translateX(-200%);} }
+
+  .cardstack img{ position:absolute; width:70%; height:80%; top:10%; left:15%; object-fit:cover; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,.3); }
+  .play .cardstack img:nth-child(1){ animation: stackmv 4.5s ease infinite; z-index:3; }
+  .play .cardstack img:nth-child(2){ animation: stackmv 4.5s ease infinite; animation-delay:1.5s; z-index:2; }
+  .play .cardstack img:nth-child(3){ animation: stackmv 4.5s ease infinite; animation-delay:3s; z-index:1; }
+  @keyframes stackmv{ 0%,25%{ transform:translateX(0) rotate(0); opacity:1;} 40%{ transform:translateX(-120%) rotate(-12deg); opacity:0;} 41%{ transform:translateX(120%) rotate(12deg); opacity:0;} 100%{ transform:translateX(0) rotate(0); opacity:1;} }
+
+  .kenburns img{ width:100%; height:100%; object-fit:cover; transform:scale(1); }
+  .play .kenburns img{ animation: kb 6s ease-in-out infinite alternate; }
+  @keyframes kb{ to{ transform:scale(1.25) translate(-3%,-3%); } }
+
+  .polaroid{ position:relative; width:100%; height:100%; }
+  .polaroid .pf{ position:absolute; width:90px; background:#fff; padding:6px 6px 20px; box-shadow:0 8px 18px rgba(0,0,0,.25); opacity:0; }
+  .polaroid .pf img{ width:100%; height:70px; object-fit:cover; display:block; }
+  .polaroid .pf:nth-child(1){ top:14%; left:8%; --r:-10deg; }
+  .polaroid .pf:nth-child(2){ top:30%; left:38%; --r:4deg; }
+  .polaroid .pf:nth-child(3){ top:10%; right:6%; --r:9deg; }
+  .polaroid .pf{ transform:rotate(var(--r,0)) translateY(-40px); }
+  .play .polaroid .pf{ animation: pdrop .7s cubic-bezier(.34,1.4,.64,1) forwards; }
+  .play .polaroid .pf:nth-child(1){ animation-delay:.2s; }
+  .play .polaroid .pf:nth-child(2){ animation-delay:.5s; }
+  .play .polaroid .pf:nth-child(3){ animation-delay:.8s; }
+  @keyframes pdrop{ to{ opacity:1; transform:rotate(var(--r,0)) translateY(0); } }
+
+  .tilesgrid{ display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,1fr); gap:2px; width:100%; height:100%; }
+  .tilesgrid img{ width:100%; height:100%; object-fit:cover; opacity:0; transform:scale(.8); }
+  .play .tilesgrid img{ animation: tilein .5s ease forwards; }
+  @keyframes tilein{ to{ opacity:1; transform:scale(1); } }
+
+  .rotalign img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:rotate(-14deg) scale(.85); opacity:.5; }
+  .play .rotalign img{ animation: rota 1.2s ease forwards; }
+  @keyframes rota{ to{ transform:rotate(0) scale(1); opacity:1; } }
+
+  .maskwipe .next{ position:absolute; inset:0; clip-path:inset(0 100% 0 0); }
+  .play .maskwipe .next{ animation: mwin 1.4s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  @keyframes mwin{ to{ clip-path:inset(0 0 0 0); } }
+
+  .bwcolor img{ filter:grayscale(1); }
+  .play .bwcolor img{ animation: bw2c 1.6s ease forwards; }
+  @keyframes bw2c{ to{ filter:grayscale(0); } }
+
+  .shutter{ display:flex; position:absolute; inset:0; z-index:3; }
+  .shutter .sl{ flex:1; background:#141110; }
+  .play .shutter .sl{ animation: shut .8s ease forwards; animation-delay:.2s; }
+  @keyframes shut{ to{ transform:scaleX(0); } }
+
+  /* 배경/장식 */
+  .petal{ position:absolute; top:-20px; width:10px; height:10px; border-radius:50% 0; background:#f3c5c5; opacity:.9; }
+  .play .petal{ animation: fall linear infinite; }
+  @keyframes fall{ to{ transform:translateY(220px) rotate(360deg); opacity:0; } }
+
+  .snow{ position:absolute; top:-10px; width:6px; height:6px; border-radius:50%; background:#fff; opacity:.85; }
+  .play .snow{ animation: snowfall linear infinite; }
+  @keyframes snowfall{ to{ transform:translateY(200px) translateX(10px); opacity:0; } }
+
+  .spark{ position:absolute; width:3px; height:3px; border-radius:50%; background:#f0d9a0; opacity:0; }
+  .play .spark{ animation: sparkle 1.8s ease-in-out infinite; }
+  @keyframes sparkle{ 0%,100%{opacity:0; transform:scale(0);} 50%{opacity:1; transform:scale(2);} }
+
+  .grain{ position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.15) 1px, transparent 1px); background-size:3px 3px; opacity:0; }
+  .play .grain{ animation: grainshow 1s steps(2) forwards, grainmove .2s steps(2) infinite; }
+  @keyframes grainshow{ to{ opacity:.4; } }
+  @keyframes grainmove{ to{ background-position:3px 3px; } }
+
+  .aurora{ position:absolute; inset:-30%; background:conic-gradient(from 0deg,#c9a45c,#8a9a7c,#c96b5c,#c9a45c); opacity:.35; filter:blur(30px); }
+  .play .aurora{ animation: auroraspin 4s linear infinite; }
+  @keyframes auroraspin{ to{ transform:rotate(360deg); } }
+
+  .goldline{ stroke-dasharray:300; stroke-dashoffset:300; }
+  .play .goldline{ animation: linedraw 1.8s ease forwards; }
+  @keyframes linedraw{ to{ stroke-dashoffset:0; } }
+
+  .ribbon{ position:absolute; width:120px; height:24px; background:#c96b5c; top:40%; left:-140px; }
+  .play .ribbon{ animation: ribbonmove 2.4s ease-in-out infinite; }
+  @keyframes ribbonmove{ 0%{ left:-140px; transform:rotate(0);} 50%{ left:50%; transform:translateX(-50%) rotate(-6deg);} 100%{ left:calc(100% + 20px); transform:rotate(0);} }
+
+  .confetti{ position:absolute; top:100%; width:6px; height:12px; opacity:.9; }
+  .play .confetti{ animation: rise linear infinite; }
+  @keyframes rise{ to{ transform:translateY(-220px) rotate(360deg); opacity:0; } }
+
+  .ripple{ position:absolute; border:2px solid rgba(255,255,255,.6); border-radius:50%; width:10px; height:10px; opacity:1; }
+  .play .ripple{ animation: rippleout 2s ease-out infinite; }
+  @keyframes rippleout{ to{ width:200px; height:200px; margin:-100px; opacity:0; } }
+
+  .butterfly{ position:absolute; font-size:18px; top:60%; left:-10%; }
+  .play .butterfly{ animation: flutter 4s ease-in-out infinite; }
+  @keyframes flutter{ 0%{ left:-10%; top:60%;} 25%{ left:30%; top:20%;} 50%{ left:60%; top:55%;} 75%{ left:85%; top:15%;} 100%{ left:110%; top:40%;} }
+
+  /* 스크롤/네비게이션 */
+  .parabg{ position:absolute; inset:-20px; background:repeating-linear-gradient(115deg,#5c7a52 0 40px, #4a6842 40px 80px); opacity:.5; }
+  .play .parabg{ animation: parallax 3s linear infinite; }
+  @keyframes parallax{ from{ transform:translateY(0);} to{ transform:translateY(-80px);} }
+
+  .dotsnav .dot{ width:6px; height:6px; border-radius:50%; background:#ddd; display:inline-block; margin:0 3px; }
+  .play .dotsnav .dot:nth-child(1){ animation: dotlit 3s ease-in-out infinite; }
+  .play .dotsnav .dot:nth-child(2){ animation: dotlit 3s ease-in-out infinite; animation-delay:1s; }
+  .play .dotsnav .dot:nth-child(3){ animation: dotlit 3s ease-in-out infinite; animation-delay:2s; }
+  @keyframes dotlit{ 0%,15%,100%{ background:#ddd;} 20%,45%{ background:#b08a4e;} }
+
+  .progressbar{ position:absolute; top:0; left:0; height:3px; background:#d8b978; width:0%; }
+  .play .progressbar{ animation: pbar 3s linear infinite; }
+  @keyframes pbar{ to{ width:100%; } }
+
+  .snapscroll .snapinner{ display:flex; flex-direction:column; }
+  .play .snapscroll .snapinner{ animation: snapmv 4.5s steps(3) infinite; }
+  @keyframes snapmv{ 0%{transform:translateY(0);} 100%{transform:translateY(-380px);} }
+
+  .stickyhead{ position:absolute; top:0; left:0; right:0; height:60px; background:rgba(20,17,14,.85); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; }
+  .play .stickyhead{ animation: shrink 2s ease forwards; animation-delay:.5s; }
+  @keyframes shrink{ to{ height:30px; font-size:10px; } }
+
+  /* 버튼/마이크로 */
+  .pulsebtn{ width:56px; height:56px; border-radius:50%; background:#c9a45c; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; }
+  .play .pulsebtn{ animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse{ 50%{ transform:scale(1.15); box-shadow:0 0 0 12px rgba(201,164,92,0); } }
+
+  .heartbtn{ font-size:28px; color:#c96b5c; }
+  .play .heartbtn{ animation: heartbeat 1s ease-in-out infinite; }
+  @keyframes heartbeat{ 0%,100%{transform:scale(1);} 25%{transform:scale(1.3);} 40%{transform:scale(1);} 60%{transform:scale(1.2);} }
+
+  .ddaybox{ display:flex; gap:10px; }
+  .ddaybox .unit{ text-align:center; }
+  .ddaybox .num{ font-size:22px; font-weight:800; color:#fff; display:inline-block; }
+  .ddaybox .lbl{ font-size:8px; color:#ccc; letter-spacing:.1em; display:block; margin-top:2px; }
+  .play .ddaybox .num{ animation: tick .5s ease; }
+  @keyframes tick{ 0%{ transform:translateY(-8px); opacity:0;} 100%{ transform:translateY(0); opacity:1;} }
+
+  .kakaobtn{ background:#fee500; color:#3c1e1e; padding:8px 18px; border-radius:999px; font-size:12px; font-weight:700; }
+  .play .kakaobtn{ animation: kbounce 1s ease infinite; }
+  @keyframes kbounce{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+
+  .toggle{ width:44px; height:24px; border-radius:999px; background:#ddd; position:relative; }
+  .toggle .knob{ width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+  .play .toggle{ animation: togglebg 1.6s ease infinite; }
+  .play .toggle .knob{ animation: toggleknob 1.6s ease infinite; }
+  @keyframes togglebg{ 0%,40%{ background:#ddd;} 50%,90%{ background:#c9a45c;} }
+  @keyframes toggleknob{ 0%,40%{ left:2px;} 50%,90%{ left:22px;} }
+</style>
+</head>
+<body>
+<div class="summary" id="summaryBar">선택된 효과: <b id="pickCount">0</b>개 불러오는 중...</div>
+<header>
+  <h1>청첩장 애니메이션 시안 50</h1>
+  <p>신랑신부가 함께 보는 비공개 시안 페이지입니다. 마음에 드는 효과의 "♥ 선택" 버튼을 누르면 저장되고, 다른 기기에서 접속해도 같은 선택 상태가 보여요.</p>
+  <div class="catnav">
+    <a href="#cat-a">A. 오프닝/리빌</a>
+    <a href="#cat-b">B. 텍스트 등장</a>
+    <a href="#cat-c">C. 사진/갤러리</a>
+    <a href="#cat-d">D. 배경/장식</a>
+    <a href="#cat-e">E. 스크롤/네비</a>
+    <a href="#cat-f">F. 버튼/인터랙션</a>
+  </div>
+</header>
+
+<div id="cat-a" class="cat-title">A. 오프닝 · 리빌 <span>진입 시 첫인상을 만드는 연출</span></div>
+<div class="grid" id="grid-a"></div>
+<div id="cat-b" class="cat-title">B. 텍스트 등장 <span>이름·날짜·문구가 나타나는 방식</span></div>
+<div class="grid" id="grid-b"></div>
+<div id="cat-c" class="cat-title">C. 사진 · 갤러리 전환 <span>여러 장의 사진을 보여주는 방식</span></div>
+<div class="grid" id="grid-c"></div>
+<div id="cat-d" class="cat-title">D. 배경 · 장식 효과 <span>분위기를 더하는 배경 연출</span></div>
+<div class="grid" id="grid-d"></div>
+<div id="cat-e" class="cat-title">E. 스크롤 · 네비게이션 <span>스크롤에 반응하는 연출</span></div>
+<div class="grid" id="grid-e"></div>
+<div id="cat-f" class="cat-title">F. 버튼 · 마이크로 인터랙션 <span>탭·터치에 반응하는 작은 움직임</span></div>
+<div class="grid" id="grid-f"></div>
+
+<script>
+const IMG = i => `../gallery${i}.jpg`;
+const THUMB = '../thumb.jpg';
+
+const CATS = {
+  a: [
+    { t:'커튼 와이프(좌우)', d:'양쪽 패널이 좌우로 갈라지며 사진이 드러남', stage:`<img class="bg" src="${THUMB}"><div class="panelL wipe"></div><div class="panelR wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'커튼 와이프(상하)', d:'위아래 패널이 갈라지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="panelT wipe"></div><div class="panelB wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'도어 오픈(3D)', d:'양쪽 문이 회전하며 열리는 입체 연출', stage:`<img class="bg" src="${THUMB}"><div class="label"><div class="n">Wedding Invitation</div></div>` },
+    { t:'아이리스 원형 확장', d:'카메라 조리개처럼 원이 점점 커지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="iris wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'블라인드 리빌', d:'세로 슬랫이 위로 걷히며 사진 등장', stage:`<img class="bg" src="${THUMB}"><div class="blinds wipe">${'<div class=\"slat\"></div>'.repeat(10)}</div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'대각선 와이프', d:'비스듬한 패널이 사선으로 지나가며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="diag wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'타일 페이드인', d:'격자 타일이 하나씩 랜덤하게 사라지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="tilegrid wipe" id="tilegridA"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'줌아웃 리빌', d:'확대된 사진이 서서히 축소되며 제자리에 안착', stage:`<img class="bg zoomrevealimg" src="${THUMB}"><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'포커스인(블러→선명)', d:'흐릿하던 사진이 점점 선명해짐', stage:`<img class="bg blurimg" src="${THUMB}"><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'플래시 화이트아웃', d:'하얗게 번쩍인 뒤 사진이 드러나는 카메라 플래시 연출', stage:`<img class="bg" src="${THUMB}"><div class="flash"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+  ],
+  b: [
+    { t:'타이핑 텍스트', d:'한 글자씩 써지는 효과 (현재 사이트 적용됨)', stage:`<div class="label"><div class="n typing">우리 결혼합니다</div></div>` },
+    { t:'순차 페이드업', d:'이름→날짜→장소 순으로 한 줄씩 떠오름', stage:`<div class="lines"><div class="label ln">최연준 & 김유진</div><div class="label ln" style="margin-top:6px;">2027.03.13</div><div class="label ln" style="margin-top:6px;">L65호텔 가든홀</div></div>` },
+    { t:'글자 단위 스태거', d:'글자 하나하나가 순서대로 튀어오르듯 등장', stage:`<div class="label n charstag" id="charstagA"></div>` },
+    { t:'트래킹 확장', d:'자간이 좁게 시작해 서서히 넓어지며 등장', stage:`<div class="label n tracking">최연준 · 김유진</div>` },
+    { t:'언더라인 드로잉', d:'텍스트 아래 밑줄이 좌에서 우로 그려짐', stage:`<div class="label n underline">최연준 & 김유진</div>` },
+    { t:'골드 시머 스윕', d:'금박 텍스트 위로 빛이 스치듯 지나감', stage:`<div class="label n shimmertext">최연준 & 김유진</div>` },
+    { t:'블러 텍스트 포커스', d:'흐릿한 문구가 선명해지며 등장', stage:`<div class="label n blurtext">우리 결혼합니다</div>` },
+    { t:'슬라이드인(좌→우)', d:'문구가 왼쪽에서 미끄러지듯 들어옴', stage:`<div class="label n slidein">최연준 & 김유진</div>` },
+    { t:'마스크 텍스트 리빌', d:'글자를 클립으로 가렸다가 좌→우로 드러냄', stage:`<div class="label n maskreveal">SAVE THE DATE</div>` },
+    { t:'바운스 등장', d:'탄성 있게 튀어오르며 확대되는 등장', stage:`<div class="label n bouncein">최연준 & 김유진</div>` },
+  ],
+  c: [
+    { t:'크로스페이드 슬라이드쇼', d:'사진이 서서히 겹쳐지며 자동 전환', stage:`<div class="xfade"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'가로 슬라이드 캐러셀', d:'사진이 옆으로 밀려나며 다음 장 노출', stage:`<div class="carousel"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'카드 스택 넘김', d:'포토카드가 옆으로 쳐내지듯 다음 장이 나타남', stage:`<div class="cardstack"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'켄번즈 효과', d:'정지 사진이 천천히 확대·이동하며 생동감 부여', stage:`<div class="kenburns"><img src="${IMG(4)}"></div>` },
+    { t:'폴라로이드 낙하 배치', d:'폴라로이드 사진들이 위에서 떨어져 흩뿌려짐', stage:`<div class="polaroid"><div class="pf"><img src="${IMG(1)}"></div><div class="pf"><img src="${IMG(2)}"></div><div class="pf"><img src="${IMG(3)}"></div></div>` },
+    { t:'그리드 타일 순차 등장', d:'격자 사진들이 순서대로 하나씩 나타남', stage:`<div class="tilesgrid" id="tilesgridC"></div>` },
+    { t:'회전 정렬', d:'비뚤어진 사진이 회전하며 반듯하게 정렬됨', stage:`<div class="rotalign"><img src="${IMG(5)}"></div>` },
+    { t:'마스크 와이프 전환', d:'다음 사진이 클립 마스크로 쓸려 들어오며 전환', stage:`<div class="maskwipe"><img class="bg" src="${IMG(1)}"><img class="bg next" src="${IMG(2)}"></div>` },
+    { t:'흑백→컬러 전환', d:'흑백이었던 사진이 서서히 컬러로 바뀜', stage:`<div class="bwcolor"><img class="bg" src="${IMG(6)}"></div>` },
+    { t:'셔터 전환', d:'카메라 셔터처럼 조각들이 좌우로 열리며 전환', stage:`<img class="bg" src="${IMG(7)}"><div class="shutter"><div class="sl"></div><div class="sl"></div><div class="sl"></div><div class="sl"></div><div class="sl"></div></div>` },
+  ],
+  d: [
+    { t:'꽃잎 낙하', d:'배경에 꽃잎이 계속 떨어지는 장식 효과', stage:`<img class="bg" src="${IMG(2)}"><div class="dim"></div><div id="petalsD"></div>` },
+    { t:'눈송이 낙하', d:'눈이 흩날리며 떨어지는 겨울 웨딩 연출', stage:`<img class="bg" src="${IMG(3)}"><div class="dim"></div><div id="snowD"></div>` },
+    { t:'반짝이는 파티클', d:'배경에 작은 빛 입자가 반짝임', stage:`<img class="bg" src="${IMG(4)}"><div class="dim"></div><div id="sparkD"></div>` },
+    { t:'필름 그레인 노이즈', d:'화면 전체에 미세한 필름 알갱이 질감이 깜빡임', stage:`<img class="bg" src="${IMG(1)}"><div class="grain"></div>` },
+    { t:'오로라 그라데이션', d:'배경에 색이 은은하게 돌아가며 흐르는 효과', stage:`<div class="aurora"></div><div class="label n" style="position:relative;z-index:1;">최연준 & 김유진</div>` },
+    { t:'골드 라인 드로잉', d:'장식선이 처음부터 끝까지 그려지는 효과', stage:`<img class="bg" src="${IMG(5)}"><div class="dim"></div><svg viewBox="0 0 200 100" style="position:relative;z-index:1;width:70%;"><path class="goldline" d="M10 50 Q100 10 190 50" stroke="#f0d9a0" stroke-width="2" fill="none"/></svg>` },
+    { t:'리본 나부낌', d:'리본이 화면을 가로질러 부드럽게 지나감', stage:`<img class="bg" src="${IMG(6)}"><div class="dim"></div><div class="ribbon"></div>` },
+    { t:'컨페티/풍선 상승', d:'색종이 조각이 아래에서 위로 떠오름', stage:`<img class="bg" src="${IMG(7)}"><div class="dim"></div><div id="confettiD"></div>` },
+    { t:'물결 리플', d:'탭한 지점에서 물결처럼 원이 퍼져나감', stage:`<img class="bg" src="${IMG(8)}"><div class="dim"></div><div class="ripple" style="top:50%;left:50%;"></div>` },
+    { t:'나비 날갯짓 이동', d:'나비 아이콘이 화면을 가로질러 날아감', stage:`<img class="bg" src="${IMG(2)}"><div class="dim"></div><div class="butterfly">🦋</div>` },
+  ],
+  e: [
+    { t:'패럴랙스 스크롤', d:'배경이 전경보다 느리게 움직여 입체감 부여', stage:`<div class="parabg"></div><div class="label n" style="position:relative;z-index:1;">스크롤 시 배경이 따로 움직여요</div>` },
+    { t:'스크롤 도트 네비게이션', d:'스크롤 위치에 따라 하단 도트가 순서대로 하이라이트', stage:`<div style="display:flex;flex-direction:column;align-items:center;gap:12px;"><img src="${IMG(3)}" style="width:70px;height:120px;object-fit:cover;border-radius:8px;"><div class="dotsnav"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>` },
+    { t:'상단 진행 바', d:'스크롤 진행률에 따라 상단 바가 채워짐', stage:`<div class="progressbar"></div><img class="bg" src="${IMG(4)}" style="opacity:.5;"><div class="label n" style="position:relative;z-index:1;">SCROLL PROGRESS</div>` },
+    { t:'섹션 스냅 스크롤', d:'스크롤이 섹션 단위로 딱딱 맞춰 멈춤', stage:`<div class="snapscroll" style="height:100%;overflow:hidden;"><div class="snapinner"><img src="${IMG(1)}" style="height:190px;object-fit:cover;"><img src="${IMG(5)}" style="height:190px;object-fit:cover;"><img src="${IMG(6)}" style="height:190px;object-fit:cover;"></div></div>` },
+    { t:'스티키 헤더 축소', d:'스크롤 시 상단 헤더가 점점 작아지며 고정됨', stage:`<img class="bg" src="${IMG(7)}"><div class="stickyhead">최연준 & 김유진</div>` },
+  ],
+  f: [
+    { t:'버튼 펄스', d:'원형 버튼이 맥박처럼 커졌다 작아짐을 반복', stage:`<div class="pulsebtn">♥</div>` },
+    { t:'하트 터치 애니메이션', d:'하트를 탭하면 두근거리듯 커졌다 작아짐', stage:`<div class="heartbtn">❤️</div>` },
+    { t:'디데이 카운트다운 틱', d:'남은 일/시/분이 실시간으로 틱틱 바뀜', stage:`<div class="ddaybox"><div class="unit"><span class="num tick">173</span><span class="lbl">DAYS</span></div><div class="unit"><span class="num tick">08</span><span class="lbl">HOUR</span></div><div class="unit"><span class="num tick">42</span><span class="lbl">MIN</span></div></div>` },
+    { t:'카카오톡 공유 버튼 바운스', d:'공유 버튼이 살짝살짝 튀어오르며 시선을 끔', stage:`<div class="kakaobtn">카카오톡 공유</div>` },
+    { t:'토글 스위치 슬라이드', d:'스위치 노브가 좌우로 미끄러지며 on/off 전환', stage:`<div class="toggle"><div class="knob"></div></div>` },
+  ],
+};
+
+function buildGrid(id, items, prefix){
+  const grid = document.getElementById('grid-' + id);
+  items.forEach((it, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const pickId = `${prefix}${i+1}`;
+    card.id = 'card-' + pickId;
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="no">${prefix.toUpperCase()}${String(i+1).padStart(2,'0')}</div>
+        <h2>${it.t}</h2>
+        <div class="desc">${it.d}</div>
+      </div>
+      <div class="stage" id="${pickId}">${it.stage}</div>
+      <div class="actions">
+        <button class="replay" data-target="${pickId}">▶ 다시 재생</button>
+        <button class="pick" data-pick="${pickId}" data-label="${it.t}">♥ 선택</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+buildGrid('a', CATS.a, 'a');
+buildGrid('b', CATS.b, 'b');
+buildGrid('c', CATS.c, 'c');
+buildGrid('d', CATS.d, 'd');
+buildGrid('e', CATS.e, 'e');
+buildGrid('f', CATS.f, 'f');
+
+// 동적 요소 채우기
+document.getElementById('tilegridA').innerHTML = Array.from({length:24}).map(()=>`<div class="tile" style="animation-delay:${(Math.random()*0.6).toFixed(2)}s;"></div>`).join('');
+document.getElementById('tilesgridC').innerHTML = [1,2,3,4,5,6,7,8].map((n,i)=>`<img src="${IMG(n)}" style="animation-delay:${(i*0.12).toFixed(2)}s;">`).join('');
+document.getElementById('charstagA').innerHTML = '최연준·김유진'.split('').map((c,i)=>`<span style="animation-delay:${(i*0.08).toFixed(2)}s;">${c}</span>`).join('');
+
+function makeParticles(hostId, cls, count){
+  const host = document.getElementById(hostId);
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className = cls;
+    p.style.left = (Math.random()*100) + '%';
+    p.style.animationDuration = (1.6 + Math.random()*2) + 's';
+    p.style.animationDelay = (Math.random()*2) + 's';
+    if(cls === 'confetti'){ p.style.background = ['#c9a45c','#c96b5c','#8a9a7c','#c9d3e0'][i%4]; }
+    host.appendChild(p);
+  }
+}
+makeParticles('petalsD','petal',14);
+makeParticles('snowD','snow',18);
+makeParticles('sparkD','spark',16);
+makeParticles('confettiD','confetti',16);
+
+function playStage(stage){
+  stage.classList.remove('play');
+  void stage.offsetWidth;
+  stage.classList.add('play');
+}
+document.querySelectorAll('.replay').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    playStage(document.getElementById(btn.dataset.target));
+  });
+});
+window.addEventListener('load', ()=>{
+  document.querySelectorAll('.stage').forEach(s=> playStage(s));
+});
+
+/* ---------------- 선택 상태 Supabase 동기화 ---------------- */
+const SUPABASE_URL = 'https://fddqfomhfnzshgwopjqa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZHFmb21oZm56c2hnd29wanFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODcyMjMsImV4cCI6MjEwMDc2MzIyM30.Wnh0KsJf4uYMb9AVbMiH_yiToBPnGMd-GvXe4KsKEFg';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const LABELS = {};
+document.querySelectorAll('.pick').forEach(btn => { LABELS[btn.dataset.pick] = btn.dataset.label; });
+
+async function refreshPicks(){
+  const { data, error } = await sb.from('design_picks').select('*').eq('picked', true);
+  if(error){
+    document.getElementById('summaryBar').textContent = '선택 정보를 불러오지 못했어요 (design_picks 테이블 생성 필요)';
+    return;
+  }
+  const pickedIds = new Set(data.map(r => r.id));
+  document.querySelectorAll('.pick').forEach(btn => {
+    const on = pickedIds.has(btn.dataset.pick);
+    btn.classList.toggle('on', on);
+    document.getElementById('card-' + btn.dataset.pick).classList.toggle('picked', on);
+  });
+  const count = pickedIds.size;
+  const names = [...pickedIds].map(id => LABELS[id]).filter(Boolean).join(' · ');
+  document.getElementById('summaryBar').innerHTML =
+    `선택된 효과: <b>${count}</b>개` + (names ? `<div class="list">${names}</div>` : '');
+}
+
+async function togglePick(id, nextState){
+  await sb.from('design_picks').upsert({ id, picked: nextState, updated_at: new Date().toISOString() });
+  await refreshPicks();
+}
+
+document.querySelectorAll('.pick').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const willPick = !btn.classList.contains('on');
+    btn.disabled = true;
+    await togglePick(btn.dataset.pick, willPick);
+    btn.disabled = false;
+  });
+});
+
+refreshPicks();
+// 다른 기기에서의 변경사항도 실시간 반영
+sb.channel('design_picks_changes')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'design_picks' }, refreshPicks)
+  .subscribe();
+</script>
+</body>
+</html>
