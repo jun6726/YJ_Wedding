@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>청첩장 애니메이션 시안 200</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing:border-box; }
+  body{ font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; background:#f3f1ec; color:#2b2b2b; }
+  header{ padding:32px 24px 14px; text-align:center; }
+  header h1{ font-size:20px; margin:0 0 8px; }
+  header p{ font-size:12.5px; color:#888; max-width:560px; margin:0 auto; line-height:1.7; }
+
+  .summary{ position:sticky; top:0; z-index:50; background:#2b2620; color:#f5efe4; padding:10px 16px; font-size:12px; text-align:center; }
+  .summary b{ color:#d8b978; }
+  .summary .list{ font-size:11px; color:#cbbfa4; margin-top:4px; }
+
+  .catnav{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:16px; padding:0 20px; max-width:900px; margin-left:auto; margin-right:auto; }
+  .catnav a{ font-size:10.5px; padding:5px 10px; border-radius:999px; background:#fff; color:#8a6a3c; text-decoration:none; border:1px solid #e6dcc6; }
+  .cat-title{ max-width:960px; margin:40px auto 4px; padding:0 20px; font-size:13px; letter-spacing:.15em; color:#a08a5c; font-weight:700; }
+  .cat-title span{ color:#bbb; font-weight:400; margin-left:8px; }
+  .grid{ max-width:960px; margin:0 auto; padding:12px 20px 20px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
+  .card{ background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 5px 16px rgba(0,0,0,.08); position:relative; }
+  .card.picked{ outline:2.5px solid #d8b978; }
+  .card-head{ padding:12px 16px 0; }
+  .card-head .no{ font-size:9px; letter-spacing:.15em; color:#b08a4e; font-weight:700; }
+  .card-head h2{ font-size:14.5px; margin:3px 0 2px; }
+  .card-head .desc{ font-size:11px; color:#888; line-height:1.55; margin-bottom:8px; }
+  .stage{ height:190px; position:relative; overflow:hidden; background:#1c1a17; display:flex; align-items:center; justify-content:center; }
+  .stage img.bg{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .stage .dim{ position:absolute; inset:0; background:rgba(15,13,10,.28); }
+  .actions{ display:flex; }
+  .replay{ flex:1; padding:8px; border:none; background:#faf8f4; color:#8a6a3c; font-size:10.5px; letter-spacing:.03em; cursor:pointer; border-top:1px solid #eee; }
+  .replay:hover{ background:#f2ead9; }
+  .pick{ flex:1; padding:8px; border:none; background:#faf8f4; color:#b8a888; font-size:10.5px; letter-spacing:.03em; cursor:pointer; border-top:1px solid #eee; border-left:1px solid #eee; font-weight:700; }
+  .pick.on{ background:#d8b978; color:#fff; }
+  .label{ position:relative; z-index:2; color:#fff; text-align:center; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+  .label .n{ font-size:17px; font-weight:700; }
+  .label .d{ font-size:10.5px; margin-top:4px; letter-spacing:.05em; color:#f0e6d0; }
+
+  /* ---- 기본 50종 프리미티브 (기존 /concept/ 과 동일) ---- */
+  .panelL,.panelR,.panelT,.panelB{ position:absolute; background:#221f1a; z-index:3; }
+  .panelL{ left:0; top:0; bottom:0; width:50%; }
+  .panelR{ right:0; top:0; bottom:0; width:50%; }
+  .panelT{ top:0; left:0; right:0; height:50%; }
+  .panelB{ bottom:0; left:0; right:0; height:50%; }
+  .play .panelL.wipe{ animation: outL 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  .play .panelR.wipe{ animation: outR 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  .play .panelT.wipe{ animation: outT 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  .play .panelB.wipe{ animation: outB 1.3s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  @keyframes outL{ to{ transform:translateX(-100%);} }
+  @keyframes outR{ to{ transform:translateX(100%);} }
+  @keyframes outT{ to{ transform:translateY(-100%);} }
+  @keyframes outB{ to{ transform:translateY(100%);} }
+
+  .diag{ position:absolute; inset:-20% -20%; background:#221f1a; z-index:3; transform:skewX(-15deg) translateX(0); }
+  .play .diag.wipe{ animation: diagout 1.4s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  @keyframes diagout{ to{ transform:skewX(-15deg) translateX(140%); } }
+
+  .iris{ position:absolute; inset:0; background:#221f1a; z-index:3; clip-path:circle(0% at 50% 50%); }
+  .play .iris.wipe{ animation:irisout 1.4s ease forwards; animation-delay:.3s; }
+  @keyframes irisout{ to{ clip-path:circle(75% at 50% 50%); } }
+
+  .blinds{ position:absolute; inset:0; z-index:3; display:flex; }
+  .blinds .slat{ flex:1; background:#221f1a; transform:scaleY(1); transform-origin:top; }
+  .play .blinds .slat{ animation: slatout .8s ease forwards; }
+  @keyframes slatout{ to{ transform:scaleY(0); } }
+
+  .tilegrid{ position:absolute; inset:0; z-index:3; display:grid; grid-template-columns:repeat(6,1fr); grid-template-rows:repeat(4,1fr); }
+  .tilegrid .tile{ background:#221f1a; opacity:1; }
+  .play .tilegrid .tile{ animation: tilefade .5s ease forwards; }
+  @keyframes tilefade{ to{ opacity:0; } }
+
+  .zoomrevealimg{ transform:scale(1.4); opacity:.4; }
+  .play .zoomrevealimg{ animation: zoomrev 1.4s ease forwards; }
+  @keyframes zoomrev{ to{ transform:scale(1); opacity:1; } }
+
+  .blurimg{ filter:blur(12px); opacity:.5; }
+  .play .blurimg{ animation: unblur 1.3s ease forwards; }
+  @keyframes unblur{ to{ filter:blur(0); opacity:1; } }
+
+  .flash{ position:absolute; inset:0; background:#fff; z-index:3; opacity:1; }
+  .play .flash{ animation: flashout .9s ease forwards; animation-delay:.2s; }
+  @keyframes flashout{ to{ opacity:0; } }
+
+  .typing{ display:inline-block; overflow:hidden; white-space:nowrap; width:0; border-right:2px solid #fff; }
+  .play .typing{ animation: typeit 2s steps(9) forwards, caretblink .8s step-end infinite; }
+  @keyframes typeit{ to{ width:9ch; } }
+  @keyframes caretblink{ 50%{ border-color:transparent; } }
+
+  .lines .ln{ opacity:0; transform:translateY(14px); }
+  .play .lines .ln:nth-child(1){ animation:lnup .6s ease forwards; animation-delay:.2s; }
+  .play .lines .ln:nth-child(2){ animation:lnup .6s ease forwards; animation-delay:.5s; }
+  .play .lines .ln:nth-child(3){ animation:lnup .6s ease forwards; animation-delay:.8s; }
+  @keyframes lnup{ to{ opacity:1; transform:translateY(0); } }
+
+  .charstag span{ opacity:0; display:inline-block; transform:translateY(8px); }
+  .play .charstag span{ animation:charup .4s ease forwards; }
+  @keyframes charup{ to{ opacity:1; transform:translateY(0); } }
+
+  .tracking{ letter-spacing:.6em; opacity:0; }
+  .play .tracking{ animation: trackin 1.4s ease forwards; }
+  @keyframes trackin{ to{ letter-spacing:.05em; opacity:1; } }
+
+  .underline{ position:relative; display:inline-block; }
+  .underline::after{ content:''; position:absolute; left:0; bottom:-4px; height:2px; width:0; background:#d8b978; }
+  .play .underline::after{ animation: udraw 1s ease forwards; animation-delay:.6s; }
+  @keyframes udraw{ to{ width:100%; } }
+
+  .shimmertext{ background:linear-gradient(90deg,#8a6a3c 0%, #f0d9a0 45%, #8a6a3c 90%); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .play .shimmertext{ animation: shim 2.2s linear infinite; }
+  @keyframes shim{ to{ background-position:-200% center; } }
+
+  .blurtext{ filter:blur(6px); opacity:0; }
+  .play .blurtext{ animation: btxt 1.2s ease forwards; animation-delay:.2s; }
+  @keyframes btxt{ to{ filter:blur(0); opacity:1; } }
+
+  .slidein{ transform:translateX(-40px); opacity:0; }
+  .play .slidein{ animation: sldin .8s ease forwards; animation-delay:.2s; }
+  @keyframes sldin{ to{ transform:translateX(0); opacity:1; } }
+
+  .maskreveal{ clip-path: inset(0 100% 0 0); }
+  .play .maskreveal{ animation: maskrev 1.4s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.2s; }
+  @keyframes maskrev{ to{ clip-path: inset(0 0 0 0); } }
+
+  .bouncein{ transform:scale(.3); opacity:0; }
+  .play .bouncein{ animation: bnc .7s cubic-bezier(.34,1.56,.64,1) forwards; animation-delay:.2s; }
+  @keyframes bnc{ to{ transform:scale(1); opacity:1; } }
+
+  .xfade img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; }
+  .play .xfade img:nth-child(1){ animation: xf 4.5s ease infinite; }
+  .play .xfade img:nth-child(2){ animation: xf 4.5s ease infinite; animation-delay:1.5s; }
+  .play .xfade img:nth-child(3){ animation: xf 4.5s ease infinite; animation-delay:3s; }
+  @keyframes xf{ 0%{opacity:0;} 8%{opacity:1;} 30%{opacity:1;} 38%{opacity:0;} 100%{opacity:0;} }
+
+  .carousel{ display:flex; }
+  .carousel img{ width:100%; height:190px; object-fit:cover; flex-shrink:0; }
+  .play .carousel{ animation: carmove 4.5s ease infinite; }
+  @keyframes carmove{ 0%,20%{transform:translateX(0);} 45%,65%{transform:translateX(-100%);} 90%,100%{transform:translateX(-200%);} }
+
+  .cardstack img{ position:absolute; width:70%; height:80%; top:10%; left:15%; object-fit:cover; border-radius:8px; box-shadow:0 8px 20px rgba(0,0,0,.3); }
+  .play .cardstack img:nth-child(1){ animation: stackmv 4.5s ease infinite; z-index:3; }
+  .play .cardstack img:nth-child(2){ animation: stackmv 4.5s ease infinite; animation-delay:1.5s; z-index:2; }
+  .play .cardstack img:nth-child(3){ animation: stackmv 4.5s ease infinite; animation-delay:3s; z-index:1; }
+  @keyframes stackmv{ 0%,25%{ transform:translateX(0) rotate(0); opacity:1;} 40%{ transform:translateX(-120%) rotate(-12deg); opacity:0;} 41%{ transform:translateX(120%) rotate(12deg); opacity:0;} 100%{ transform:translateX(0) rotate(0); opacity:1;} }
+
+  .kenburns img{ width:100%; height:100%; object-fit:cover; transform:scale(1); }
+  .play .kenburns img{ animation: kb 6s ease-in-out infinite alternate; }
+  @keyframes kb{ to{ transform:scale(1.25) translate(-3%,-3%); } }
+
+  .polaroid{ position:relative; width:100%; height:100%; }
+  .polaroid .pf{ position:absolute; width:90px; background:#fff; padding:6px 6px 20px; box-shadow:0 8px 18px rgba(0,0,0,.25); opacity:0; }
+  .polaroid .pf img{ width:100%; height:70px; object-fit:cover; display:block; }
+  .polaroid .pf:nth-child(1){ top:14%; left:8%; --r:-10deg; }
+  .polaroid .pf:nth-child(2){ top:30%; left:38%; --r:4deg; }
+  .polaroid .pf:nth-child(3){ top:10%; right:6%; --r:9deg; }
+  .polaroid .pf{ transform:rotate(var(--r,0)) translateY(-40px); }
+  .play .polaroid .pf{ animation: pdrop .7s cubic-bezier(.34,1.4,.64,1) forwards; }
+  .play .polaroid .pf:nth-child(1){ animation-delay:.2s; }
+  .play .polaroid .pf:nth-child(2){ animation-delay:.5s; }
+  .play .polaroid .pf:nth-child(3){ animation-delay:.8s; }
+  @keyframes pdrop{ to{ opacity:1; transform:rotate(var(--r,0)) translateY(0); } }
+
+  .tilesgrid{ display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,1fr); gap:2px; width:100%; height:100%; }
+  .tilesgrid img{ width:100%; height:100%; object-fit:cover; opacity:0; transform:scale(.8); }
+  .play .tilesgrid img{ animation: tilein .5s ease forwards; }
+  @keyframes tilein{ to{ opacity:1; transform:scale(1); } }
+
+  .rotalign img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform:rotate(-14deg) scale(.85); opacity:.5; }
+  .play .rotalign img{ animation: rota 1.2s ease forwards; }
+  @keyframes rota{ to{ transform:rotate(0) scale(1); opacity:1; } }
+
+  .maskwipe .next{ position:absolute; inset:0; clip-path:inset(0 100% 0 0); }
+  .play .maskwipe .next{ animation: mwin 1.4s cubic-bezier(.7,0,.3,1) forwards; animation-delay:.3s; }
+  @keyframes mwin{ to{ clip-path:inset(0 0 0 0); } }
+
+  .bwcolor img{ filter:grayscale(1); }
+  .play .bwcolor img{ animation: bw2c 1.6s ease forwards; }
+  @keyframes bw2c{ to{ filter:grayscale(0); } }
+
+  .shutter{ display:flex; position:absolute; inset:0; z-index:3; }
+  .shutter .sl{ flex:1; background:#141110; }
+  .play .shutter .sl{ animation: shut .8s ease forwards; animation-delay:.2s; }
+  @keyframes shut{ to{ transform:scaleX(0); } }
+
+  .petal{ position:absolute; top:-20px; width:10px; height:10px; border-radius:50% 0; background:#f3c5c5; opacity:.9; }
+  .play .petal{ animation: fall linear infinite; }
+  @keyframes fall{ to{ transform:translateY(220px) rotate(360deg); opacity:0; } }
+
+  .snow{ position:absolute; top:-10px; width:6px; height:6px; border-radius:50%; background:#fff; opacity:.85; }
+  .play .snow{ animation: snowfall linear infinite; }
+  @keyframes snowfall{ to{ transform:translateY(200px) translateX(10px); opacity:0; } }
+
+  .spark{ position:absolute; width:3px; height:3px; border-radius:50%; background:#f0d9a0; opacity:0; }
+  .play .spark{ animation: sparkle 1.8s ease-in-out infinite; }
+  @keyframes sparkle{ 0%,100%{opacity:0; transform:scale(0);} 50%{opacity:1; transform:scale(2);} }
+
+  .grain{ position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.15) 1px, transparent 1px); background-size:3px 3px; opacity:0; }
+  .play .grain{ animation: grainshow 1s steps(2) forwards, grainmove .2s steps(2) infinite; }
+  @keyframes grainshow{ to{ opacity:.4; } }
+  @keyframes grainmove{ to{ background-position:3px 3px; } }
+
+  .aurora{ position:absolute; inset:-30%; background:conic-gradient(from 0deg,#c9a45c,#8a9a7c,#c96b5c,#c9a45c); opacity:.35; filter:blur(30px); }
+  .play .aurora{ animation: auroraspin 4s linear infinite; }
+  @keyframes auroraspin{ to{ transform:rotate(360deg); } }
+
+  .goldline{ stroke-dasharray:300; stroke-dashoffset:300; }
+  .play .goldline{ animation: linedraw 1.8s ease forwards; }
+  @keyframes linedraw{ to{ stroke-dashoffset:0; } }
+
+  .ribbon{ position:absolute; width:120px; height:24px; background:#c96b5c; top:40%; left:-140px; }
+  .play .ribbon{ animation: ribbonmove 2.4s ease-in-out infinite; }
+  @keyframes ribbonmove{ 0%{ left:-140px; transform:rotate(0);} 50%{ left:50%; transform:translateX(-50%) rotate(-6deg);} 100%{ left:calc(100% + 20px); transform:rotate(0);} }
+
+  .confetti{ position:absolute; top:100%; width:6px; height:12px; opacity:.9; }
+  .play .confetti{ animation: rise linear infinite; }
+  @keyframes rise{ to{ transform:translateY(-220px) rotate(360deg); opacity:0; } }
+
+  .ripple{ position:absolute; border:2px solid rgba(255,255,255,.6); border-radius:50%; width:10px; height:10px; opacity:1; }
+  .play .ripple{ animation: rippleout 2s ease-out infinite; }
+  @keyframes rippleout{ to{ width:200px; height:200px; margin:-100px; opacity:0; } }
+
+  .butterfly{ position:absolute; font-size:18px; top:60%; left:-10%; }
+  .play .butterfly{ animation: flutter 4s ease-in-out infinite; }
+  @keyframes flutter{ 0%{ left:-10%; top:60%;} 25%{ left:30%; top:20%;} 50%{ left:60%; top:55%;} 75%{ left:85%; top:15%;} 100%{ left:110%; top:40%;} }
+
+  .parabg{ position:absolute; inset:-20px; background:repeating-linear-gradient(115deg,#5c7a52 0 40px, #4a6842 40px 80px); opacity:.5; }
+  .play .parabg{ animation: parallax 3s linear infinite; }
+  @keyframes parallax{ from{ transform:translateY(0);} to{ transform:translateY(-80px);} }
+
+  .dotsnav .dot{ width:6px; height:6px; border-radius:50%; background:#ddd; display:inline-block; margin:0 3px; }
+  .play .dotsnav .dot:nth-child(1){ animation: dotlit 3s ease-in-out infinite; }
+  .play .dotsnav .dot:nth-child(2){ animation: dotlit 3s ease-in-out infinite; animation-delay:1s; }
+  .play .dotsnav .dot:nth-child(3){ animation: dotlit 3s ease-in-out infinite; animation-delay:2s; }
+  @keyframes dotlit{ 0%,15%,100%{ background:#ddd;} 20%,45%{ background:#b08a4e;} }
+
+  .progressbar{ position:absolute; top:0; left:0; height:3px; background:#d8b978; width:0%; }
+  .play .progressbar{ animation: pbar 3s linear infinite; }
+  @keyframes pbar{ to{ width:100%; } }
+
+  .snapscroll .snapinner{ display:flex; flex-direction:column; }
+  .play .snapscroll .snapinner{ animation: snapmv 4.5s steps(3) infinite; }
+  @keyframes snapmv{ 0%{transform:translateY(0);} 100%{transform:translateY(-380px);} }
+
+  .stickyhead{ position:absolute; top:0; left:0; right:0; height:60px; background:rgba(20,17,14,.85); display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; }
+  .play .stickyhead{ animation: shrink 2s ease forwards; animation-delay:.5s; }
+  @keyframes shrink{ to{ height:30px; font-size:10px; } }
+
+  .pulsebtn{ width:56px; height:56px; border-radius:50%; background:#c9a45c; display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px; }
+  .play .pulsebtn{ animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse{ 50%{ transform:scale(1.15); box-shadow:0 0 0 12px rgba(201,164,92,0); } }
+
+  .heartbtn{ font-size:28px; color:#c96b5c; }
+  .play .heartbtn{ animation: heartbeat 1s ease-in-out infinite; }
+  @keyframes heartbeat{ 0%,100%{transform:scale(1);} 25%{transform:scale(1.3);} 40%{transform:scale(1);} 60%{transform:scale(1.2);} }
+
+  .ddaybox{ display:flex; gap:10px; }
+  .ddaybox .unit{ text-align:center; }
+  .ddaybox .num{ font-size:22px; font-weight:800; color:#fff; display:inline-block; }
+  .ddaybox .lbl{ font-size:8px; color:#ccc; letter-spacing:.1em; display:block; margin-top:2px; }
+  .play .ddaybox .num{ animation: tick .5s ease; }
+  @keyframes tick{ 0%{ transform:translateY(-8px); opacity:0;} 100%{ transform:translateY(0); opacity:1;} }
+
+  .kakaobtn{ background:#fee500; color:#3c1e1e; padding:8px 18px; border-radius:999px; font-size:12px; font-weight:700; }
+  .play .kakaobtn{ animation: kbounce 1s ease infinite; }
+  @keyframes kbounce{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+
+  .toggle{ width:44px; height:24px; border-radius:999px; background:#ddd; position:relative; }
+  .toggle .knob{ width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:2px; left:2px; box-shadow:0 1px 3px rgba(0,0,0,.3); }
+  .play .toggle{ animation: togglebg 1.6s ease infinite; }
+  .play .toggle .knob{ animation: toggleknob 1.6s ease infinite; }
+  @keyframes togglebg{ 0%,40%{ background:#ddd;} 50%,90%{ background:#c9a45c;} }
+  @keyframes toggleknob{ 0%,40%{ left:2px;} 50%,90%{ left:22px;} }
+
+  /* ---- 신규 150종 프리미티브 (G~U) ---- */
+  .env{ position:relative; width:130px; height:90px; }
+  .env .body{ position:absolute; inset:0; background:#efe5d0; border-radius:4px; box-shadow:0 6px 16px rgba(0,0,0,.25); }
+  .env .flap{ position:absolute; top:0; left:0; right:0; height:50%; background:#e0d2b0; transform-origin:top; clip-path:polygon(0 0,100% 0,50% 100%); }
+  .play .env .flap{ animation: flapopen 1.2s ease forwards; animation-delay:.2s; }
+  @keyframes flapopen{ to{ transform:rotateX(180deg); } }
+  .env .letter{ position:absolute; left:15%; right:15%; top:40%; height:50%; background:#fff; box-shadow:0 4px 10px rgba(0,0,0,.2); transform:translateY(0); }
+  .play .env .letter{ animation: letterup 1s ease forwards; animation-delay:.9s; }
+  @keyframes letterup{ to{ transform:translateY(-60%); } }
+
+  .seal{ width:60px; height:60px; border-radius:50%; background:radial-gradient(circle at 35% 30%, #d98a6b, #9c3f2a); display:flex; align-items:center; justify-content:center; color:#f0d9a0; font-size:11px; transform:scale(0); }
+  .play .seal{ animation: sealin .6s cubic-bezier(.34,1.6,.64,1) forwards; animation-delay:.3s; }
+  @keyframes sealin{ to{ transform:scale(1); } }
+
+  .foldpaper{ position:relative; width:120px; height:80px; perspective:400px; }
+  .foldpaper .p1,.foldpaper .p2{ position:absolute; inset:0; background:#fff; box-shadow:0 4px 10px rgba(0,0,0,.15); }
+  .foldpaper .p2{ transform-origin:top; transform:rotateX(-160deg); }
+  .play .foldpaper .p2{ animation: unfold 1.2s ease forwards; animation-delay:.3s; }
+  @keyframes unfold{ to{ transform:rotateX(0deg); } }
+
+  .stamp{ width:50px; height:50px; border:2px dashed #b08a4e; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#b08a4e; font-size:9px; transform:scale(2) rotate(-30deg); opacity:0; }
+  .play .stamp{ animation: stampdown .4s ease forwards; animation-delay:.3s; }
+  @keyframes stampdown{ to{ transform:scale(1) rotate(-12deg); opacity:1; } }
+
+  .flip3d{ width:100px; height:70px; position:relative; transform-style:preserve-3d; }
+  .flip3d .face{ position:absolute; inset:0; backface-visibility:hidden; display:flex; align-items:center; justify-content:center; border-radius:8px; font-size:12px; color:#fff; }
+  .flip3d .front{ background:#8a6a3c; }
+  .flip3d .back{ background:#c96b5c; transform:rotateY(180deg); }
+  .play .flip3d{ animation: flip3d 2.4s ease-in-out infinite; }
+  @keyframes flip3d{ 0%,40%{ transform:rotateY(0);} 60%,100%{ transform:rotateY(180deg);} }
+
+  .curl{ position:relative; width:110px; height:80px; background:#fff; box-shadow:0 4px 10px rgba(0,0,0,.15); }
+  .curl::after{ content:''; position:absolute; right:0; bottom:0; width:0; height:0; border-style:solid; border-width:0 0 26px 26px; border-color:transparent transparent #eadfc4 transparent; }
+  .play .curl::after{ animation: curlgrow 1.2s ease-in-out infinite; }
+  @keyframes curlgrow{ 0%,100%{ border-width:0 0 26px 26px;} 50%{ border-width:0 0 40px 40px;} }
+
+  .pin{ width:22px; height:22px; border-radius:50% 50% 50% 0; background:#c96b5c; transform:rotate(-45deg) translateY(-40px); opacity:0; }
+  .play .pin{ animation: pindrop .6s cubic-bezier(.5,-0.3,.5,1.4) forwards; animation-delay:.2s; }
+  @keyframes pindrop{ to{ transform:rotate(-45deg) translateY(0); opacity:1; } }
+
+  .radar{ position:absolute; width:16px; height:16px; border-radius:50%; background:#c96b5c; }
+  .radar::after{ content:''; position:absolute; inset:-6px; border-radius:50%; border:2px solid #c96b5c; opacity:0; }
+  .play .radar::after{ animation: radarping 1.6s ease-out infinite; }
+  @keyframes radarping{ 0%{ opacity:.8; transform:scale(.5);} 100%{ opacity:0; transform:scale(3);} }
+
+  .routepath{ stroke-dasharray:200; stroke-dashoffset:200; }
+  .play .routepath{ animation: routedraw 1.8s ease forwards; }
+  @keyframes routedraw{ to{ stroke-dashoffset:0; } }
+
+  .transicon{ position:absolute; top:50%; left:0; transform:translateY(-50%); font-size:16px; }
+  .play .transicon{ animation: transmove 2.4s linear infinite; }
+  @keyframes transmove{ to{ left:90%; } }
+
+  .mapzoom{ transform:scale(1); }
+  .play .mapzoom{ animation: mapz 1.8s ease forwards; }
+  @keyframes mapz{ to{ transform:scale(1.4); } }
+
+  .popcard{ position:absolute; bottom:10%; left:50%; transform:translate(-50%,20px); opacity:0; background:#fff; color:#333; font-size:10px; padding:6px 10px; border-radius:6px; box-shadow:0 4px 10px rgba(0,0,0,.2); }
+  .play .popcard{ animation: popup .5s ease forwards; animation-delay:.4s; }
+  @keyframes popup{ to{ transform:translate(-50%,0); opacity:1; } }
+
+  .gpsdot{ width:14px; height:14px; border-radius:50%; background:#4a90d9; box-shadow:0 0 0 6px rgba(74,144,217,.3); }
+  .play .gpsdot{ animation: gpspulse 1.4s ease-in-out infinite; }
+  @keyframes gpspulse{ 50%{ box-shadow:0 0 0 12px rgba(74,144,217,0); } }
+
+  .floorslide{ transform:translateX(60px); opacity:0; }
+  .play .floorslide{ animation: floorin .6s ease forwards; animation-delay:.3s; }
+  @keyframes floorin{ to{ transform:translateX(0); opacity:1; } }
+
+  .panorama{ display:flex; width:300%; }
+  .panorama div{ flex:1; height:190px; }
+  .play .panorama{ animation: panmove 5s linear infinite alternate; }
+  @keyframes panmove{ to{ transform:translateX(-66%); } }
+
+  .calpage{ position:relative; width:100px; height:100px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+  .calpage .top{ position:absolute; inset:0 0 50% 0; background:#c96b5c; transform-origin:bottom; }
+  .play .calpage .top{ animation: calflip 1s ease forwards; animation-delay:.3s; }
+  @keyframes calflip{ to{ transform:rotateX(-180deg); } }
+
+  .ring{ transform:rotate(-90deg); }
+  .ring circle.bg{ stroke:#443c30; }
+  .ring circle.fg{ stroke:#d8b978; stroke-dasharray:220; stroke-dashoffset:220; }
+  .play .ring circle.fg{ animation: ringfill 2s ease forwards; }
+  @keyframes ringfill{ to{ stroke-dashoffset:40; } }
+
+  .roll{ overflow:hidden; height:1.2em; }
+  .roll .digits{ display:flex; flex-direction:column; }
+  .play .roll .digits{ animation: rollup 1.6s steps(9) forwards; }
+  @keyframes rollup{ to{ transform:translateY(-90%); } }
+
+  .circledate{ stroke-dasharray:120; stroke-dashoffset:120; }
+  .play .circledate{ animation: cdraw 1.2s ease forwards; animation-delay:.3s; }
+  @keyframes cdraw{ to{ stroke-dashoffset:0; } }
+
+  .clockhand{ transform-origin:bottom center; }
+  .play .clockhand.h{ animation: handspin1 3s linear infinite; }
+  .play .clockhand.m{ animation: handspin2 1.5s linear infinite; }
+  @keyframes handspin1{ to{ transform:rotate(360deg); } }
+  @keyframes handspin2{ to{ transform:rotate(360deg); } }
+
+  .sand{ position:absolute; bottom:0; left:20%; right:20%; height:0; background:#d8b978; }
+  .play .sand{ animation: sandfill 2.4s linear infinite; }
+  @keyframes sandfill{ from{ height:0;} to{ height:70%; } }
+
+  .stickerpop{ transform:scale(0) rotate(-20deg); opacity:0; }
+  .play .stickerpop{ animation: stickin .5s cubic-bezier(.34,1.6,.64,1) forwards; animation-delay:.3s; }
+  @keyframes stickin{ to{ transform:scale(1) rotate(-8deg); opacity:1; } }
+
+  .flipclock .digit{ display:inline-block; background:#221f1a; color:#fff; font-size:20px; padding:6px 8px; border-radius:4px; margin:0 2px; }
+  .play .flipclock .digit{ animation: digitflip .5s ease infinite; }
+  @keyframes digitflip{ 0%{ transform:rotateX(0);} 50%{ transform:rotateX(90deg);} 100%{ transform:rotateX(0);} }
+
+  .seasonicon{ font-size:32px; opacity:0; }
+  .play .seasonicon:nth-child(1){ animation: seasonswap 4s ease infinite; }
+  .play .seasonicon:nth-child(2){ animation: seasonswap 4s ease infinite; animation-delay:2s; }
+  @keyframes seasonswap{ 0%,45%{ opacity:1;} 50%,95%{ opacity:0;} 100%{ opacity:1;} }
+
+  .checkdraw{ stroke-dasharray:40; stroke-dashoffset:40; }
+  .play .checkdraw{ animation: checkin .5s ease forwards; animation-delay:.3s; }
+  @keyframes checkin{ to{ stroke-dashoffset:0; } }
+
+  .stepper{ display:flex; align-items:center; gap:10px; color:#fff; font-size:16px; }
+  .stepper .btn{ width:26px; height:26px; border-radius:50%; background:#443c30; display:flex; align-items:center; justify-content:center; }
+  .play .stepper .btn.plus{ animation: stepbtn .6s ease infinite; }
+  @keyframes stepbtn{ 50%{ transform:scale(1.25); background:#d8b978; } }
+
+  .segtoggle{ width:120px; height:32px; border-radius:999px; background:#443c30; position:relative; display:flex; align-items:center; }
+  .segtoggle .knob{ position:absolute; width:56px; height:26px; border-radius:999px; background:#d8b978; left:3px; }
+  .play .segtoggle .knob{ animation: segmove 2s ease infinite; }
+  @keyframes segmove{ 0%,40%{ left:3px;} 50%,90%{ left:61px;} }
+
+  .successripple{ position:relative; width:44px; height:44px; border-radius:50%; background:#5c9a6a; display:flex; align-items:center; justify-content:center; color:#fff; }
+  .play .successripple::after{ content:''; position:absolute; inset:0; border-radius:50%; border:2px solid #5c9a6a; animation: sripple 1.2s ease-out infinite; }
+  @keyframes sripple{ to{ transform:scale(2.2); opacity:0; } }
+
+  .inputline{ width:140px; border-bottom:1px solid #776b55; padding-bottom:6px; position:relative; color:#eee; font-size:11px; }
+  .inputline::after{ content:''; position:absolute; left:50%; bottom:-1px; height:2px; width:0; background:#d8b978; }
+  .play .inputline::after{ animation: inputgrow 1s ease forwards; animation-delay:.3s; }
+  @keyframes inputgrow{ to{ left:0; width:100%; } }
+
+  .rsvpflip{ width:100px; height:64px; position:relative; transform-style:preserve-3d; }
+  .rsvpflip .f1,.rsvpflip .f2{ position:absolute; inset:0; backface-visibility:hidden; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#fff; }
+  .rsvpflip .f1{ background:#8a6a3c; }
+  .rsvpflip .f2{ background:#5c9a6a; transform:rotateY(180deg); }
+  .play .rsvpflip{ animation: rsvpspin 2.4s ease-in-out infinite; }
+  @keyframes rsvpspin{ 0%,40%{ transform:rotateY(0);} 60%,100%{ transform:rotateY(180deg);} }
+
+  .avatarstack{ display:flex; }
+  .avatarstack .av{ width:30px; height:30px; border-radius:50%; background:#c9a45c; border:2px solid #1c1a17; margin-left:-10px; opacity:0; transform:scale(.5); }
+  .play .avatarstack .av{ animation: avpop .4s ease forwards; }
+  .play .avatarstack .av:nth-child(1){ animation-delay:.1s; }
+  .play .avatarstack .av:nth-child(2){ animation-delay:.3s; }
+  .play .avatarstack .av:nth-child(3){ animation-delay:.5s; }
+  .play .avatarstack .av:nth-child(4){ animation-delay:.7s; }
+  @keyframes avpop{ to{ opacity:1; transform:scale(1); } }
+
+  .loadbtn{ width:120px; height:36px; border-radius:999px; background:#d8b978; display:flex; align-items:center; justify-content:center; color:#3c2f1a; font-size:11px; font-weight:700; }
+  .play .loadbtn{ animation: btnmorph 2.4s ease infinite; }
+  @keyframes btnmorph{ 0%,30%{ border-radius:999px; width:120px;} 45%,70%{ border-radius:50%; width:36px;} 85%,100%{ border-radius:999px; width:120px;} }
+
+  .mealopt{ padding:6px 14px; border-radius:8px; border:1px solid #776b55; color:#eee; font-size:11px; }
+  .play .mealopt{ animation: mealglow 1.6s ease infinite; }
+  @keyframes mealglow{ 50%{ border-color:#d8b978; box-shadow:0 0 10px rgba(216,185,120,.6); } }
+
+  .urgentbadge{ background:#c96b5c; color:#fff; font-size:10px; padding:4px 10px; border-radius:999px; }
+  .play .urgentbadge{ animation: shake 1.5s ease infinite; }
+  @keyframes shake{ 0%,100%{ transform:translateX(0);} 10%,30%{ transform:translateX(-3px);} 20%,40%{ transform:translateX(3px);} 50%{ transform:translateX(0);} }
+
+  .acctcard{ width:160px; height:90px; border-radius:10px; background:linear-gradient(135deg,#443c30,#221f1a); position:relative; transform-style:preserve-3d; }
+  .acctcard .side{ position:absolute; inset:0; backface-visibility:hidden; display:flex; align-items:center; justify-content:center; color:#f0e6d0; font-size:10px; border-radius:10px; }
+  .acctcard .back{ transform:rotateY(180deg); background:linear-gradient(135deg,#5c4a2e,#3c2f1a); }
+  .play .acctcard{ animation: acctflip 2.4s ease-in-out infinite; }
+  @keyframes acctflip{ 0%,40%{ transform:rotateY(0);} 60%,100%{ transform:rotateY(180deg);} }
+
+  .toast{ position:absolute; bottom:16%; left:50%; transform:translate(-50%,10px); background:#221f1a; color:#fff; font-size:10px; padding:6px 12px; border-radius:6px; opacity:0; }
+  .play .toast{ animation: toastup .4s ease forwards; animation-delay:.4s; }
+  @keyframes toastup{ to{ transform:translate(-50%,0); opacity:1; } }
+
+  .giftenv{ font-size:34px; }
+  .play .giftenv{ animation: giftopen 1.4s ease infinite; }
+  @keyframes giftopen{ 0%,100%{ transform:scale(1) rotate(0);} 50%{ transform:scale(1.15) rotate(-4deg);} }
+
+  .qrscan{ position:relative; width:70px; height:70px; background:#fff; }
+  .qrscan::before{ content:''; position:absolute; left:0; right:0; top:0; height:2px; background:#5c9a6a; box-shadow:0 0 8px #5c9a6a; }
+  .play .qrscan::before{ animation: qrline 1.6s linear infinite; }
+  @keyframes qrline{ 0%{ top:0;} 100%{ top:100%; } }
+
+  .glosscard{ position:relative; width:150px; height:80px; border-radius:10px; background:#443c30; overflow:hidden; }
+  .glosscard::after{ content:''; position:absolute; top:0; bottom:0; width:40px; background:rgba(255,255,255,.35); transform:skewX(-20deg); left:-60px; }
+  .play .glosscard::after{ animation: gloss 1.8s ease infinite; }
+  @keyframes gloss{ to{ left:160px; } }
+
+  .heartpop{ font-size:24px; color:#c96b5c; transform:scale(0); opacity:0; }
+  .play .heartpop{ animation: hpop .5s cubic-bezier(.34,1.6,.64,1) forwards; animation-delay:.3s; }
+  @keyframes hpop{ to{ transform:scale(1); opacity:1; } }
+
+  .accordion{ width:160px; }
+  .accordion .item{ background:#443c30; color:#eee; font-size:10px; padding:6px 10px; border-radius:6px; margin-bottom:4px; max-height:16px; overflow:hidden; }
+  .play .accordion .item{ animation: accopen 2.4s ease infinite; }
+  @keyframes accopen{ 0%,20%{ max-height:16px;} 40%,80%{ max-height:44px;} 100%{ max-height:16px; } }
+
+  .clipcheck{ font-size:22px; color:#5c9a6a; transform:scale(.5); opacity:0; }
+  .play .clipcheck{ animation: clipin .4s ease forwards; animation-delay:.3s; }
+  @keyframes clipin{ to{ transform:scale(1); opacity:1; } }
+
+  .floatcard{ width:130px; height:70px; border-radius:10px; background:#443c30; box-shadow:0 10px 20px rgba(0,0,0,.3); }
+  .play .floatcard{ animation: floaty 2.4s ease-in-out infinite; }
+  @keyframes floaty{ 50%{ transform:translateY(-10px); box-shadow:0 20px 30px rgba(0,0,0,.4); } }
+
+  .signdraw{ stroke-dasharray:260; stroke-dashoffset:260; }
+  .play .signdraw{ animation: signit 2s ease forwards; }
+  @keyframes signit{ to{ stroke-dashoffset:0; } }
+
+  .msgstack .m{ background:#fff; color:#333; font-size:10px; padding:6px 10px; border-radius:8px; margin-bottom:5px; opacity:0; transform:translateY(10px); }
+  .play .msgstack .m{ animation: msgin .5s ease forwards; }
+  .play .msgstack .m:nth-child(1){ animation-delay:.1s; }
+  .play .msgstack .m:nth-child(2){ animation-delay:.5s; }
+  .play .msgstack .m:nth-child(3){ animation-delay:.9s; }
+  @keyframes msgin{ to{ opacity:1; transform:translateY(0); } }
+
+  .heartstamp{ width:40px; height:40px; border-radius:50%; border:2px solid #c96b5c; color:#c96b5c; display:flex; align-items:center; justify-content:center; font-size:18px; transform:scale(2.5) rotate(20deg); opacity:0; }
+  .play .heartstamp{ animation: hstamp .35s ease forwards; animation-delay:.3s; }
+  @keyframes hstamp{ to{ transform:scale(1) rotate(0); opacity:1; } }
+
+  .bubble{ background:#fff; color:#333; font-size:11px; padding:8px 14px; border-radius:14px; transform:scale(0); opacity:0; }
+  .play .bubble{ animation: bubblein .4s cubic-bezier(.34,1.6,.64,1) forwards; animation-delay:.3s; }
+  @keyframes bubblein{ to{ transform:scale(1); opacity:1; } }
+
+  .fadelist .row{ opacity:0; font-size:10px; color:#eee; }
+  .play .fadelist .row{ animation: rowin .5s ease forwards; }
+  .play .fadelist .row:nth-child(1){ animation-delay:.1s; }
+  .play .fadelist .row:nth-child(2){ animation-delay:.4s; }
+  .play .fadelist .row:nth-child(3){ animation-delay:.7s; }
+  @keyframes rowin{ to{ opacity:1; } }
+
+  .nametag{ padding:5px 12px; border-radius:999px; color:#fff; font-size:11px; }
+  .play .nametag{ animation: tagcolor 3s linear infinite; }
+  @keyframes tagcolor{ 0%{ background:#c96b5c;} 33%{ background:#8a9a7c;} 66%{ background:#c9a45c;} 100%{ background:#c96b5c;} }
+
+  .likeburst{ position:relative; font-size:22px; color:#c96b5c; }
+  .likeburst .b{ position:absolute; font-size:10px; opacity:0; }
+  .play .likeburst .b{ animation: burst .8s ease forwards; }
+  @keyframes burst{ to{ opacity:0; transform:translate(var(--tx),var(--ty)) scale(1.4); } }
+
+  .newbadge{ width:20px; height:20px; border-radius:50%; background:#c96b5c; color:#fff; font-size:10px; display:flex; align-items:center; justify-content:center; transform:scale(0); }
+  .play .newbadge{ animation: nbpop .5s ease infinite; }
+  @keyframes nbpop{ 0%,80%{ transform:scale(0);} 90%{ transform:scale(1.3);} 100%{ transform:scale(1); } }
+
+  .swipedel{ position:relative; width:150px; height:34px; background:#443c30; border-radius:6px; overflow:hidden; }
+  .swipedel .front{ position:absolute; inset:0; background:#5c4a2e; display:flex; align-items:center; padding-left:10px; color:#eee; font-size:10px; }
+  .play .swipedel .front{ animation: swipeit 2.4s ease infinite; }
+  @keyframes swipeit{ 0%,30%{ transform:translateX(0);} 55%,80%{ transform:translateX(-60%);} 100%{ transform:translateX(0); } }
+
+  .paperplane{ position:absolute; font-size:20px; left:0; top:60%; opacity:1; }
+  .play .paperplane{ animation: planefly 1.6s ease-in forwards; }
+  @keyframes planefly{ to{ left:100%; top:0%; transform:rotate(35deg); opacity:0; } }
+
+  .eq{ display:flex; align-items:flex-end; gap:3px; height:40px; }
+  .eq div{ width:5px; background:#d8b978; height:10%; }
+  .play .eq div:nth-child(1){ animation: eqbar .6s ease-in-out infinite; }
+  .play .eq div:nth-child(2){ animation: eqbar .6s ease-in-out infinite .1s; }
+  .play .eq div:nth-child(3){ animation: eqbar .6s ease-in-out infinite .2s; }
+  .play .eq div:nth-child(4){ animation: eqbar .6s ease-in-out infinite .3s; }
+  .play .eq div:nth-child(5){ animation: eqbar .6s ease-in-out infinite .15s; }
+  @keyframes eqbar{ 50%{ height:90%; } }
+
+  .vinyl{ width:60px; height:60px; border-radius:50%; background:repeating-radial-gradient(circle,#221f1a 0 3px,#3c3830 3px 6px); position:relative; }
+  .vinyl::after{ content:''; position:absolute; inset:0; margin:auto; width:14px; height:14px; border-radius:50%; background:#d8b978; }
+  .play .vinyl{ animation: spin 3s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  .wavebar{ display:flex; align-items:center; gap:2px; height:24px; }
+  .wavebar div{ width:3px; background:#eee; height:20%; }
+  .play .wavebar div{ animation: wv 1s ease-in-out infinite; }
+  @keyframes wv{ 50%{ height:100%; } }
+
+  .playmorph{ width:0; height:0; border-style:solid; border-width:10px 0 10px 16px; border-color:transparent transparent transparent #fff; }
+  .play .playmorph{ animation: morphplay 2s ease infinite; }
+  @keyframes morphplay{ 0%,40%{ border-width:10px 0 10px 16px;} 50%,90%{ border-width:0 6px 0 6px; border-color:transparent #fff transparent #fff;} }
+
+  .notefloat{ position:absolute; font-size:16px; color:#f0d9a0; bottom:0; opacity:0; }
+  .play .notefloat{ animation: notefly 3s linear infinite; }
+  @keyframes notefly{ 0%{ opacity:0; transform:translateY(0) rotate(0);} 10%{ opacity:1;} 100%{ opacity:0; transform:translateY(-120px) rotate(30deg); } }
+
+  .muteicon{ font-size:24px; color:#eee; opacity:1; }
+  .play .muteicon{ animation: mutefade 2s ease infinite; }
+  @keyframes mutefade{ 50%{ opacity:.2; } }
+
+  .miniplayer{ position:absolute; left:0; right:0; bottom:-60px; height:50px; background:#221f1a; display:flex; align-items:center; padding:0 12px; color:#eee; font-size:10px; }
+  .play .miniplayer{ animation: miniup .6s ease forwards; animation-delay:.4s; }
+  @keyframes miniup{ to{ bottom:0; } }
+
+  .headphone{ font-size:26px; }
+  .play .headphone{ animation: hpbounce 1.4s ease-in-out infinite; }
+  @keyframes hpbounce{ 50%{ transform:translateY(-8px) rotate(-6deg); } }
+
+  .albumart{ width:70px; height:70px; border-radius:8px; background:linear-gradient(135deg,#8a6a3c,#c9a45c); transform:rotate(-30deg) scale(.6); opacity:0; }
+  .play .albumart{ animation: albumin .8s ease forwards; animation-delay:.2s; }
+  @keyframes albumin{ to{ transform:rotate(0) scale(1); opacity:1; } }
+
+  .logodraw{ stroke-dasharray:180; stroke-dashoffset:180; }
+  .play .logodraw{ animation: logoin 1.8s ease forwards; }
+  @keyframes logoin{ to{ stroke-dashoffset:0; } }
+
+  .heartspin{ font-size:28px; color:#c96b5c; }
+  .play .heartspin{ animation: hspin 1s linear infinite; }
+  @keyframes hspin{ to{ transform:rotate(360deg) scale(1.1); } }
+
+  .pctload{ font-size:26px; color:#fff; font-weight:800; }
+  .play .pctload::after{ content:'0%'; animation: pctcount 2s steps(100) forwards; }
+  @keyframes pctcount{ 0%{ content:'0%';} }
+  .skel{ width:140px; height:14px; border-radius:4px; background:linear-gradient(90deg,#443c30 25%,#5c4a2e 37%,#443c30 63%); background-size:400% 100%; margin-bottom:6px; }
+  .play .skel{ animation: skelshim 1.4s ease infinite; }
+  @keyframes skelshim{ to{ background-position:-400% 0; } }
+
+  .dotsload span{ width:8px; height:8px; border-radius:50%; background:#d8b978; display:inline-block; margin:0 3px; }
+  .play .dotsload span{ animation: dotb 1.2s ease-in-out infinite; }
+  .play .dotsload span:nth-child(2){ animation-delay:.2s; }
+  .play .dotsload span:nth-child(3){ animation-delay:.4s; }
+  @keyframes dotb{ 50%{ transform:translateY(-8px); } }
+
+  .splashlogo{ font-size:24px; color:#fff; transform:scale(1); }
+  .play .splashlogo{ animation: splashout 1.8s ease forwards; }
+  @keyframes splashout{ to{ transform:scale(1.6); opacity:0; } }
+
+  .ringload{ width:44px; height:44px; border:4px solid #443c30; border-top-color:#d8b978; border-radius:50%; }
+  .play .ringload{ animation: ringspin 1s linear infinite; }
+  @keyframes ringspin{ to{ transform:rotate(360deg); } }
+
+  .bloom{ font-size:30px; transform:scale(0); }
+  .play .bloom{ animation: bloomin 1.4s ease-in-out infinite; }
+  @keyframes bloomin{ 0%,100%{ transform:scale(0);} 50%{ transform:scale(1.2); } }
+
+  .curtainload{ position:absolute; inset:0; display:flex; z-index:3; }
+  .curtainload div{ flex:1; background:#141110; }
+  .play .curtainload div{ animation: ccl 2.4s ease infinite; }
+  @keyframes ccl{ 0%,20%{ transform:scaleX(1);} 45%,75%{ transform:scaleX(0);} 100%{ transform:scaleX(1); } }
+
+  .liquidbar{ position:relative; width:140px; height:14px; border-radius:8px; background:#443c30; overflow:hidden; }
+  .liquidbar::after{ content:''; position:absolute; inset:0; width:0; background:linear-gradient(90deg,#d8b978,#f0e0b0); border-radius:8px; }
+  .play .liquidbar::after{ animation: liqfill 2s ease-in-out infinite; }
+  @keyframes liqfill{ 0%,100%{ width:0;} 50%{ width:100%; } }
+
+  .cursorheart{ font-size:20px; color:#c96b5c; position:absolute; }
+  .play .cursorheart{ animation: cursormv 3s ease-in-out infinite; }
+  @keyframes cursormv{ 0%{ top:20%; left:15%;} 33%{ top:60%; left:70%;} 66%{ top:30%; left:50%;} 100%{ top:20%; left:15%; } }
+
+  .hoverripplebtn{ width:100px; height:36px; border-radius:999px; background:#443c30; color:#eee; font-size:11px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+  .play .hoverripplebtn::after{ content:''; position:absolute; width:10px; height:10px; border-radius:50%; background:rgba(216,185,120,.6); animation: hripple 1.4s ease-out infinite; }
+  @keyframes hripple{ to{ width:160px; height:160px; opacity:0; } }
+
+  .imghover{ width:100%; height:100%; object-fit:cover; transform:scale(1); }
+  .play .imghover{ animation: ihz 2.4s ease-in-out infinite; }
+  @keyframes ihz{ 50%{ transform:scale(1.15); } }
+
+  .sweeptext{ background:linear-gradient(90deg,#eee 0%, #d8b978 50%, #eee 100%); background-size:250% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .play .sweeptext{ animation: sweepmv 2s linear infinite; }
+  @keyframes sweepmv{ to{ background-position:-250% center; } }
+
+  .liftcard{ width:130px; height:70px; border-radius:10px; background:#443c30; }
+  .play .liftcard{ animation: liftmv 2s ease-in-out infinite; }
+  @keyframes liftmv{ 50%{ transform:translateY(-10px) scale(1.03); box-shadow:0 20px 28px rgba(0,0,0,.35); } }
+
+  .iconspin{ font-size:26px; display:inline-block; }
+  .play .iconspin{ animation: ispin 2s linear infinite; }
+  @keyframes ispin{ to{ transform:rotate(360deg); } }
+
+  .growunderline{ position:relative; display:inline-block; color:#eee; font-size:14px; }
+  .growunderline::after{ content:''; position:absolute; left:50%; bottom:-4px; height:2px; width:0; background:#d8b978; }
+  .play .growunderline::after{ animation: gu 1.4s ease infinite; }
+  @keyframes gu{ 0%,100%{ left:50%; width:0;} 50%{ left:0; width:100%; } }
+
+  .gradbtn{ padding:10px 20px; border-radius:999px; color:#fff; font-size:11px; background:linear-gradient(90deg,#c96b5c,#d8b978,#8a9a7c); background-size:300% auto; }
+  .play .gradbtn{ animation: gshift 2s linear infinite; }
+  @keyframes gshift{ to{ background-position:300% center; } }
+
+  .trailspark{ position:absolute; width:4px; height:4px; border-radius:50%; background:#f0d9a0; opacity:0; }
+  .play .trailspark{ animation: trail 1.6s ease-out infinite; }
+  @keyframes trail{ 0%{ opacity:1; transform:translate(0,0) scale(1);} 100%{ opacity:0; transform:translate(var(--tx),var(--ty)) scale(0); } }
+
+  .taphighlight{ width:60px; height:60px; border-radius:50%; background:rgba(216,185,120,.25); }
+  .play .taphighlight{ animation: taphl 1.4s ease-in-out infinite; }
+  @keyframes taphl{ 50%{ box-shadow:0 0 0 20px rgba(216,185,120,0); background:rgba(216,185,120,.5); } }
+
+  .tiltcard{ width:150px; height:90px; border-radius:12px; background:linear-gradient(135deg,#5c4a2e,#3c2f1a); }
+  .play .tiltcard{ animation: tiltmv 3s ease-in-out infinite; }
+  @keyframes tiltmv{ 0%,100%{ transform:rotateX(0) rotateY(0);} 25%{ transform:rotateX(8deg) rotateY(-10deg);} 75%{ transform:rotateX(-8deg) rotateY(10deg); } }
+
+  .flip3dtap{ width:130px; height:80px; position:relative; transform-style:preserve-3d; }
+  .flip3dtap .fa,.flip3dtap .fb{ position:absolute; inset:0; backface-visibility:hidden; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; }
+  .flip3dtap .fa{ background:#443c30; }
+  .flip3dtap .fb{ background:#8a6a3c; transform:rotateY(180deg); }
+  .play .flip3dtap{ animation: flt 2.6s ease-in-out infinite; }
+  @keyframes flt{ 0%,45%{ transform:rotateY(0);} 55%,100%{ transform:rotateY(180deg); } }
+
+  .layerpara{ position:relative; width:100%; height:100%; }
+  .layerpara .l1,.layerpara .l2,.layerpara .l3{ position:absolute; inset:0; background-size:cover; }
+  .play .layerpara .l1{ animation: lp1 4s ease-in-out infinite; }
+  .play .layerpara .l2{ animation: lp2 4s ease-in-out infinite; }
+  @keyframes lp1{ 50%{ transform:translateX(-6px); } }
+  @keyframes lp2{ 50%{ transform:translateX(6px); } }
+
+  .glasscard{ width:150px; height:90px; border-radius:14px; background:rgba(255,255,255,.12); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; }
+  .play .glasscard{ animation: glowpulse2 2.2s ease-in-out infinite; }
+
+  .holocard{ width:150px; height:90px; border-radius:14px; background:linear-gradient(120deg,#ff9fd0,#9fc9ff,#c9ffbf,#ff9fd0); background-size:300% 300%; }
+  .play .holocard{ animation: holoshift 3s ease infinite; }
+  @keyframes holoshift{ to{ background-position:300% 300%; } }
+
+  .cube3d{ width:70px; height:70px; position:relative; transform-style:preserve-3d; }
+  .cube3d div{ position:absolute; inset:0; background:#5c4a2e; opacity:.85; }
+  .play .cube3d{ animation: cuberot 3s linear infinite; }
+  @keyframes cuberot{ to{ transform:rotateY(360deg) rotateX(360deg); } }
+
+  .shadowcard{ width:130px; height:70px; border-radius:10px; background:#443c30; }
+  .play .shadowcard{ animation: shfloat 2.4s ease-in-out infinite; }
+  @keyframes shfloat{ 50%{ transform:translateY(-8px); box-shadow:0 26px 20px -10px rgba(0,0,0,.5); } }
+
+  .foldcard{ width:120px; height:80px; background:#443c30; transform-origin:left; }
+  .play .foldcard{ animation: fcfold 2.4s ease-in-out infinite; }
+  @keyframes fcfold{ 50%{ transform:rotateY(-40deg); } }
+
+  .cuberotate{ width:100px; height:70px; position:relative; transform-style:preserve-3d; }
+  .cuberotate .f{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; backface-visibility:hidden; }
+  .cuberotate .f1{ background:#5c4a2e; }
+  .cuberotate .f2{ background:#8a6a3c; transform:rotateY(90deg) translateZ(50px); }
+  .play .cuberotate{ animation: cbturn 3s ease-in-out infinite; }
+  @keyframes cbturn{ 0%,40%{ transform:rotateY(0);} 60%,100%{ transform:rotateY(-90deg); } }
+
+  .parlayer{ position:absolute; inset:0; }
+  .play .parlayer.back{ animation: pback 4s ease-in-out infinite; }
+  .play .parlayer.front{ animation: pfront 4s ease-in-out infinite; }
+  @keyframes pback{ 50%{ transform:translateX(-10px); } }
+  @keyframes pfront{ 50%{ transform:translateX(14px); } }
+
+  .themetoggle{ width:50px; height:26px; border-radius:999px; background:#d8b978; position:relative; }
+  .themetoggle .knob{ width:20px; height:20px; border-radius:50%; background:#221f1a; position:absolute; top:3px; left:3px; display:flex; align-items:center; justify-content:center; font-size:10px; }
+  .play .themetoggle{ animation: ttbg 2.2s ease infinite; }
+  .play .themetoggle .knob{ animation: ttknob 2.2s ease infinite; }
+  @keyframes ttbg{ 0%,40%{ background:#d8b978;} 50%,90%{ background:#3c3830; } }
+  @keyframes ttknob{ 0%,40%{ left:3px;} 50%,90%{ left:27px; } }
+
+  .themecross img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:1; }
+  .themecross .dark{ opacity:0; filter:brightness(.4) saturate(1.3); }
+  .play .themecross .dark{ animation: darkin 2.2s ease infinite; }
+  @keyframes darkin{ 0%,40%{ opacity:0;} 50%,90%{ opacity:1; } }
+
+  .gradmorph{ position:absolute; inset:0; background:linear-gradient(135deg,#f3e9d2,#e8d3ae); }
+  .play .gradmorph{ animation: gm 3s ease-in-out infinite; }
+  @keyframes gm{ 50%{ background:linear-gradient(135deg,#221f1a,#3c3830); } }
+
+  .starsfade{ position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; opacity:0; }
+  .play .starsfade{ animation: starsin 2.4s ease infinite; }
+  @keyframes starsin{ 0%,20%{ opacity:0;} 50%,90%{ opacity:1; } }
+
+  .inverttext{ color:#221f1a; font-size:15px; font-weight:700; }
+  .play .inverttext{ animation: invcolor 2.4s ease infinite; }
+  @keyframes invcolor{ 50%{ color:#f0e6d0; } }
+
+  .moonsun{ font-size:28px; }
+  .play .moonsun{ animation: msmorph 2.4s ease infinite; }
+  @keyframes msmorph{ 0%,40%{ content:'☀️';} }
+
+  .themeparticle{ position:absolute; }
+  .play .themeparticle.a{ animation: tpfade 2.4s ease infinite; }
+  .play .themeparticle.b{ animation: tpfade2 2.4s ease infinite; }
+  @keyframes tpfade{ 0%,40%{ opacity:1;} 50%,90%{ opacity:0; } }
+  @keyframes tpfade2{ 0%,40%{ opacity:0;} 50%,90%{ opacity:1; } }
+
+  .tonecard{ width:140px; height:80px; border-radius:10px; background:#f0e6d0; }
+  .play .tonecard{ animation: tonemv 2.4s ease infinite; }
+  @keyframes tonemv{ 50%{ background:#2c2822; } }
+
+  .fullfade{ position:absolute; inset:0; background:#221f1a; opacity:0; }
+  .play .fullfade{ animation: ffade 2.4s ease infinite; }
+  @keyframes ffade{ 0%,45%{ opacity:0;} 50%{ opacity:1;} 55%,100%{ opacity:0; } }
+
+  .scrolltext{ font-size:15px; color:#eee; clip-path:inset(0 100% 0 0); }
+  .play .scrolltext{ animation: stmask 2.4s ease-in-out infinite; }
+  @keyframes stmask{ 50%{ clip-path:inset(0 0 0 0); } }
+
+  .imgseq{ position:relative; width:100%; height:100%; }
+  .imgseq img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; }
+  .play .imgseq img:nth-child(1){ animation: seqshow 3s steps(1) infinite; }
+  .play .imgseq img:nth-child(2){ animation: seqshow 3s steps(1) infinite 1s; }
+  .play .imgseq img:nth-child(3){ animation: seqshow 3s steps(1) infinite 2s; }
+  @keyframes seqshow{ 0%,33%{ opacity:1;} 34%,100%{ opacity:0; } }
+
+  .timelinesvg .tl{ stroke-dasharray:200; stroke-dashoffset:200; }
+  .play .timelinesvg .tl{ animation: tldraw 2.4s ease infinite; }
+  @keyframes tldraw{ 0%,10%{ stroke-dashoffset:200;} 90%,100%{ stroke-dashoffset:0; } }
+
+  .scalescroll{ transform:scale(.7); }
+  .play .scalescroll{ animation: sscale 2.4s ease-in-out infinite; }
+  @keyframes sscale{ 50%{ transform:scale(1.1); } }
+
+  .rotscroll{ transform:rotate(0deg); }
+  .play .rotscroll{ animation: rscroll 3s ease-in-out infinite; }
+  @keyframes rscroll{ 50%{ transform:rotate(180deg); } }
+
+  .colorscroll{ position:absolute; inset:0; background:#443c30; }
+  .play .colorscroll{ animation: cscroll 3s ease-in-out infinite; }
+  @keyframes cscroll{ 50%{ background:#c96b5c; } }
+
+  .highlightwords span{ opacity:.3; }
+  .play .highlightwords span{ animation: hlw 2.4s ease infinite; }
+  .play .highlightwords span:nth-child(1){ animation-delay:0s; }
+  .play .highlightwords span:nth-child(2){ animation-delay:.5s; }
+  .play .highlightwords span:nth-child(3){ animation-delay:1s; }
+  @keyframes hlw{ 0%,100%{ opacity:.3; color:#eee;} 20%,40%{ opacity:1; color:#d8b978; } }
+
+  .countup{ font-size:26px; font-weight:800; color:#fff; }
+  .play .countup{ animation: cup .5s ease; }
+  @keyframes cup{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0); } }
+
+  .paratext{ position:relative; }
+  .paratext .t1,.paratext .t2{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .play .paratext .t1{ animation: pt1 3s ease-in-out infinite; }
+  .play .paratext .t2{ animation: pt2 3s ease-in-out infinite; }
+  @keyframes pt1{ 50%{ transform:translateY(-8px); opacity:.4; } }
+  @keyframes pt2{ 50%{ transform:translateY(8px); } }
+
+  .scrollring circle.fg2{ stroke:#d8b978; stroke-dasharray:220; stroke-dashoffset:220; }
+  .play .scrollring circle.fg2{ animation: srfill 2.4s ease infinite; }
+  @keyframes srfill{ 0%,10%{ stroke-dashoffset:220;} 90%,100%{ stroke-dashoffset:20; } }
+
+  .ticketstub{ display:flex; width:170px; height:70px; border-radius:8px; overflow:hidden; }
+  .ticketstub .main{ flex:1; background:#443c30; display:flex; align-items:center; justify-content:center; color:#eee; font-size:10px; }
+  .ticketstub .stub{ width:40px; background:repeating-linear-gradient(#221f1a,#221f1a 4px,transparent 4px,transparent 8px); }
+  .play .ticketstub{ animation: tstin .7s ease forwards; animation-delay:.2s; }
+  @keyframes tstin{ from{ transform:translateX(-30px); opacity:0;} to{ transform:translateX(0); opacity:1; } }
+
+  .punchhole{ width:16px; height:16px; border-radius:50%; background:#1c1a17; transform:scale(0); }
+  .play .punchhole{ animation: punch .4s ease forwards; animation-delay:.5s; }
+  @keyframes punch{ to{ transform:scale(1); } }
+
+  .boardpass{ width:170px; height:60px; background:#443c30; border-radius:6px; transform:translateY(60px); opacity:0; }
+  .play .boardpass{ animation: bpin .6s ease forwards; animation-delay:.2s; }
+  @keyframes bpin{ to{ transform:translateY(0); opacity:1; } }
+
+  .approvestamp{ border:3px solid #5c9a6a; color:#5c9a6a; padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; transform:scale(3) rotate(-15deg); opacity:0; }
+  .play .approvestamp{ animation: apin .35s ease forwards; animation-delay:.4s; }
+  @keyframes apin{ to{ transform:scale(1) rotate(-8deg); opacity:1; } }
+
+  .peelcorner{ position:relative; width:120px; height:80px; background:#443c30; }
+  .peelcorner::after{ content:''; position:absolute; top:0; right:0; width:0; height:0; border-style:solid; border-width:0 30px 30px 0; border-color:transparent #221f1a transparent transparent; }
+  .play .peelcorner::after{ animation: peelmv 2s ease-in-out infinite; }
+  @keyframes peelmv{ 50%{ border-width:0 44px 44px 0; } }
+
+  .holosticker{ width:44px; height:44px; border-radius:50%; background:linear-gradient(120deg,#ff9fd0,#9fc9ff,#c9ffbf); background-size:300% 300%; transform:scale(0); }
+  .play .holosticker{ animation: hsin .5s ease forwards, hsshift 2s linear infinite; animation-delay:.2s; }
+  @keyframes hsin{ to{ transform:scale(1); } }
+  @keyframes hsshift{ to{ background-position:300% 300%; } }
+
+  .qrfade{ width:60px; height:60px; background:repeating-conic-gradient(#221f1a 0% 25%, #fff 0% 50%) 50% / 10px 10px; opacity:0; }
+  .play .qrfade{ animation: qrin 1s ease forwards; animation-delay:.3s; }
+  @keyframes qrin{ to{ opacity:1; } }
+
+  .snapback{ transform:translateX(0); }
+  .play .snapback{ animation: snap 1.6s ease-in-out infinite; }
+  @keyframes snap{ 30%{ transform:translateX(-40px);} 50%{ transform:translateX(0); } }
+
+  .shufflestack{ position:relative; width:80px; height:56px; }
+  .shufflestack .c{ position:absolute; inset:0; border-radius:6px; }
+  .play .shufflestack .c:nth-child(1){ animation: shuf1 1.8s ease infinite; z-index:3; }
+  .play .shufflestack .c:nth-child(2){ animation: shuf2 1.8s ease infinite; z-index:2; }
+  @keyframes shuf1{ 50%{ transform:translateX(-14px) rotate(-6deg); } }
+  @keyframes shuf2{ 50%{ transform:translateX(14px) rotate(6deg); } }
+
+  .neontext{ font-size:22px; font-weight:800; color:#fff; text-shadow:0 0 6px #d8b978,0 0 16px #d8b978; }
+  .play .neontext{ animation: neonflicker 2s infinite; }
+  @keyframes neonflicker{ 0%,19%,21%,23%,80%,100%{ opacity:1;} 20%,22%{ opacity:.3; } }
+
+  .gradborder{ width:130px; height:80px; border-radius:12px; padding:3px; background:conic-gradient(from 0deg,#c96b5c,#d8b978,#8a9a7c,#c96b5c); }
+  .gradborder .in{ width:100%; height:100%; background:#221f1a; border-radius:9px; }
+  .play .gradborder{ animation: gbrot 2.4s linear infinite; }
+  @keyframes gbrot{ to{ filter:hue-rotate(360deg); } }
+
+  .glowbtn{ padding:10px 20px; border-radius:999px; background:#d8b978; color:#3c2f1a; font-size:11px; font-weight:700; }
+  .play .glowbtn{ animation: gbpulse 1.6s ease-in-out infinite; }
+  @keyframes gbpulse{ 50%{ box-shadow:0 0 24px 6px rgba(216,185,120,.7); } }
+
+  .holotext{ font-size:20px; font-weight:800; background:linear-gradient(90deg,#ff9fd0,#9fc9ff,#c9ffbf,#ff9fd0); background-size:300% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .play .holotext{ animation: htshift 2.4s linear infinite; }
+  @keyframes htshift{ to{ background-position:300% center; } }
+
+  .auraparticle{ position:absolute; width:5px; height:5px; border-radius:50%; background:#f0d9a0; box-shadow:0 0 6px #f0d9a0; opacity:0; }
+  .play .auraparticle{ animation: aurain 2s ease-in-out infinite; }
+  @keyframes aurain{ 0%,100%{ opacity:0; transform:scale(.5);} 50%{ opacity:1; transform:scale(1.4); } }
+
+  .neonline{ stroke-dasharray:200; stroke-dashoffset:200; filter:drop-shadow(0 0 4px #d8b978); }
+  .play .neonline{ animation: nldraw 1.8s ease forwards; }
+  @keyframes nldraw{ to{ stroke-dashoffset:0; } }
+
+  .glittertext{ font-size:18px; font-weight:800; color:#f0e0b0; position:relative; }
+  .glittertext .g{ position:absolute; width:3px; height:3px; background:#fff; border-radius:50%; opacity:0; }
+  .play .glittertext .g{ animation: glit 1.4s ease-in-out infinite; }
+  @keyframes glit{ 0%,100%{ opacity:0;} 50%{ opacity:1; } }
+
+  .prism{ position:absolute; width:2px; height:140%; background:linear-gradient(#fff0,#fff,#fff0); top:-20%; left:-10%; transform:rotate(20deg); opacity:0; }
+  .play .prism{ animation: prismmv 2.4s ease-in-out infinite; }
+  @keyframes prismmv{ 0%{ left:-10%; opacity:0;} 20%{ opacity:1;} 100%{ left:110%; opacity:0; } }
+
+  .glowring{ width:20px; height:20px; border-radius:50%; border:2px solid #d8b978; opacity:1; }
+  .play .glowring{ animation: grexp 1.8s ease-out infinite; }
+  @keyframes grexp{ to{ width:120px; height:120px; opacity:0; } }
+
+  .auroratext{ font-size:18px; font-weight:800; background:linear-gradient(90deg,#c9a45c,#8a9a7c,#c96b5c,#c9a45c); background-size:300% auto; -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .play .auroratext{ animation: atxt 3s linear infinite; }
+  @keyframes atxt{ to{ background-position:300% center; } }
+
+  .thanksfade{ opacity:0; transform:translateY(16px); }
+  .play .thanksfade{ animation: tf 1.2s ease forwards; animation-delay:.2s; }
+  @keyframes tf{ to{ opacity:1; transform:translateY(0); } }
+
+  .creditsroll{ position:relative; overflow:hidden; height:100%; }
+  .creditsroll .c{ position:absolute; bottom:-100%; left:0; right:0; text-align:center; font-size:11px; color:#eee; }
+  .play .creditsroll .c{ animation: croll 3s linear infinite; }
+  @keyframes croll{ from{ bottom:-100%;} to{ bottom:100%; } }
+
+  .frameZoom{ transform:scale(.85); border:6px solid #fff; }
+  .play .frameZoom{ animation: fz 2s ease-in-out infinite; }
+  @keyframes fz{ 50%{ transform:scale(1); } }
+
+  .fireworkHeart{ position:absolute; font-size:16px; color:#c96b5c; opacity:0; }
+  .play .fireworkHeart{ animation: fwh 1.6s ease-out infinite; }
+  @keyframes fwh{ 0%{ opacity:0; transform:translate(0,0) scale(.4);} 20%{ opacity:1;} 100%{ opacity:0; transform:translate(var(--tx),var(--ty)) scale(1.2); } }
+
+  .fadeblack{ position:absolute; inset:0; background:#000; opacity:0; }
+  .play .fadeblack{ animation: fb 2.4s ease infinite; }
+  @keyframes fb{ 0%,40%{ opacity:0;} 50%{ opacity:.9;} 60%,100%{ opacity:0; } }
+
+  .watermark{ opacity:0; font-size:12px; letter-spacing:.3em; color:#f0e6d0; }
+  .play .watermark{ animation: wmin 1.6s ease forwards; animation-delay:.3s; }
+  @keyframes wmin{ to{ opacity:.7; } }
+
+  .replaybtn{ padding:8px 16px; border-radius:999px; background:#443c30; color:#eee; font-size:11px; transform:scale(0); opacity:0; }
+  .play .replaybtn{ animation: rbin .5s cubic-bezier(.34,1.6,.64,1) forwards; animation-delay:.4s; }
+  @keyframes rbin{ to{ transform:scale(1); opacity:1; } }
+
+  .twinkle2{ position:absolute; width:3px; height:3px; background:#fff; border-radius:50%; opacity:0; }
+  .play .twinkle2{ animation: tw2 1.8s ease-in-out infinite; }
+  @keyframes tw2{ 50%{ opacity:1; } }
+
+  .curtainclose{ position:absolute; inset:0; display:flex; z-index:3; }
+  .curtainclose div{ flex:1; background:#141110; transform:scaleX(0); transform-origin:center; }
+  .play .curtainclose div{ animation: ccclose 1.4s ease forwards; animation-delay:.3s; }
+  @keyframes ccclose{ to{ transform:scaleX(1); } }
+
+  .thanksstamp{ border:2px solid #d8b978; color:#d8b978; padding:8px 16px; font-size:12px; font-weight:700; transform:scale(3); opacity:0; }
+  .play .thanksstamp{ animation: tstamp .4s ease forwards; animation-delay:.3s; }
+  @keyframes tstamp{ to{ transform:scale(1); opacity:1; } }
+</style>
+</head>
+<body>
+<div class="summary" id="summaryBar">선택된 효과: <b id="pickCount">0</b>개 불러오는 중...</div>
+<header>
+  <h1>청첩장 애니메이션 시안 200 (전체)</h1>
+  <p>기존 50가지(국내 흔한 연출)에 해외 트렌드·추가 아이디어 150가지를 더한 전체 200가지 카탈로그입니다. 이 페이지의 선택 상태는 /concept/ 페이지와 동일하게 실시간 공유·저장됩니다.</p>
+  <div class="catnav">
+    <a href="#cat-a">A.오프닝</a><a href="#cat-b">B.텍스트</a><a href="#cat-c">C.갤러리</a><a href="#cat-d">D.배경</a><a href="#cat-e">E.스크롤</a><a href="#cat-f">F.버튼</a>
+    <a href="#cat-g">G.봉투</a><a href="#cat-h">H.지도</a><a href="#cat-i">I.디데이</a><a href="#cat-j">J.RSVP</a><a href="#cat-k">K.축의금</a><a href="#cat-l">L.방명록</a>
+    <a href="#cat-m">M.사운드</a><a href="#cat-n">N.로딩</a><a href="#cat-o">O.호버</a><a href="#cat-p">P.3D카드</a><a href="#cat-q">Q.다크모드</a>
+    <a href="#cat-r">R.스토리텔링</a><a href="#cat-s">S.티켓</a><a href="#cat-t">T.네온</a><a href="#cat-u">U.엔딩</a>
+  </div>
+</header>
+
+<div id="cat-a" class="cat-title">A. 오프닝 · 리빌 <span>진입 시 첫인상을 만드는 연출</span></div>
+<div class="grid" id="grid-a"></div>
+<div id="cat-b" class="cat-title">B. 텍스트 등장 <span>이름·날짜·문구가 나타나는 방식</span></div>
+<div class="grid" id="grid-b"></div>
+<div id="cat-c" class="cat-title">C. 사진 · 갤러리 전환</div>
+<div class="grid" id="grid-c"></div>
+<div id="cat-d" class="cat-title">D. 배경 · 장식 효과</div>
+<div class="grid" id="grid-d"></div>
+<div id="cat-e" class="cat-title">E. 스크롤 · 네비게이션</div>
+<div class="grid" id="grid-e"></div>
+<div id="cat-f" class="cat-title">F. 버튼 · 마이크로 인터랙션</div>
+<div class="grid" id="grid-f"></div>
+
+<div id="cat-g" class="cat-title">G. 봉투 · 편지 오프닝 <span>해외에서 흔한 카드형 오프닝</span></div>
+<div class="grid" id="grid-g"></div>
+<div id="cat-h" class="cat-title">H. 지도 · 오시는길 연출</div>
+<div class="grid" id="grid-h"></div>
+<div id="cat-i" class="cat-title">I. 디데이 · 캘린더 연출</div>
+<div class="grid" id="grid-i"></div>
+<div id="cat-j" class="cat-title">J. RSVP · 참석여부 인터랙션</div>
+<div class="grid" id="grid-j"></div>
+<div id="cat-k" class="cat-title">K. 축의금 · 계좌번호 UI</div>
+<div class="grid" id="grid-k"></div>
+<div id="cat-l" class="cat-title">L. 방명록 인터랙션</div>
+<div class="grid" id="grid-l"></div>
+<div id="cat-m" class="cat-title">M. 사운드 · 음악 플레이어 UI</div>
+<div class="grid" id="grid-m"></div>
+<div id="cat-n" class="cat-title">N. 로딩 · 스플래시 연출</div>
+<div class="grid" id="grid-n"></div>
+<div id="cat-o" class="cat-title">O. 커서 · 호버 마이크로 인터랙션</div>
+<div class="grid" id="grid-o"></div>
+<div id="cat-p" class="cat-title">P. 3D · 틸트 카드 연출</div>
+<div class="grid" id="grid-p"></div>
+<div id="cat-q" class="cat-title">Q. 다크모드 · 테마 전환</div>
+<div class="grid" id="grid-q"></div>
+<div id="cat-r" class="cat-title">R. 스크롤 스토리텔링</div>
+<div class="grid" id="grid-r"></div>
+<div id="cat-s" class="cat-title">S. 카드 · 티켓 디자인</div>
+<div class="grid" id="grid-s"></div>
+<div id="cat-t" class="cat-title">T. 글로우 · 네온 · 홀로그램</div>
+<div class="grid" id="grid-t"></div>
+<div id="cat-u" class="cat-title">U. 엔딩 · 감사인사 연출</div>
+<div class="grid" id="grid-u"></div>
+
+<script>
+const IMG = i => `../gallery${i}.jpg`;
+const THUMB = '../thumb.jpg';
+
+const CATS = {
+  a: [
+    { t:'커튼 와이프(좌우)', d:'양쪽 패널이 좌우로 갈라지며 사진이 드러남', stage:`<img class="bg" src="${THUMB}"><div class="panelL wipe"></div><div class="panelR wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'커튼 와이프(상하)', d:'위아래 패널이 갈라지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="panelT wipe"></div><div class="panelB wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'도어 오픈(3D)', d:'양쪽 문이 회전하며 열리는 입체 연출', stage:`<img class="bg" src="${THUMB}"><div class="label"><div class="n">Wedding Invitation</div></div>` },
+    { t:'아이리스 원형 확장', d:'카메라 조리개처럼 원이 점점 커지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="iris wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'블라인드 리빌', d:'세로 슬랫이 위로 걷히며 사진 등장', stage:`<img class="bg" src="${THUMB}"><div class="blinds wipe">${'<div class=\"slat\"></div>'.repeat(10)}</div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'대각선 와이프', d:'비스듬한 패널이 사선으로 지나가며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="diag wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'타일 페이드인', d:'격자 타일이 하나씩 랜덤하게 사라지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="tilegrid wipe" id="tilegridA"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'줌아웃 리빌', d:'확대된 사진이 서서히 축소되며 제자리에 안착', stage:`<img class="bg zoomrevealimg" src="${THUMB}"><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'포커스인(블러→선명)', d:'흐릿하던 사진이 점점 선명해짐', stage:`<img class="bg blurimg" src="${THUMB}"><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'플래시 화이트아웃', d:'하얗게 번쩍인 뒤 사진이 드러나는 카메라 플래시 연출', stage:`<img class="bg" src="${THUMB}"><div class="flash"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+  ],
+  b: [
+    { t:'타이핑 텍스트', d:'한 글자씩 써지는 효과 (현재 사이트 적용됨)', stage:`<div class="label"><div class="n typing">우리 결혼합니다</div></div>` },
+    { t:'순차 페이드업', d:'이름→날짜→장소 순으로 한 줄씩 떠오름', stage:`<div class="lines"><div class="label ln">최연준 & 김유진</div><div class="label ln" style="margin-top:6px;">2027.03.13</div><div class="label ln" style="margin-top:6px;">L65호텔 가든홀</div></div>` },
+    { t:'글자 단위 스태거', d:'글자 하나하나가 순서대로 튀어오르듯 등장', stage:`<div class="label n charstag" id="charstagA"></div>` },
+    { t:'트래킹 확장', d:'자간이 좁게 시작해 서서히 넓어지며 등장', stage:`<div class="label n tracking">최연준 · 김유진</div>` },
+    { t:'언더라인 드로잉', d:'텍스트 아래 밑줄이 좌에서 우로 그려짐', stage:`<div class="label n underline">최연준 & 김유진</div>` },
+    { t:'골드 시머 스윕', d:'금박 텍스트 위로 빛이 스치듯 지나감', stage:`<div class="label n shimmertext">최연준 & 김유진</div>` },
+    { t:'블러 텍스트 포커스', d:'흐릿한 문구가 선명해지며 등장', stage:`<div class="label n blurtext">우리 결혼합니다</div>` },
+    { t:'슬라이드인(좌→우)', d:'문구가 왼쪽에서 미끄러지듯 들어옴', stage:`<div class="label n slidein">최연준 & 김유진</div>` },
+    { t:'마스크 텍스트 리빌', d:'글자를 클립으로 가렸다가 좌→우로 드러냄', stage:`<div class="label n maskreveal">SAVE THE DATE</div>` },
+    { t:'바운스 등장', d:'탄성 있게 튀어오르며 확대되는 등장', stage:`<div class="label n bouncein">최연준 & 김유진</div>` },
+  ],
+  c: [
+    { t:'크로스페이드 슬라이드쇼', d:'사진이 서서히 겹쳐지며 자동 전환', stage:`<div class="xfade"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'가로 슬라이드 캐러셀', d:'사진이 옆으로 밀려나며 다음 장 노출', stage:`<div class="carousel"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'카드 스택 넘김', d:'포토카드가 옆으로 쳐내지듯 다음 장이 나타남', stage:`<div class="cardstack"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'켄번즈 효과', d:'정지 사진이 천천히 확대·이동하며 생동감 부여', stage:`<div class="kenburns"><img src="${IMG(4)}"></div>` },
+    { t:'폴라로이드 낙하 배치', d:'폴라로이드 사진들이 위에서 떨어져 흩뿌려짐', stage:`<div class="polaroid"><div class="pf"><img src="${IMG(1)}"></div><div class="pf"><img src="${IMG(2)}"></div><div class="pf"><img src="${IMG(3)}"></div></div>` },
+    { t:'그리드 타일 순차 등장', d:'격자 사진들이 순서대로 하나씩 나타남', stage:`<div class="tilesgrid" id="tilesgridC"></div>` },
+    { t:'회전 정렬', d:'비뚤어진 사진이 회전하며 반듯하게 정렬됨', stage:`<div class="rotalign"><img src="${IMG(5)}"></div>` },
+    { t:'마스크 와이프 전환', d:'다음 사진이 클립 마스크로 쓸려 들어오며 전환', stage:`<div class="maskwipe"><img class="bg" src="${IMG(1)}"><img class="bg next" src="${IMG(2)}"></div>` },
+    { t:'흑백→컬러 전환', d:'흑백이었던 사진이 서서히 컬러로 바뀜', stage:`<div class="bwcolor"><img class="bg" src="${IMG(6)}"></div>` },
+    { t:'셔터 전환', d:'카메라 셔터처럼 조각들이 좌우로 열리며 전환', stage:`<img class="bg" src="${IMG(7)}"><div class="shutter"><div class="sl"></div><div class="sl"></div><div class="sl"></div><div class="sl"></div><div class="sl"></div></div>` },
+  ],
+  d: [
+    { t:'꽃잎 낙하', d:'배경에 꽃잎이 계속 떨어지는 장식 효과', stage:`<img class="bg" src="${IMG(2)}"><div class="dim"></div><div id="petalsD"></div>` },
+    { t:'눈송이 낙하', d:'눈이 흩날리며 떨어지는 겨울 웨딩 연출', stage:`<img class="bg" src="${IMG(3)}"><div class="dim"></div><div id="snowD"></div>` },
+    { t:'반짝이는 파티클', d:'배경에 작은 빛 입자가 반짝임', stage:`<img class="bg" src="${IMG(4)}"><div class="dim"></div><div id="sparkD"></div>` },
+    { t:'필름 그레인 노이즈', d:'화면 전체에 미세한 필름 알갱이 질감이 깜빡임', stage:`<img class="bg" src="${IMG(1)}"><div class="grain"></div>` },
+    { t:'오로라 그라데이션', d:'배경에 색이 은은하게 돌아가며 흐르는 효과', stage:`<div class="aurora"></div><div class="label n" style="position:relative;z-index:1;">최연준 & 김유진</div>` },
+    { t:'골드 라인 드로잉', d:'장식선이 처음부터 끝까지 그려지는 효과', stage:`<img class="bg" src="${IMG(5)}"><div class="dim"></div><svg viewBox="0 0 200 100" style="position:relative;z-index:1;width:70%;"><path class="goldline" d="M10 50 Q100 10 190 50" stroke="#f0d9a0" stroke-width="2" fill="none"/></svg>` },
+    { t:'리본 나부낌', d:'리본이 화면을 가로질러 부드럽게 지나감', stage:`<img class="bg" src="${IMG(6)}"><div class="dim"></div><div class="ribbon"></div>` },
+    { t:'컨페티/풍선 상승', d:'색종이 조각이 아래에서 위로 떠오름', stage:`<img class="bg" src="${IMG(7)}"><div class="dim"></div><div id="confettiD"></div>` },
+    { t:'물결 리플', d:'탭한 지점에서 물결처럼 원이 퍼져나감', stage:`<img class="bg" src="${IMG(8)}"><div class="dim"></div><div class="ripple" style="top:50%;left:50%;"></div>` },
+    { t:'나비 날갯짓 이동', d:'나비 아이콘이 화면을 가로질러 날아감', stage:`<img class="bg" src="${IMG(2)}"><div class="dim"></div><div class="butterfly">🦋</div>` },
+  ],
+  e: [
+    { t:'패럴랙스 스크롤', d:'배경이 전경보다 느리게 움직여 입체감 부여', stage:`<div class="parabg"></div><div class="label n" style="position:relative;z-index:1;">스크롤 시 배경이 따로 움직여요</div>` },
+    { t:'스크롤 도트 네비게이션', d:'스크롤 위치에 따라 하단 도트가 순서대로 하이라이트', stage:`<div style="display:flex;flex-direction:column;align-items:center;gap:12px;"><img src="${IMG(3)}" style="width:70px;height:120px;object-fit:cover;border-radius:8px;"><div class="dotsnav"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div>` },
+    { t:'상단 진행 바', d:'스크롤 진행률에 따라 상단 바가 채워짐', stage:`<div class="progressbar"></div><img class="bg" src="${IMG(4)}" style="opacity:.5;"><div class="label n" style="position:relative;z-index:1;">SCROLL PROGRESS</div>` },
+    { t:'섹션 스냅 스크롤', d:'스크롤이 섹션 단위로 딱딱 맞춰 멈춤', stage:`<div class="snapscroll" style="height:100%;overflow:hidden;"><div class="snapinner"><img src="${IMG(1)}" style="height:190px;object-fit:cover;"><img src="${IMG(5)}" style="height:190px;object-fit:cover;"><img src="${IMG(6)}" style="height:190px;object-fit:cover;"></div></div>` },
+    { t:'스티키 헤더 축소', d:'스크롤 시 상단 헤더가 점점 작아지며 고정됨', stage:`<img class="bg" src="${IMG(7)}"><div class="stickyhead">최연준 & 김유진</div>` },
+  ],
+  f: [
+    { t:'버튼 펄스', d:'원형 버튼이 맥박처럼 커졌다 작아짐을 반복', stage:`<div class="pulsebtn">♥</div>` },
+    { t:'하트 터치 애니메이션', d:'하트를 탭하면 두근거리듯 커졌다 작아짐', stage:`<div class="heartbtn">❤️</div>` },
+    { t:'디데이 카운트다운 틱', d:'남은 일/시/분이 실시간으로 틱틱 바뀜', stage:`<div class="ddaybox"><div class="unit"><span class="num tick">173</span><span class="lbl">DAYS</span></div><div class="unit"><span class="num tick">08</span><span class="lbl">HOUR</span></div><div class="unit"><span class="num tick">42</span><span class="lbl">MIN</span></div></div>` },
+    { t:'카카오톡 공유 버튼 바운스', d:'공유 버튼이 살짝살짝 튀어오르며 시선을 끔', stage:`<div class="kakaobtn">카카오톡 공유</div>` },
+    { t:'토글 스위치 슬라이드', d:'스위치 노브가 좌우로 미끄러지며 on/off 전환', stage:`<div class="toggle"><div class="knob"></div></div>` },
+  ],
+  g: [
+    { t:'봉투 플랩 열림', d:'봉투 뚜껑이 아래로 열리며 편지가 드러남', stage:`<div class="env"><div class="body"></div><div class="letter"></div><div class="flap"></div></div>` },
+    { t:'편지지 슬라이드 아웃', d:'편지지가 봉투 위로 스르륵 빠져나옴', stage:`<div class="env"><div class="body"></div><div class="flap" style="clip-path:none;height:40%;"></div><div class="letter"></div></div>` },
+    { t:'왁스 씰 도장', d:'봉인 왁스 씰이 탄성 있게 찍히며 등장', stage:`<div class="seal">SEAL</div>` },
+    { t:'편지 펼쳐지기', d:'접혀있던 편지가 위로 펼쳐짐', stage:`<div class="foldpaper"><div class="p1"></div><div class="p2"></div></div>` },
+    { t:'우표 소인 스탬프', d:'도장이 회전하며 쾅 찍히는 연출', stage:`<div class="stamp">POST</div>` },
+    { t:'봉투 뒤집기(3D)', d:'봉투가 입체적으로 회전하며 뒷면 공개', stage:`<div class="flip3d"><div class="face front">앞면</div><div class="face back">뒷면</div></div>` },
+    { t:'리본 풀기', d:'리본이 스르륵 풀리며 사라짐', stage:`<img class="bg" src="${THUMB}"><div class="ribbon" style="top:50%;"></div>` },
+    { t:'봉인 해제 글로우', d:'봉인 부분이 은은히 빛나다 열림', stage:`<div class="seal" style="box-shadow:0 0 20px 6px rgba(216,185,120,.6);">OPEN</div>` },
+    { t:'손글씨 서명 드로잉', d:'서명이 실제 손글씨처럼 그려짐', stage:`<svg viewBox="0 0 200 60" style="width:80%;"><path class="signdraw" d="M10 40 Q40 10 60 40 T110 40 Q140 10 190 30" stroke="#f0e6d0" stroke-width="2" fill="none"/></svg>` },
+    { t:'편지지 갈피 넘김', d:'페이지 모서리가 넘어가듯 접히는 효과', stage:`<div class="curl"></div>` },
+  ],
+  h: [
+    { t:'핀 드롭 바운스', d:'지도 위에 마커가 통통 튀며 떨어짐', stage:`<img class="bg" src="${THUMB}"><div class="pin"></div>` },
+    { t:'핀 펄스 링(레이더)', d:'마커 주변에 레이더 파동이 퍼짐', stage:`<img class="bg" src="${THUMB}"><div class="radar"></div>` },
+    { t:'경로 라인 드로잉', d:'출발지에서 예식장까지 선이 그려짐', stage:`<img class="bg" src="${THUMB}"><svg viewBox="0 0 200 100" style="position:relative;z-index:1;width:80%;"><path class="routepath" d="M10 80 Q80 10 190 50" stroke="#c96b5c" stroke-width="3" fill="none"/></svg>` },
+    { t:'교통수단 아이콘 이동', d:'차량 아이콘이 경로를 따라 이동', stage:`<img class="bg" src="${THUMB}"><div class="transicon">🚗</div>` },
+    { t:'지도 줌인 포커스', d:'지도가 예식장 위치로 서서히 확대', stage:`<img class="bg mapzoom" src="${THUMB}">` },
+    { t:'건물 3D 팝업 카드', d:'핀을 탭하면 건물 정보 카드가 떠오름', stage:`<img class="bg" src="${THUMB}"><div class="popcard">L65 그랜드홀</div>` },
+    { t:'현재위치 GPS 펄스', d:'파란 점이 은은하게 맥박치는 GPS 표시', stage:`<img class="bg" src="${THUMB}"><div class="gpsdot" style="position:relative;z-index:1;"></div>` },
+    { t:'층별 안내 슬라이드', d:'층별 안내 패널이 옆에서 슬라이드인', stage:`<img class="bg" src="${THUMB}"><div class="popcard floorslide" style="opacity:1;transform:none;">6F 가든홀</div>` },
+    { t:'지도 다크/라이트 전환', d:'지도 스킨이 밝게↔어둡게 전환', stage:`<div class="themecross"><img class="light" src="${THUMB}"><img class="dark" src="${THUMB}"></div>` },
+    { t:'파노라마 거리뷰 스와이프', d:'거리뷰 사진이 좌우로 파노라마 이동', stage:`<div class="panorama"><div style="background:url('${IMG(1)}') center/cover;"></div><div style="background:url('${IMG(2)}') center/cover;"></div><div style="background:url('${IMG(3)}') center/cover;"></div></div>` },
+  ],
+  i: [
+    { t:'달력 페이지 넘김', d:'캘린더 상단이 넘어가며 날짜 공개', stage:`<div class="calpage"><div class="top"></div></div>` },
+    { t:'디데이 링 프로그레스', d:'원형 링이 채워지며 진행률 표시', stage:`<svg class="ring" width="90" height="90"><circle class="bg" cx="45" cy="45" r="35" stroke-width="6" fill="none"/><circle class="fg" cx="45" cy="45" r="35" stroke-width="6" fill="none"/></svg>` },
+    { t:'숫자 롤링 카운터', d:'오도미터처럼 숫자가 굴러가며 바뀜', stage:`<div class="roll" style="color:#fff;font-size:28px;"><div class="digits">0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div></div>` },
+    { t:'캘린더 날짜 동그라미', d:'날짜 위에 원이 그려지며 강조됨', stage:`<svg viewBox="0 0 100 100" style="width:80px;"><circle class="circledate" cx="50" cy="50" r="30" stroke="#c96b5c" stroke-width="4" fill="none"/></svg>` },
+    { t:'시계 바늘 회전', d:'아날로그 시계 바늘이 돌아감', stage:`<div style="position:relative;width:70px;height:70px;border:2px solid #eee;border-radius:50%;"><div class="clockhand h" style="position:absolute;left:50%;top:50%;width:2px;height:20px;background:#eee;"></div><div class="clockhand m" style="position:absolute;left:50%;top:50%;width:2px;height:28px;background:#d8b978;"></div></div>` },
+    { t:'모래시계 흐름', d:'모래가 아래로 채워지는 애니메이션', stage:`<div style="position:relative;width:50px;height:70px;border:2px solid #eee;clip-path:polygon(0 0,100% 0,50% 50%,100% 100%,0 100%,50% 50%);"><div class="sand"></div></div>` },
+    { t:'캘린더 스티커 붙이기', d:'날짜 위에 스티커가 탁 붙는 연출', stage:`<div class="stickerpop" style="font-size:30px;">💍</div>` },
+    { t:'카운트다운 플립클락', d:'숫자판이 뒤집히며 시간이 줄어듦', stage:`<div class="flipclock"><span class="digit">1</span><span class="digit">7</span><span class="digit">3</span></div>` },
+    { t:'계절 아이콘 전환', d:'계절 아이콘이 크로스페이드로 전환', stage:`<div style="position:relative;width:40px;height:40px;"><div class="seasonicon" style="position:absolute;">🌸</div><div class="seasonicon" style="position:absolute;">🌼</div></div>` },
+    { t:'디데이 배지 바운스인', d:'디데이 배지가 통통 튀며 등장', stage:`<div class="bouncein" style="background:#c96b5c;color:#fff;padding:10px 18px;border-radius:999px;font-weight:700;">D-173</div>` },
+  ],
+  j: [
+    { t:'참석 체크마크 드로잉', d:'탭하면 체크마크가 그려지며 완료 표시', stage:`<svg viewBox="0 0 50 50" style="width:50px;"><circle cx="25" cy="25" r="22" stroke="#5c9a6a" stroke-width="3" fill="none"/><path class="checkdraw" d="M14 26 L21 33 L36 17" stroke="#5c9a6a" stroke-width="3" fill="none"/></svg>` },
+    { t:'인원수 스테퍼', d:'+/- 버튼을 누르면 숫자가 튕기듯 반응', stage:`<div class="stepper"><div class="btn">-</div><span>2</span><div class="btn plus">+</div></div>` },
+    { t:'참석/불참 토글 슬라이드', d:'세그먼트 스위치 노브가 좌우로 이동', stage:`<div class="segtoggle"><div class="knob"></div></div>` },
+    { t:'제출 성공 체크 리플', d:'제출 완료 시 체크 아이콘에 파동 효과', stage:`<div class="successripple">✓</div>` },
+    { t:'폼 필드 포커스 라인', d:'입력창 포커스 시 밑줄이 확장됨', stage:`<div class="inputline">이름을 입력하세요</div>` },
+    { t:'RSVP 카드 뒤집기', d:'카드가 뒤집히며 감사 메시지로 전환', stage:`<div class="rsvpflip"><div class="f1">참석하기</div><div class="f2">감사합니다</div></div>` },
+    { t:'참석자 아바타 스택', d:'응답할 때마다 아바타가 겹쳐 쌓임', stage:`<div class="avatarstack"><div class="av"></div><div class="av"></div><div class="av"></div><div class="av"></div></div>` },
+    { t:'버튼 로딩 스피너 전환', d:'제출 버튼이 원형 로딩으로 모핑', stage:`<div class="loadbtn">참석 제출</div>` },
+    { t:'식사 옵션 선택 글로우', d:'선택한 식사 옵션 테두리가 은은히 빛남', stage:`<div class="mealopt">한식 코스</div>` },
+    { t:'마감 임박 배지 흔들림', d:'마감 임박 배지가 좌우로 흔들려 주의 환기', stage:`<div class="urgentbadge">마감 D-3</div>` },
+  ],
+  k: [
+    { t:'계좌번호 카드 뒤집기', d:'카드를 탭하면 뒤집혀 계좌번호 공개', stage:`<div class="acctcard"><div class="side front">신랑측 계좌보기</div><div class="side back">123-456-7890</div></div>` },
+    { t:'복사 버튼 토스트', d:'복사 버튼 클릭 시 완료 토스트 팝업', stage:`<div class="toast">계좌번호가 복사되었습니다</div>` },
+    { t:'계좌 카드 슬라이드 캐러셀', d:'신랑측/신부측 계좌를 스와이프로 전환', stage:`<div class="carousel"><div style="width:100%;height:190px;background:#443c30;display:flex;align-items:center;justify-content:center;color:#eee;">신랑측</div><div style="width:100%;height:190px;background:#5c4a2e;display:flex;align-items:center;justify-content:center;color:#eee;">신부측</div></div>` },
+    { t:'선물 봉투 아이콘 열림', d:'축의금 봉투 아이콘이 통통 튀며 열림', stage:`<div class="giftenv">💌</div>` },
+    { t:'QR코드 스캔 프레임', d:'QR코드 위로 스캔 라인이 지나감', stage:`<div class="qrscan"></div>` },
+    { t:'카드 표면 글로시 스윕', d:'카드 표면에 광택이 스치듯 지나감', stage:`<div class="glosscard"></div>` },
+    { t:'감사 메시지 하트 팝', d:'복사 완료 후 하트가 팝업되며 감사 표현', stage:`<div class="heartpop">♥</div>` },
+    { t:'계좌 리스트 아코디언', d:'계좌 목록이 펼쳐지고 접히는 인터랙션', stage:`<div class="accordion"><div class="item">신랑측 계좌 ▾ 123-456-7890 국민은행</div></div>` },
+    { t:'클립보드 성공 체크', d:'클립보드 아이콘이 체크로 바뀌며 확인', stage:`<div class="clipcheck">✓</div>` },
+    { t:'카드 플로팅 그림자', d:'계좌 카드가 둥실 떠 있는 듯한 그림자 애니메이션', stage:`<div class="floatcard"></div>` },
+  ],
+  l: [
+    { t:'손글씨 서명 애니메이션', d:'방명록에 서명이 실시간으로 그려짐', stage:`<svg viewBox="0 0 200 60" style="width:80%;"><path class="signdraw" d="M10 30 Q50 5 80 30 T150 20 Q170 10 190 35" stroke="#f0e6d0" stroke-width="2" fill="none"/></svg>` },
+    { t:'메시지 카드 스택 쌓임', d:'새 메시지가 카드로 쌓이며 등장', stage:`<div class="msgstack"><div class="m">행복하세요!</div><div class="m">축하합니다 :)</div><div class="m">예쁜 가정 이루세요</div></div>` },
+    { t:'하트 스탬프 찍기', d:'하트 도장이 탕 찍히듯 등장', stage:`<div class="heartstamp">♥</div>` },
+    { t:'말풍선 팝업', d:'메시지가 채팅 말풍선처럼 팝업됨', stage:`<div class="bubble">결혼 축하해요! 🎉</div>` },
+    { t:'리스트 페이드인 스크롤', d:'방명록 목록이 스크롤에 맞춰 순차 등장', stage:`<div class="fadelist"><div class="row">- 김민수: 축하합니다</div><div class="row">- 이서연: 행복하세요</div><div class="row">- 박지훈: 결혼 축하해!</div></div>` },
+    { t:'이름 태그 컬러 사이클', d:'작성자 이름 태그 색상이 계속 순환', stage:`<div class="nametag">최연준</div>` },
+    { t:'좋아요 하트 버스트', d:'하트를 탭하면 작은 하트들이 튀어오름', stage:`<div class="likeburst">♥<span class="b" style="--tx:-16px;--ty:-20px;">♥</span><span class="b" style="--tx:16px;--ty:-24px;">♥</span></div>` },
+    { t:'새 메시지 알림 배지', d:'새 글 도착 시 배지가 통통 튀며 등장', stage:`<div class="newbadge">N</div>` },
+    { t:'스와이프 삭제', d:'메시지를 옆으로 스와이프하면 삭제 버튼 노출', stage:`<div class="swipedel"><div class="front">축하 메시지 내용</div></div>` },
+    { t:'종이비행기 전송', d:'작성 완료 시 종이비행기가 날아가는 연출', stage:`<div class="paperplane">✈️</div>` },
+  ],
+  m: [
+    { t:'이퀄라이저 바', d:'배경음악에 맞춰 막대가 위아래로 움직임', stage:`<div class="eq"><div></div><div></div><div></div><div></div><div></div></div>` },
+    { t:'LP판 회전 토글', d:'음악 재생 시 LP판이 빙글빙글 회전', stage:`<div class="vinyl"></div>` },
+    { t:'볼륨 웨이브 슬라이더', d:'파형 모양의 볼륨 조절 바', stage:`<div class="wavebar"><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>` },
+    { t:'재생 버튼 모핑', d:'재생 아이콘이 일시정지 아이콘으로 모핑', stage:`<div class="playmorph"></div>` },
+    { t:'음표 파티클 상승', d:'음표 아이콘이 위로 둥실둥실 떠오름', stage:`<div style="position:relative;width:60px;height:100%;"><div class="notefloat" style="left:10px;">♪</div><div class="notefloat" style="left:30px;animation-delay:1s;">♬</div></div>` },
+    { t:'음소거 아이콘 페이드', d:'스피커 아이콘이 페이드로 음소거 표시', stage:`<div class="muteicon">🔊</div>` },
+    { t:'미니 플레이어 슬라이드업', d:'하단에서 미니 플레이어 바가 올라옴', stage:`<div class="miniplayer">♪ Wedding March - 재생 중</div>` },
+    { t:'프로그레스 웨이브 바', d:'재생 진행 바가 물결치며 채워짐', stage:`<div class="liquidbar"></div>` },
+    { t:'헤드폰 아이콘 바운스', d:'헤드폰 아이콘이 까딱까딱 움직임', stage:`<div class="headphone">🎧</div>` },
+    { t:'앨범아트 회전 페이드인', d:'앨범 커버가 회전하며 나타남', stage:`<div class="albumart"></div>` },
+  ],
+  n: [
+    { t:'로고 라인 드로잉', d:'로고 이니셜이 선으로 그려지며 등장', stage:`<svg viewBox="0 0 120 60" style="width:100px;"><path class="logodraw" d="M10 50 L30 10 L50 50 M70 50 V10 H100 V30 H75" stroke="#f0e6d0" stroke-width="3" fill="none"/></svg>` },
+    { t:'하트 로딩 스피너', d:'하트 모양이 회전하는 로딩 스피너', stage:`<div class="heartspin">♥</div>` },
+    { t:'퍼센트 카운터 로딩', d:'로딩 퍼센트 숫자가 올라감', stage:`<div class="pctload">78%</div>` },
+    { t:'스켈레톤 쉬머', d:'로딩 중 회색 블록에 쉬머가 스침', stage:`<div><div class="skel"></div><div class="skel" style="width:100px;"></div></div>` },
+    { t:'도트 바운스 로딩', d:'점 세 개가 순차적으로 통통 튐', stage:`<div class="dotsload"><span></span><span></span><span></span></div>` },
+    { t:'스플래시 로고 확대 페이드아웃', d:'첫 화면 로고가 커지며 사라지고 본문 등장', stage:`<div class="splashlogo">Y & J</div>` },
+    { t:'프로그레스 링 로딩', d:'원형 스피너가 계속 회전', stage:`<div class="ringload"></div>` },
+    { t:'꽃 피어나는 로딩', d:'꽃 아이콘이 피었다 지며 반복', stage:`<div class="bloom">🌸</div>` },
+    { t:'커튼콜 로딩 전환', d:'커튼이 닫혔다 열리며 다음 화면 공개', stage:`<img class="bg" src="${THUMB}"><div class="curtainload"><div></div><div></div></div>` },
+    { t:'리퀴드 웨이브 로딩바', d:'물결처럼 채워지는 로딩바', stage:`<div class="liquidbar"></div>` },
+  ],
+  o: [
+    { t:'커스텀 하트 커서', d:'하트 모양 커서가 화면을 따라 움직임', stage:`<div style="position:relative;width:100%;height:100%;"><div class="cursorheart">♥</div></div>` },
+    { t:'버튼 호버 리플', d:'버튼에 마우스를 올리면 물결 파동', stage:`<div class="hoverripplebtn">더 알아보기</div>` },
+    { t:'이미지 호버 줌', d:'사진에 마우스를 올리면 살짝 확대', stage:`<img class="imghover" src="${IMG(3)}">` },
+    { t:'텍스트 컬러 스윕', d:'텍스트 위로 색이 스치듯 지나감', stage:`<div class="label n sweeptext">호버해보세요</div>` },
+    { t:'카드 호버 리프트', d:'카드가 살짝 떠오르며 그림자 강조', stage:`<div class="liftcard"></div>` },
+    { t:'아이콘 호버 회전', d:'아이콘에 마우스를 올리면 빙글 회전', stage:`<div class="iconspin">💍</div>` },
+    { t:'언더라인 센터 확장', d:'밑줄이 중앙에서 양쪽으로 자라남', stage:`<div class="growunderline">자세히 보기</div>` },
+    { t:'버튼 그라데이션 시프트', d:'버튼 배경 그라데이션이 흐르듯 이동', stage:`<div class="gradbtn">청첩장 열기</div>` },
+    { t:'커서 트레일 스파클', d:'커서를 따라 작은 반짝임이 남음', stage:`<div style="position:relative;width:100%;height:100%;"><div class="trailspark" style="left:30%;top:40%;--tx:20px;--ty:-20px;"></div><div class="trailspark" style="left:60%;top:60%;--tx:-20px;--ty:-16px;animation-delay:.4s;"></div></div>` },
+    { t:'탭 하이라이트 글로우', d:'탭한 위치에 은은한 원형 글로우', stage:`<div class="taphighlight"></div>` },
+  ],
+  p: [
+    { t:'마우스 틸트 패럴랙스', d:'마우스/기울기에 따라 카드가 입체적으로 기울어짐', stage:`<div class="tiltcard"></div>` },
+    { t:'카드 3D 플립(탭)', d:'탭하면 카드가 입체적으로 회전해 뒷면 공개', stage:`<div class="flip3dtap"><div class="fa">앞면</div><div class="fb">뒷면</div></div>` },
+    { t:'레이어드 패럴랙스', d:'여러 레이어가 서로 다른 속도로 움직여 깊이감 연출', stage:`<div class="layerpara"><img class="l1" src="${IMG(4)}" style="opacity:.6;"><img class="l2" src="${IMG(5)}" style="opacity:.3;"></div>` },
+    { t:'글래스모피즘 카드', d:'반투명 유리질감 카드에 은은한 발광', stage:`<div class="glasscard">Glass Card</div>` },
+    { t:'홀로그램 카드', d:'각도에 따라 무지갯빛으로 반짝이는 카드', stage:`<div class="holocard"></div>` },
+    { t:'3D 회전 갤러리', d:'큐브처럼 회전하며 사진을 전환', stage:`<div class="cube3d"><div style="background:url('${IMG(1)}') center/cover;"></div></div>` },
+    { t:'입체 그림자 카드', d:'카드가 떠오르며 그림자가 함께 변화', stage:`<div class="shadowcard"></div>` },
+    { t:'접히는 카드', d:'카드가 종이처럼 접혔다 펴짐', stage:`<div class="foldcard"></div>` },
+    { t:'큐브 회전 섹션 전환', d:'큐브가 회전하며 다음 섹션으로 전환', stage:`<div class="cuberotate"><div class="f f1">Section 1</div><div class="f f2">Section 2</div></div>` },
+    { t:'시차 배경 레이어', d:'배경 레이어가 서로 반대로 미세하게 움직임', stage:`<div style="position:relative;width:100%;height:100%;"><div class="parlayer back" style="background:#443c30;"></div><div class="parlayer front" style="background:transparent;display:flex;align-items:center;justify-content:center;color:#eee;">최연준 & 김유진</div></div>` },
+  ],
+  q: [
+    { t:'다크모드 토글 스위치', d:'해/달 아이콘 스위치가 좌우로 전환', stage:`<div class="themetoggle"><div class="knob">☀️</div></div>` },
+    { t:'테마 컬러 크로스페이드', d:'라이트/다크 사진이 서서히 교차', stage:`<div class="themecross"><img class="light" src="${THUMB}"><img class="dark" src="${THUMB}"></div>` },
+    { t:'배경 그라데이션 전환', d:'배경 그라데이션이 밝게↔어둡게 모핑', stage:`<div class="gradmorph" style="position:absolute;inset:0;"></div>` },
+    { t:'별빛 배경 페이드인', d:'다크모드 전환 시 별빛이 서서히 나타남', stage:`<div style="position:relative;width:100%;height:100%;background:#221f1a;"><div class="starsfade" style="top:20%;left:20%;"></div><div class="starsfade" style="top:40%;left:60%;animation-delay:.5s;"></div><div class="starsfade" style="top:70%;left:35%;animation-delay:1s;"></div></div>` },
+    { t:'텍스트 컬러 인버전', d:'다크/라이트에 따라 텍스트 색이 전환', stage:`<div class="inverttext">최연준 & 김유진</div>` },
+    { t:'아이콘 해→달 모핑', d:'테마 아이콘이 해에서 달 모양으로 전환', stage:`<div class="moonsun">🌙</div>` },
+    { t:'테마별 파티클 전환', d:'꽃잎↔별빛처럼 테마에 맞는 파티클로 전환', stage:`<div style="position:relative;width:100%;height:100%;"><div class="themeparticle a" style="top:30%;left:30%;font-size:20px;">🌸</div><div class="themeparticle b" style="top:30%;left:30%;font-size:20px;">✨</div></div>` },
+    { t:'카드 톤 전환', d:'카드 배경 톤이 밝게↔어둡게 전환', stage:`<div class="tonecard"></div>` },
+    { t:'전체 화면 페이드 전환', d:'화면 전체가 페이드되며 테마가 바뀜', stage:`<img class="bg" src="${THUMB}"><div class="fullfade"></div>` },
+    { t:'버튼 컬러 리플 전환', d:'테마 전환 버튼에서 색이 퍼져나가는 리플', stage:`<div class="ripple" style="top:50%;left:50%;border-color:rgba(216,185,120,.7);"></div>` },
+  ],
+  r: [
+    { t:'스크롤 텍스트 마스크', d:'스크롤에 맞춰 텍스트가 클립 마스크로 드러남', stage:`<div class="scrolltext">SCROLL TO REVEAL</div>` },
+    { t:'스크롤 이미지 시퀀스', d:'스크롤 위치에 따라 이미지가 전환됨', stage:`<div class="imgseq"><img src="${IMG(1)}"><img src="${IMG(2)}"><img src="${IMG(3)}"></div>` },
+    { t:'스크롤 타임라인 드로잉', d:'스크롤에 맞춰 타임라인이 그려짐', stage:`<svg class="timelinesvg" viewBox="0 0 200 20" style="width:80%;"><line class="tl" x1="10" y1="10" x2="190" y2="10" stroke="#d8b978" stroke-width="3"/></svg>` },
+    { t:'스크롤 확대/축소', d:'스크롤 위치에 따라 요소 크기가 변화', stage:`<div class="scalescroll" style="width:70px;height:70px;background:#443c30;border-radius:12px;"></div>` },
+    { t:'스크롤 회전', d:'스크롤에 맞춰 오브젝트가 회전함', stage:`<div class="rotscroll" style="font-size:36px;">💍</div>` },
+    { t:'스크롤 배경색 전환', d:'스크롤하면 섹션 배경색이 서서히 바뀜', stage:`<div class="colorscroll"></div>` },
+    { t:'스크롤 단어 하이라이트', d:'스크롤에 맞춰 문장의 단어가 순서대로 강조', stage:`<div class="highlightwords label"><span>우리</span> <span>결혼</span> <span>합니다</span></div>` },
+    { t:'스크롤 숫자 카운트업', d:'화면에 들어오면 숫자가 올라가며 카운트', stage:`<div class="countup">173</div>` },
+    { t:'스크롤 레이어드 텍스트', d:'문구 레이어들이 서로 다른 속도로 이동', stage:`<div class="paratext" style="width:100%;height:100%;"><div class="t1 label n">최연준</div><div class="t2 label n" style="color:#d8b978;">김유진</div></div>` },
+    { t:'스크롤 원형 진행 링', d:'스크롤 진행률을 원형 링으로 표시', stage:`<svg class="scrollring" width="90" height="90"><circle class="bg" cx="45" cy="45" r="35" stroke="#443c30" stroke-width="6" fill="none"/><circle class="fg2" cx="45" cy="45" r="35" stroke-width="6" fill="none"/></svg>` },
+  ],
+  s: [
+    { t:'티켓 스텁 디자인', d:'절취선이 있는 티켓 모양 초대장', stage:`<div class="ticketstub"><div class="main">Wedding Ticket</div><div class="stub"></div></div>` },
+    { t:'티켓 펀칭 효과', d:'티켓에 펀치 구멍이 뚫리는 연출', stage:`<div class="punchhole"></div>` },
+    { t:'보딩패스 스타일 슬라이드', d:'비행기 탑승권 스타일 카드가 슬라이드인', stage:`<div class="boardpass"></div>` },
+    { t:'승인 도장 스탬프', d:'승인 도장이 쾅 찍히는 연출', stage:`<div class="approvestamp">CONFIRMED</div>` },
+    { t:'카드 광택 스윕', d:'카드 표면에 빛이 스치는 광택 효과', stage:`<div class="glosscard"></div>` },
+    { t:'카드 모서리 접힘(peel)', d:'카드 모서리가 접혔다 펴지는 효과', stage:`<div class="peelcorner"></div>` },
+    { t:'홀로그램 씰 스티커', d:'홀로그램 스티커가 반짝이며 붙음', stage:`<div class="holosticker"></div>` },
+    { t:'카드 QR코드 페이드인', d:'QR코드가 서서히 나타남', stage:`<div class="qrfade"></div>` },
+    { t:'카드 스와이프 스냅백', d:'카드를 스와이프하면 다시 튕겨 돌아옴', stage:`<div class="snapback" style="width:120px;height:70px;background:#443c30;border-radius:8px;"></div>` },
+    { t:'카드 스택 셔플', d:'카드 두 장이 서로 자리를 바꾸며 셔플', stage:`<div class="shufflestack"><div class="c" style="background:#8a6a3c;"></div><div class="c" style="background:#c96b5c;"></div></div>` },
+  ],
+  t: [
+    { t:'네온 텍스트 글로우', d:'네온사인처럼 깜빡이며 빛나는 텍스트', stage:`<div class="neontext">MARRY ME</div>` },
+    { t:'그라데이션 보더 회전', d:'카드 테두리 색이 계속 회전하며 변화', stage:`<div class="gradborder"><div class="in"></div></div>` },
+    { t:'글로우 버튼 펄스', d:'버튼 주변이 은은히 빛나며 맥박침', stage:`<div class="glowbtn">청첩장 보기</div>` },
+    { t:'홀로그램 텍스트 시프트', d:'무지갯빛으로 색이 흐르는 텍스트', stage:`<div class="holotext">HOLOGRAM</div>` },
+    { t:'빛나는 파티클 오라', d:'인물 주변에 은은한 빛 입자가 감돔', stage:`<div style="position:relative;width:100%;height:100%;"><div class="auraparticle" style="top:30%;left:40%;"></div><div class="auraparticle" style="top:60%;left:60%;animation-delay:.5s;"></div><div class="auraparticle" style="top:45%;left:70%;animation-delay:1s;"></div></div>` },
+    { t:'네온 라인 드로잉', d:'빛나는 선이 스스로 그려지는 효과', stage:`<svg viewBox="0 0 200 100" style="width:80%;"><path class="neonline" d="M10 50 Q100 0 190 50" stroke="#d8b978" stroke-width="2" fill="none"/></svg>` },
+    { t:'글리터 텍스트 스파클', d:'텍스트 주변에 반짝이는 입자가 흩뿌려짐', stage:`<div class="glittertext">SPARKLE<span class="g" style="top:0;left:10%;"></span><span class="g" style="top:60%;left:50%;animation-delay:.3s;"></span><span class="g" style="top:20%;left:80%;animation-delay:.6s;"></span></div>` },
+    { t:'프리즘 라이트 반사', d:'빛줄기가 화면을 스치며 반사되는 효과', stage:`<img class="bg" src="${THUMB}"><div class="prism"></div>` },
+    { t:'글로우 링 확산', d:'중심에서 빛나는 링이 퍼져나감', stage:`<div class="glowring"></div>` },
+    { t:'오로라 텍스트 그라데이션', d:'오로라처럼 색이 흐르는 텍스트', stage:`<div class="auroratext">AURORA</div>` },
+  ],
+  u: [
+    { t:'감사 문구 페이드업', d:'감사 인사말이 아래에서 떠오르며 등장', stage:`<div class="thanksfade label n">참석해주셔서 감사합니다</div>` },
+    { t:'엔딩 크레딧 롤업', d:'영화 엔딩처럼 이름들이 아래에서 위로 흐름', stage:`<div class="creditsroll"><div class="c">최연준 · 김유진<br>2027. 03. 13</div></div>` },
+    { t:'커플 사진 프레임 확대', d:'마지막 사진이 액자 프레임과 함께 확대', stage:`<img class="bg frameZoom" src="${THUMB}">` },
+    { t:'하트 폭죽 피날레', d:'작은 하트들이 사방으로 터지며 마무리', stage:`<div style="position:relative;width:100%;height:100%;"><div class="fireworkHeart" style="left:50%;top:60%;--tx:-30px;--ty:-40px;">♥</div><div class="fireworkHeart" style="left:50%;top:60%;--tx:30px;--ty:-40px;animation-delay:.3s;">♥</div><div class="fireworkHeart" style="left:50%;top:60%;--tx:0px;--ty:-60px;animation-delay:.6s;">♥</div></div>` },
+    { t:'페이드 투 블랙 엔딩', d:'화면이 어두워졌다 다시 밝아지는 엔딩', stage:`<img class="bg" src="${THUMB}"><div class="fadeblack"></div>` },
+    { t:'엔딩 로고 워터마크', d:'하단에 은은한 로고 워터마크가 나타남', stage:`<div class="watermark">Y & J WEDDING</div>` },
+    { t:'다시보기 버튼 등장', d:'엔딩 후 다시보기 버튼이 통통 튀며 등장', stage:`<div class="replaybtn">다시 보기 ↻</div>` },
+    { t:'엔딩 별빛 반짝임', d:'엔딩 화면에 별들이 반짝반짝 빛남', stage:`<div style="position:relative;width:100%;height:100%;background:#1c1a17;"><div class="twinkle2" style="top:20%;left:30%;"></div><div class="twinkle2" style="top:50%;left:70%;animation-delay:.4s;"></div><div class="twinkle2" style="top:70%;left:40%;animation-delay:.8s;"></div></div>` },
+    { t:'커튼콜 닫힘 엔딩', d:'커튼이 닫히며 감사인사로 마무리', stage:`<img class="bg" src="${THUMB}"><div class="curtainclose"><div></div><div></div></div>` },
+    { t:'감사 스탬프 도장', d:'감사 도장이 쾅 찍히며 엔딩', stage:`<div class="thanksstamp">THANK YOU</div>` },
+  ],
+};
+
+function buildGrid(id, items, prefix){
+  const grid = document.getElementById('grid-' + id);
+  items.forEach((it, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const pickId = `${prefix}${i+1}`;
+    card.id = 'card-' + pickId;
+    card.innerHTML = `
+      <div class="card-head">
+        <div class="no">${prefix.toUpperCase()}${String(i+1).padStart(2,'0')}</div>
+        <h2>${it.t}</h2>
+        <div class="desc">${it.d}</div>
+      </div>
+      <div class="stage" id="${pickId}">${it.stage}</div>
+      <div class="actions">
+        <button class="replay" data-target="${pickId}">▶ 다시 재생</button>
+        <button class="pick" data-pick="${pickId}" data-label="${it.t}">♥ 선택</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+Object.keys(CATS).forEach(k => buildGrid(k, CATS[k], k));
+
+document.getElementById('tilegridA').innerHTML = Array.from({length:24}).map(()=>`<div class="tile" style="animation-delay:${(Math.random()*0.6).toFixed(2)}s;"></div>`).join('');
+document.getElementById('tilesgridC').innerHTML = [1,2,3,4,5,6,7,8].map((n,i)=>`<img src="${IMG(n)}" style="animation-delay:${(i*0.12).toFixed(2)}s;">`).join('');
+document.getElementById('charstagA').innerHTML = '최연준·김유진'.split('').map((c,i)=>`<span style="animation-delay:${(i*0.08).toFixed(2)}s;">${c}</span>`).join('');
+
+function makeParticles(hostId, cls, count){
+  const host = document.getElementById(hostId);
+  if(!host) return;
+  for(let i=0;i<count;i++){
+    const p = document.createElement('div');
+    p.className = cls;
+    p.style.left = (Math.random()*100) + '%';
+    p.style.animationDuration = (1.6 + Math.random()*2) + 's';
+    p.style.animationDelay = (Math.random()*2) + 's';
+    if(cls === 'confetti'){ p.style.background = ['#c9a45c','#c96b5c','#8a9a7c','#c9d3e0'][i%4]; }
+    host.appendChild(p);
+  }
+}
+makeParticles('petalsD','petal',14);
+makeParticles('snowD','snow',18);
+makeParticles('sparkD','spark',16);
+makeParticles('confettiD','confetti',16);
+
+function playStage(stage){
+  stage.classList.remove('play');
+  void stage.offsetWidth;
+  stage.classList.add('play');
+}
+document.querySelectorAll('.replay').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    playStage(document.getElementById(btn.dataset.target));
+  });
+});
+window.addEventListener('load', ()=>{
+  document.querySelectorAll('.stage').forEach(s=> playStage(s));
+});
+
+/* ---------------- 선택 상태 Supabase 동기화 (concept 페이지와 동일 테이블 공유) ---------------- */
+const SUPABASE_URL = 'https://fddqfomhfnzshgwopjqa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkZHFmb21oZm56c2hnd29wanFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUxODcyMjMsImV4cCI6MjEwMDc2MzIyM30.Wnh0KsJf4uYMb9AVbMiH_yiToBPnGMd-GvXe4KsKEFg';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const LABELS = {};
+document.querySelectorAll('.pick').forEach(btn => { LABELS[btn.dataset.pick] = btn.dataset.label; });
+
+async function refreshPicks(){
+  const { data, error } = await sb.from('design_picks').select('*').eq('picked', true);
+  if(error){
+    document.getElementById('summaryBar').textContent = '선택 정보를 불러오지 못했어요 (design_picks 테이블 생성 필요)';
+    return;
+  }
+  const pickedIds = new Set(data.map(r => r.id));
+  document.querySelectorAll('.pick').forEach(btn => {
+    const on = pickedIds.has(btn.dataset.pick);
+    btn.classList.toggle('on', on);
+    document.getElementById('card-' + btn.dataset.pick).classList.toggle('picked', on);
+  });
+  const count = pickedIds.size;
+  const names = [...pickedIds].map(id => LABELS[id]).filter(Boolean).join(' · ');
+  document.getElementById('summaryBar').innerHTML =
+    `선택된 효과: <b>${count}</b>개` + (names ? `<div class="list">${names}</div>` : '');
+}
+
+async function togglePick(id, nextState){
+  await sb.from('design_picks').upsert({ id, picked: nextState, updated_at: new Date().toISOString() });
+  await refreshPicks();
+}
+
+document.querySelectorAll('.pick').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const willPick = !btn.classList.contains('on');
+    btn.disabled = true;
+    await togglePick(btn.dataset.pick, willPick);
+    btn.disabled = false;
+  });
+});
+
+refreshPicks();
+sb.channel('design_picks_changes_detail')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'design_picks' }, refreshPicks)
+  .subscribe();
+</script>
+</body>
+</html>
