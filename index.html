@@ -226,14 +226,31 @@
     color:#fff; font-size:0.6875rem; letter-spacing:.4em; font-weight:600;
     text-shadow:0 1px 6px rgba(0,0,0,.55);
   }
+  .hero-photo::after{
+    content:''; position:absolute; inset:0; background:rgba(20,17,14,.22); pointer-events:none;
+  }
   .poster-overlay{
     width:100%; box-sizing:border-box; padding:34px 20px 26px;
     background:linear-gradient(to top, rgba(20,17,14,.75) 0%, rgba(20,17,14,.4) 55%, rgba(20,17,14,0) 100%);
     clip-path: inset(0 100% 0 0);
     animation: poster-wipe-in 2.5s cubic-bezier(.65,0,.35,1) forwards; animation-delay:.5s;
+    position:relative; z-index:1;
   }
   .poster-overlay .hero-names{ color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.45); opacity:1; letter-spacing:normal; transform:none; animation:none; }
   .poster-overlay .hero-date{ color:rgba(255,253,249,.94); text-shadow:0 1px 6px rgba(0,0,0,.4); opacity:1; transform:none; animation:none; }
+  .hero-quote{
+    min-height:1.3em; margin-bottom:12px; font-size:0.8125rem; font-weight:500;
+    letter-spacing:.02em; color:rgba(255,253,249,.94); text-shadow:0 1px 6px rgba(0,0,0,.4);
+  }
+  .hero-quote-cursor{
+    display:inline-block; width:1px; height:0.9em; margin-left:2px; vertical-align:-1px;
+    background:currentColor; animation:hero-quote-blink 0.8s step-end infinite;
+  }
+  .hero-quote-cursor.done{ display:none; }
+  @keyframes hero-quote-blink{ 50%{ opacity:0; } }
+  @media (prefers-reduced-motion: reduce){
+    .hero-quote-cursor{ animation:none !important; opacity:0 !important; }
+  }
   .hero-names{
     font-size:1.625rem; font-weight:600; margin-bottom:8px;
   }
@@ -586,6 +603,7 @@
     <div class="hero-photo">
       <div class="poster-label">SAVE THE DATE</div>
       <div class="poster-overlay">
+        <div class="hero-quote" id="heroQuote"><span class="hero-quote-text"></span><span class="hero-quote-cursor"></span></div>
         <div class="hero-names">최연준<span class="amp">&amp;</span>김유진</div>
         <div class="hero-date">2027년 03월 13일 토요일 낮 12시</div>
         <div class="hero-date" style="margin-top:2px;">L65호텔 웨딩컨벤션</div>
@@ -678,12 +696,7 @@
   <section id="mapSection">
     <div class="section-title">오시는 길</div>
     <div class="section-sub">LOCATION</div>
-    <div class="map-box" id="mapBox" onclick="loadRealMap()">
-      <img src="map-thumb.jpg" alt="지도 미리보기" style="width:100%; height:100%; object-fit:cover; display:block;">
-      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.15);">
-        <span style="background:#fff; color:var(--ink); font-size:0.75rem; padding:8px 16px; border-radius:999px; box-shadow:0 2px 8px rgba(0,0,0,.2);">지도를 눌러 자세히 보기</span>
-      </div>
-    </div>
+    <div class="map-box" id="mapBox"></div>
     <div class="venue-name">L65호텔 웨딩컨벤션</div>
     <div class="venue-name" style="font-size:0.8125rem; font-weight:400; color:var(--ink-soft); margin-top:2px;">가든홀</div>
     <div class="venue-addr">서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층</div>
@@ -858,6 +871,38 @@
 <div id="toast"></div>
 
 <script>
+/* ---------------- 히어로 사진 위 문구 (타이핑 애니메이션) ----------------
+   아래 텍스트만 바꾸면 문구가 자동으로 교체됩니다. */
+const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
+
+(function typeHeroQuote(){
+  const wrap = document.getElementById('heroQuote');
+  const textEl = wrap ? wrap.querySelector('.hero-quote-text') : null;
+  const cursorEl = wrap ? wrap.querySelector('.hero-quote-cursor') : null;
+  if(!wrap || !textEl) return;
+
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    textEl.textContent = HERO_QUOTE_TEXT;
+    if(cursorEl) cursorEl.classList.add('done');
+    return;
+  }
+
+  const CHAR_DELAY = 90;   // 한 글자당 타이핑 속도(ms)
+  const START_DELAY = 1400; // 사진 등장 애니메이션 이후 시작 지연(ms)
+
+  let i = 0;
+  function tick(){
+    textEl.textContent = HERO_QUOTE_TEXT.slice(0, i);
+    if(i < HERO_QUOTE_TEXT.length){
+      i++;
+      setTimeout(tick, CHAR_DELAY);
+    } else if(cursorEl){
+      cursorEl.classList.add('done');
+    }
+  }
+  setTimeout(tick, START_DELAY);
+})();
+
 /* ---------------- 혼주용/지인용 링크 구분 (?for=parent) ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
 const audienceMode = (urlParams.get('for') === 'parent') ? 'parent' : 'guest';
@@ -1397,39 +1442,13 @@ async function submitGuestbook(){
 
 const GOOGLE_MAP_URL = "https://www.google.com/maps?q=서울%20동대문구%20왕산로%20200%20SKY-L65&output=embed";
 
-function loadRealMap(){
+(function loadRealMap(){
   const box = document.getElementById('mapBox');
-  if(!box || box.dataset.loaded) return;
-  box.dataset.loaded = '1';
-  box.onclick = null;
+  if(!box) return;
   box.innerHTML = `<iframe
       src="${GOOGLE_MAP_URL}"
       style="width:100%; height:100%; border:0;"
       referrerpolicy="no-referrer-when-downgrade"></iframe>`;
-}
-
-// 지도 섹션이 화면에 가까워지면 미리 iframe을 백그라운드에 숨겨서 로드해둠 -> 클릭 시 즉시 표시
-(function preloadMapOnApproach(){
-  const box = document.getElementById('mapBox');
-  if(!box || !('IntersectionObserver' in window)) return;
-  const preload = document.createElement('iframe');
-  preload.src = GOOGLE_MAP_URL;
-  preload.style.cssText = 'position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; border:0;';
-  preload.referrerPolicy = 'no-referrer-when-downgrade';
-
-  const observer = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        document.body.appendChild(preload);
-        observer.disconnect();
-      }
-    });
-  }, { rootMargin: '600px 0px' });
-  observer.observe(box);
-
-  box.addEventListener('click', ()=>{
-    if(preload.parentNode) preload.parentNode.removeChild(preload);
-  }, { once: true });
 })();
 
 /* ---------------- 공유 ---------------- */
