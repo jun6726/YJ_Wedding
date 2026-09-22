@@ -17,6 +17,13 @@
   .summary b{ color:#d8b978; }
   .summary .list{ font-size:11px; color:#cbbfa4; margin-top:4px; }
 
+  .sidepanel{ position:fixed; top:90px; right:10px; width:180px; max-height:72vh; overflow-y:auto; background:#2b2620; border-radius:12px; padding:12px; z-index:60; box-shadow:0 10px 24px rgba(0,0,0,.35); }
+  .sidepanel h3{ font-size:10.5px; color:#d8b978; margin:0 0 8px; letter-spacing:.1em; }
+  .sidepanel .item{ font-size:10px; color:#f0e6d0; padding:6px 8px; border-radius:6px; cursor:pointer; margin-bottom:4px; line-height:1.4; }
+  .sidepanel .item:hover{ background:#443c30; }
+  .sidepanel .empty{ font-size:9.5px; color:#998f78; }
+  @media (max-width:980px){ .sidepanel{ width:120px; font-size:9px; padding:8px; top:70px; } .sidepanel .item{ font-size:9px; } }
+
   .catnav{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:16px; padding:0 20px; max-width:900px; margin-left:auto; margin-right:auto; }
   .catnav a{ font-size:10.5px; padding:5px 10px; border-radius:999px; background:#fff; color:#8a6a3c; text-decoration:none; border:1px solid #e6dcc6; }
   .cat-title{ max-width:960px; margin:40px auto 4px; padding:0 20px; font-size:13px; letter-spacing:.15em; color:#a08a5c; font-weight:700; }
@@ -927,10 +934,54 @@
   .thanksstamp{ border:2px solid #d8b978; color:#d8b978; padding:8px 16px; font-size:12px; font-weight:700; transform:scale(3); opacity:0; }
   .play .thanksstamp{ animation: tstamp .4s ease forwards; animation-delay:.3s; }
   @keyframes tstamp{ to{ transform:scale(1); opacity:1; } }
+
+  /* ---- 하트 낙하 (3종 랜덤) ---- */
+  .heartshape{ position:absolute; top:-24px; width:14px; height:14px; transform:rotate(45deg); opacity:.95; }
+  .heartshape::before,.heartshape::after{ content:''; position:absolute; width:14px; height:14px; border-radius:50%; background:inherit; }
+  .heartshape::before{ top:-7px; left:0; }
+  .heartshape::after{ left:-7px; top:0; }
+  .heartshape.h1{ background:#e26d7a; }
+  .heartshape.h2{ background:#f2a4c0; }
+  .heartshape.h3{ background:#d8b978; }
+  .play .heartshape{ animation: heartfall linear infinite; }
+  @keyframes heartfall{ to{ transform:rotate(405deg) translateY(220px); opacity:0; } }
+
+  /* ---- 편지봉투 오프닝 (풀스테이지 진입 연출) ---- */
+  .envfull{ position:absolute; inset:0; background:#efe5d0; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  .envfull .flapfull{ position:absolute; top:0; left:0; right:0; height:55%; background:#ddd0ac; clip-path:polygon(0 0,100% 0,50% 100%); transform-origin:top; z-index:2; }
+  .play .envfull .flapfull{ animation: flapopenfull 1s ease forwards; animation-delay:.2s; }
+  @keyframes flapopenfull{ to{ transform:rotateX(180deg); } }
+  .envfull .cardface{ position:relative; z-index:1; text-align:center; color:#5c4a2e; }
+  .envfull .cardface .n{ font-size:15px; font-weight:700; }
+
+  .sealfull{ position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center; background:#221f1a; }
+  .sealfull .sealcircle{ width:80px; height:80px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#d98a6b,#9c3f2a); display:flex; align-items:center; justify-content:center; color:#f0d9a0; font-size:11px; }
+  .play .sealfull .sealcircle{ animation: sealfullopen 1.1s ease forwards; animation-delay:.4s; }
+  @keyframes sealfullopen{ to{ transform:scale(7); opacity:0; } }
+
+  .trifold{ position:absolute; inset:0; display:flex; z-index:3; }
+  .trifold .panel{ flex:1; background:#efe5d0; }
+  .trifold .panel:nth-child(1){ transform-origin:left; }
+  .trifold .panel:nth-child(2){ transform-origin:right; }
+  .play .trifold .panel:nth-child(1){ animation: foldopenL 1s ease forwards; animation-delay:.25s; }
+  .play .trifold .panel:nth-child(2){ animation: foldopenR 1s ease forwards; animation-delay:.25s; }
+  @keyframes foldopenL{ to{ transform:rotateY(115deg); opacity:0; } }
+  @keyframes foldopenR{ to{ transform:rotateY(-115deg); opacity:0; } }
+
+  .ribbonopen{ position:absolute; inset:0; z-index:3; }
+  .ribbonopen .rb{ position:absolute; width:130%; height:16px; background:#c96b5c; top:50%; left:-15%; transform-origin:center; }
+  .play .ribbonopen .rb.top{ animation: rbtop 1s ease forwards; animation-delay:.2s; }
+  .play .ribbonopen .rb.bottom{ animation: rbbottom 1s ease forwards; animation-delay:.2s; }
+  @keyframes rbtop{ to{ transform:translateY(-60px) rotate(-8deg); opacity:0; } }
+  @keyframes rbbottom{ to{ transform:translateY(60px) rotate(8deg); opacity:0; } }
 </style>
 </head>
 <body>
 <div class="summary" id="summaryBar">선택된 효과: <b id="pickCount">0</b>개 불러오는 중...</div>
+<div class="sidepanel">
+  <h3>선택된 효과 ▸ 클릭하면 이동</h3>
+  <div id="sidePanelList"><div class="empty">아직 선택된 효과가 없어요</div></div>
+</div>
 <header>
   <h1>청첩장 애니메이션 시안 200 (전체)</h1>
   <p>기존 50가지(국내 흔한 연출)에 해외 트렌드·추가 아이디어 150가지를 더한 전체 200가지 카탈로그입니다. 이 페이지의 선택 상태는 /concept/ 페이지와 동일하게 실시간 공유·저장됩니다.</p>
@@ -1002,6 +1053,10 @@ const CATS = {
     { t:'줌아웃 리빌', d:'확대된 사진이 서서히 축소되며 제자리에 안착', stage:`<img class="bg zoomrevealimg" src="${THUMB}"><div class="label"><div class="n">최연준 · 김유진</div></div>` },
     { t:'포커스인(블러→선명)', d:'흐릿하던 사진이 점점 선명해짐', stage:`<img class="bg blurimg" src="${THUMB}"><div class="label"><div class="n">최연준 · 김유진</div></div>` },
     { t:'플래시 화이트아웃', d:'하얗게 번쩍인 뒤 사진이 드러나는 카메라 플래시 연출', stage:`<img class="bg" src="${THUMB}"><div class="flash"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
+    { t:'편지봉투 플랩 오프닝', d:'진입 시 편지봉투 뚜껑이 열리며 초대장이 드러남', stage:`<div class="envfull"><div class="flapfull"></div><div class="cardface"><div class="n">최연준 & 김유진</div><div style="font-size:10px;margin-top:6px;color:#8a6a3c;">모바일 초대장</div></div></div>` },
+    { t:'왁스 씰 확대 오프닝', d:'화면 중앙 봉인 씰이 커지며 사라지고 본문이 드러남', stage:`<img class="bg" src="${THUMB}"><div class="sealfull"><div class="sealcircle">OPEN</div></div>` },
+    { t:'편지지 3단 접이 오프닝', d:'3단 접힌 편지지가 양옆으로 펼쳐지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="trifold"><div class="panel"></div><div class="panel"></div></div>` },
+    { t:'리본 풀기 오프닝', d:'가로지른 리본이 풀리며 초대장이 열림', stage:`<img class="bg" src="${THUMB}"><div class="ribbonopen"><div class="rb top"></div><div class="rb bottom"></div></div>` },
   ],
   b: [
     { t:'타이핑 텍스트', d:'한 글자씩 써지는 효과 (현재 사이트 적용됨)', stage:`<div class="label"><div class="n typing">우리 결혼합니다</div></div>` },
@@ -1028,7 +1083,7 @@ const CATS = {
     { t:'셔터 전환', d:'카메라 셔터처럼 조각들이 좌우로 열리며 전환', stage:`<img class="bg" src="${IMG(7)}"><div class="shutter"><div class="sl"></div><div class="sl"></div><div class="sl"></div><div class="sl"></div><div class="sl"></div></div>` },
   ],
   d: [
-    { t:'꽃잎 낙하', d:'배경에 꽃잎이 계속 떨어지는 장식 효과', stage:`<img class="bg" src="${IMG(2)}"><div class="dim"></div><div id="petalsD"></div>` },
+    { t:'하트 낙하', d:'배경에 하트 3종이 랜덤으로 섞여 계속 떨어지는 장식 효과', stage:`<img class="bg" src="${IMG(2)}"><div class="dim"></div><div id="petalsD"></div>` },
     { t:'눈송이 낙하', d:'눈이 흩날리며 떨어지는 겨울 웨딩 연출', stage:`<img class="bg" src="${IMG(3)}"><div class="dim"></div><div id="snowD"></div>` },
     { t:'반짝이는 파티클', d:'배경에 작은 빛 입자가 반짝임', stage:`<img class="bg" src="${IMG(4)}"><div class="dim"></div><div id="sparkD"></div>` },
     { t:'필름 그레인 노이즈', d:'화면 전체에 미세한 필름 알갱이 질감이 깜빡임', stage:`<img class="bg" src="${IMG(1)}"><div class="grain"></div>` },
@@ -1276,7 +1331,20 @@ function makeParticles(hostId, cls, count){
     host.appendChild(p);
   }
 }
-makeParticles('petalsD','petal',14);
+function makeHearts(hostId, count){
+  const host = document.getElementById(hostId);
+  if(!host) return;
+  const variants = ['h1','h2','h3'];
+  for(let i=0;i<count;i++){
+    const h = document.createElement('div');
+    h.className = 'heartshape ' + variants[Math.floor(Math.random()*3)];
+    h.style.left = (Math.random()*100) + '%';
+    h.style.animationDuration = (1.8 + Math.random()*2) + 's';
+    h.style.animationDelay = (Math.random()*2) + 's';
+    host.appendChild(h);
+  }
+}
+makeHearts('petalsD',16);
 makeParticles('snowD','snow',18);
 makeParticles('sparkD','spark',16);
 makeParticles('confettiD','confetti',16);
@@ -1319,7 +1387,26 @@ async function refreshPicks(){
   const names = [...pickedIds].map(id => LABELS[id]).filter(Boolean).join(' · ');
   document.getElementById('summaryBar').innerHTML =
     `선택된 효과: <b>${count}</b>개` + (names ? `<div class="list">${names}</div>` : '');
+
+  const sidePanelList = document.getElementById('sidePanelList');
+  sidePanelList.innerHTML = pickedIds.size
+    ? [...pickedIds].map(id => `<div class="item" data-jump="${id}">${LABELS[id] || id}</div>`).join('')
+    : '<div class="empty">아직 선택된 효과가 없어요</div>';
 }
+
+document.getElementById('sidePanelList').addEventListener('click', (e) => {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  const id = item.dataset.jump;
+  const card = document.getElementById('card-' + id);
+  const stage = document.getElementById(id);
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  card.style.transition = 'box-shadow .3s';
+  card.style.boxShadow = '0 0 0 4px rgba(216,185,120,.85)';
+  setTimeout(() => { card.style.boxShadow = ''; }, 1300);
+  if (stage) playStage(stage);
+});
 
 async function togglePick(id, nextState){
   await sb.from('design_picks').upsert({ id, picked: nextState, updated_at: new Date().toISOString() });
