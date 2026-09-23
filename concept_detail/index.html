@@ -981,6 +981,249 @@
   .play .ribbonopen .rb.bottom{ animation: rbbottom 1s ease forwards; animation-delay:.2s; }
   @keyframes rbtop{ to{ transform:translateY(-60px) rotate(-8deg); opacity:0; } }
   @keyframes rbbottom{ to{ transform:translateY(60px) rotate(8deg); opacity:0; } }
+
+  /* ---- 진입 애니메이션 조합 테스트 ---- */
+  .entry-scene{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden; perspective:700px; background:radial-gradient(circle at 50% 35%,#f8f1e5,#d9cbb4); }
+  .entry-scene .entry-photo{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transform:scale(1.08); }
+  .entry-scene .entry-name{ position:absolute; left:0; right:0; bottom:17px; z-index:8; color:#fff; text-align:center; font-family:Georgia,serif; font-size:13px; letter-spacing:.12em; opacity:0; text-shadow:0 2px 8px rgba(0,0,0,.65); }
+
+  /* 01. 엘린에서 착안한 세로 리본 + 양면 카드 펼침 */
+  .elin-card{ position:relative; width:116px; height:156px; transform-style:preserve-3d; filter:drop-shadow(0 10px 14px rgba(60,43,29,.25)); }
+  .elin-card .inside{ position:absolute; inset:0; border-radius:3px; background:#fffaf1; display:flex; align-items:center; justify-content:center; color:#765b42; font-family:Georgia,serif; font-size:12px; letter-spacing:.12em; }
+  .elin-card .door{ position:absolute; top:0; bottom:0; width:50%; z-index:2; background:linear-gradient(135deg,#fffdf7,#eadfce); border:1px solid rgba(139,111,78,.16); backface-visibility:hidden; }
+  .elin-card .door.left{ left:0; transform-origin:left center; border-radius:3px 0 0 3px; }
+  .elin-card .door.right{ right:0; transform-origin:right center; border-radius:0 3px 3px 0; }
+  .elin-card .vribbon{ position:absolute; z-index:4; top:-5px; bottom:-5px; left:50%; width:12px; margin-left:-6px; background:linear-gradient(90deg,#b89178,#ead2bd 45%,#9c755e); box-shadow:0 2px 5px rgba(76,50,36,.22); transform-origin:center; }
+  .entry-bow{ position:absolute; z-index:6; left:50%; top:50%; width:20px; height:14px; transform:translate(-50%,-50%); }
+  .entry-bow::before,.entry-bow::after{ content:''; position:absolute; top:-2px; width:18px; height:14px; border-radius:70% 25% 70% 30%; background:linear-gradient(135deg,#d7bba6,#9f765d); box-shadow:0 2px 4px rgba(80,50,30,.22); }
+  .entry-bow::before{ right:9px; transform:rotate(16deg); }
+  .entry-bow::after{ left:9px; transform:scaleX(-1) rotate(16deg); }
+  .entry-bow i{ position:absolute; z-index:2; left:6px; top:2px; width:8px; height:8px; border-radius:50%; background:#8f684f; }
+  .play .elin-card .entry-bow{ animation:entryBowLoose .65s cubic-bezier(.22,.7,.3,1) forwards .55s; }
+  .play .elin-card .vribbon{ animation:entryRibbonV .55s ease-in forwards 1s; }
+  .play .elin-card .door.left{ animation:entryDoorL .9s cubic-bezier(.65,0,.35,1) forwards 1.35s; }
+  .play .elin-card .door.right{ animation:entryDoorR .9s cubic-bezier(.65,0,.35,1) forwards 1.35s; }
+  .play .elin-card .inside{ animation:entryInsideGlow .8s ease forwards 1.75s; }
+  @keyframes entryBowLoose{ 45%{ transform:translate(-50%,-50%) scale(1.12) rotate(-7deg); } 100%{ transform:translate(72px,-76px) scale(.55) rotate(35deg); opacity:0; } }
+  @keyframes entryRibbonV{ to{ transform:scaleY(0); opacity:0; } }
+  @keyframes entryDoorL{ to{ transform:rotateY(-112deg); opacity:.15; } }
+  @keyframes entryDoorR{ to{ transform:rotateY(112deg); opacity:.15; } }
+  @keyframes entryInsideGlow{ to{ transform:scale(1.08); box-shadow:0 0 28px rgba(255,255,255,.8); } }
+
+  /* 02/03/05/06. 리본 봉투 공통 */
+  .entry-envelope{ position:relative; width:224px; height:128px; transform-style:preserve-3d; }
+  .entry-envelope .letter{ position:absolute; z-index:1; left:19px; right:19px; top:12px; height:105px; border-radius:3px; background:#fffaf0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#765d45; font-family:Georgia,serif; font-size:12px; letter-spacing:.08em; box-shadow:0 3px 10px rgba(50,35,25,.16); }
+  .entry-envelope .letter small{ display:block; margin-top:7px; font-family:Arial,sans-serif; font-size:8px; letter-spacing:.16em; }
+  .entry-envelope .back{ position:absolute; inset:8px 0 0; background:#d8c7aa; border-radius:5px; }
+  .entry-envelope .flap{ position:absolute; z-index:3; left:0; right:0; top:8px; height:70px; background:linear-gradient(145deg,#eadfc9,#cdbb9e); clip-path:polygon(0 0,100% 0,50% 100%); transform-origin:top center; }
+  .entry-envelope .pocket{ position:absolute; z-index:2; left:0; right:0; bottom:0; height:92px; background:linear-gradient(145deg,#e9dcc5,#cfbda0); clip-path:polygon(0 26%,50% 72%,100% 26%,100% 100%,0 100%); border-radius:0 0 5px 5px; }
+  .entry-envelope .band-h{ position:absolute; z-index:5; left:-8px; right:-8px; top:58px; height:14px; background:linear-gradient(#c9a58c,#a77d63); box-shadow:0 2px 5px rgba(62,42,29,.2); transform-origin:center; }
+  .entry-envelope .band-v{ position:absolute; z-index:5; top:0; bottom:-7px; left:50%; width:14px; margin-left:-7px; background:linear-gradient(90deg,#a77d63,#d5b59e 48%,#966d55); transform-origin:center; }
+  .entry-envelope .entry-bow{ top:65px; }
+  .play .bow-envelope .entry-bow{ animation:entryBowLoose .7s cubic-bezier(.22,.7,.3,1) forwards .55s; }
+  .play .bow-envelope .band-h{ animation:entryBandH .55s ease-in forwards 1s; }
+  .play .bow-envelope .flap{ animation:entryFlap 1s cubic-bezier(.65,0,.35,1) forwards 1.4s; }
+  .play .bow-envelope .letter{ animation:entryLetterRise 1s cubic-bezier(.22,.72,.28,1) forwards 2.05s; }
+  @keyframes entryBandH{ to{ transform:scaleX(0); opacity:0; } }
+  @keyframes entryBandV{ to{ transform:scaleY(0); opacity:0; } }
+  @keyframes entryFlap{ 49%{ z-index:3; } 50%,100%{ transform:rotateX(180deg); z-index:0; } }
+  @keyframes entryLetterRise{ 55%{ transform:translateY(-73px) scale(.94); z-index:4; } 100%{ transform:translateY(-18px) scale(1.18); z-index:7; box-shadow:0 12px 28px rgba(50,35,25,.28); } }
+
+  .play .cross-envelope .entry-bow{ animation:entryKnotSpin .55s ease forwards .55s; }
+  .play .cross-envelope .band-h{ animation:entryBandH .55s ease-in forwards .95s; }
+  .play .cross-envelope .band-v{ animation:entryBandV .55s ease-in forwards 1.15s; }
+  .play .cross-envelope .flap{ animation:entryFlap .9s ease forwards 1.5s; }
+  .play .cross-envelope .letter{ animation:entryLetterRise .9s ease forwards 2.05s; }
+  @keyframes entryKnotSpin{ to{ transform:translate(-50%,-50%) rotate(130deg) scale(0); opacity:0; } }
+
+  .wax-ribbon .wax{ position:absolute; z-index:7; left:50%; top:65px; width:34px; height:34px; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle at 35% 28%,#d79a87,#8d493b 70%); box-shadow:0 3px 7px rgba(70,35,28,.35); color:#f2d9b5; font:9px Georgia,serif; display:flex; align-items:center; justify-content:center; }
+  .play .wax-ribbon .wax{ animation:entryWaxBreak .65s cubic-bezier(.3,.7,.35,1.3) forwards .55s; }
+  .play .wax-ribbon .band-h{ animation:entryBandSplit .7s ease forwards 1s; }
+  .play .wax-ribbon .flap{ animation:entryFlap .9s ease forwards 1.5s; }
+  .play .wax-ribbon .letter{ animation:entryLetterRise .9s ease forwards 2.05s; }
+  @keyframes entryWaxBreak{ 35%{ transform:translate(-50%,-50%) scale(1.18); } 100%{ transform:translate(-50%,-50%) scale(2.5); filter:blur(3px); opacity:0; } }
+  @keyframes entryBandSplit{ to{ transform:scaleX(.05); opacity:0; } }
+
+  .organza-envelope .band-h,.organza-envelope .entry-bow::before,.organza-envelope .entry-bow::after{ background:rgba(238,225,211,.68); border:1px solid rgba(255,255,255,.5); backdrop-filter:blur(2px); }
+  .play .organza-envelope .entry-bow{ animation:entryOrganzaBow .9s ease forwards .5s; }
+  .play .organza-envelope .band-h{ animation:entryOrganzaBand .9s ease forwards .9s; }
+  .play .organza-envelope .flap{ animation:entryFlap .9s ease forwards 1.5s; }
+  .play .organza-envelope .letter{ animation:entryLetterRise .9s ease forwards 2.05s; }
+  @keyframes entryOrganzaBow{ to{ transform:translate(92px,-85px) rotate(70deg) scale(.7); opacity:0; } }
+  @keyframes entryOrganzaBand{ to{ transform:translateX(-115%) rotate(-4deg); opacity:0; } }
+
+  /* 04. 리본 끝을 잡아당겨 화면을 여는 타입 */
+  .pull-entry{ background:#dfe8e3; }
+  .pull-entry .paper-cover{ position:absolute; inset:18px 64px; z-index:2; background:#f8f3e9; border-radius:3px; box-shadow:0 8px 24px rgba(43,61,52,.2); display:flex; align-items:center; justify-content:center; color:#536a5e; font:12px Georgia,serif; letter-spacing:.1em; }
+  .pull-entry .pull-ribbon{ position:absolute; z-index:4; left:-10%; top:52%; width:120%; height:13px; border-radius:9px; background:linear-gradient(#7d9989,#476b59); box-shadow:0 3px 7px rgba(40,63,51,.25); transform-origin:82% 50%; }
+  .pull-entry .pull-tail{ position:absolute; z-index:5; right:13%; top:49%; width:54px; height:10px; border-radius:8px; background:#567866; transform:rotate(24deg); }
+  .pull-entry .pull-hint{ position:absolute; z-index:6; right:8%; top:34%; color:#536a5e; font-size:9px; letter-spacing:.08em; }
+  .play .pull-entry .pull-tail{ animation:entryTailPull .75s ease forwards .55s; }
+  .play .pull-entry .pull-ribbon{ animation:entryRibbonFollow 1.15s cubic-bezier(.55,0,.2,1) forwards .9s; }
+  .play .pull-entry .pull-hint{ animation:entryHintOut .3s ease forwards .6s; }
+  .play .pull-entry .paper-cover{ animation:entryCoverZoom 1s cubic-bezier(.22,.72,.28,1) forwards 1.65s; }
+  @keyframes entryTailPull{ to{ transform:translate(75px,18px) rotate(48deg); opacity:0; } }
+  @keyframes entryRibbonFollow{ to{ transform:translateX(125%) rotate(12deg); opacity:0; } }
+  @keyframes entryHintOut{ to{ opacity:0; } }
+  @keyframes entryCoverZoom{ to{ inset:-8px 12px; box-shadow:none; font-size:16px; } }
+
+  /* 진입 시안 비주얼 디렉션: 얇은 새틴 리본, 절제된 그림자, 실제 히어로 사진 */
+  .entry-scene{
+    isolation:isolate;
+    background:
+      radial-gradient(circle at 50% 22%,rgba(255,255,255,.78),transparent 38%),
+      linear-gradient(145deg,#e8e2d8,#cfc5b6);
+  }
+  .entry-scene::before{
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.16;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+  }
+  .entry-scene::after{
+    content:''; position:absolute; inset:9px; z-index:0; border:1px solid rgba(255,255,255,.34); pointer-events:none;
+  }
+  .entry-finale{ position:absolute; inset:0; z-index:20; overflow:hidden; opacity:0; clip-path:inset(9% 12% round 10px); transform:scale(.965); }
+  .entry-finale img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 39%; filter:saturate(.9) contrast(1.03); }
+  .entry-finale::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(19,23,20,.05) 25%,rgba(19,23,20,.73) 100%); }
+  .entry-finale .final-copy{ position:absolute; z-index:2; left:18px; right:18px; bottom:16px; color:#fff; text-align:center; text-shadow:0 2px 12px rgba(0,0,0,.5); }
+  .entry-finale .final-kicker{ font:600 7px/1 Arial,sans-serif; letter-spacing:.34em; opacity:.82; margin-bottom:5px; }
+  .entry-finale .final-names{ font:500 15px/1.2 Georgia,serif; letter-spacing:.09em; }
+  .entry-finale .final-date{ margin-top:4px; font:8px/1.2 Arial,sans-serif; letter-spacing:.15em; opacity:.88; }
+  .play .entry-finale{ animation:entryFinaleIn .85s cubic-bezier(.2,.75,.2,1) forwards 2.75s; }
+  @keyframes entryFinaleIn{ to{ opacity:1; clip-path:inset(0 round 0); transform:scale(1); } }
+
+  .elin-card{ width:108px; height:152px; }
+  .elin-card .inside{
+    overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.7);
+    background:linear-gradient(rgba(32,28,25,.12),rgba(32,28,25,.55)),url('../thumb.jpg') center 39%/cover;
+  }
+  .elin-card .door{ background:linear-gradient(145deg,#fffdf8,#e9dfd1); border-color:rgba(116,91,65,.12); }
+  .elin-card .vribbon{ width:7px; margin-left:-3.5px; background:linear-gradient(90deg,#8e7767,#d9c4b2 45%,#746052); box-shadow:0 1px 3px rgba(45,33,25,.25); }
+  .play .elin-card{ animation:entryObjectExit .45s ease forwards 2.65s; }
+
+  .entry-envelope{ width:208px; height:120px; filter:drop-shadow(0 11px 15px rgba(57,44,33,.2)); }
+  .entry-envelope .back{ background:#d4c6b1; }
+  .entry-envelope .flap{ background:linear-gradient(155deg,#f2eadf,#cbbba3); }
+  .entry-envelope .pocket{ background:linear-gradient(145deg,#eadfce,#cbbba4); }
+  .entry-envelope .letter{ left:17px; right:17px; height:98px; border:1px solid rgba(120,95,70,.12); }
+  .entry-envelope .letter.photo-letter{
+    overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.55);
+    background:linear-gradient(rgba(25,23,20,.05),rgba(25,23,20,.55)),url('../thumb.jpg') center 39%/cover;
+  }
+  .entry-envelope .letter.photo-letter > *{ position:relative; z-index:1; }
+  .entry-envelope .band-h{ top:56px; height:8px; background:linear-gradient(#d7c3b1,#9f8069); box-shadow:0 1px 3px rgba(62,42,29,.22); }
+  .entry-envelope .band-h::after,.entry-envelope .band-v::after{
+    content:''; position:absolute; inset:1px 0 auto; height:1px; background:rgba(255,255,255,.48);
+  }
+  .entry-envelope .band-v{ width:8px; margin-left:-4px; background:linear-gradient(90deg,#967763,#d8c1ad 48%,#826550); }
+  .entry-envelope .entry-bow{ top:60px; }
+  .entry-bow{ width:22px; height:15px; filter:drop-shadow(0 2px 2px rgba(54,38,28,.28)); }
+  .entry-bow::before,.entry-bow::after{ top:-2px; width:21px; height:15px; background:linear-gradient(140deg,#ead7c6,#8d6d58 78%); }
+  .entry-bow::before{ right:9px; }
+  .entry-bow::after{ left:9px; }
+  .entry-bow i{ left:7px; top:2px; width:8px; height:8px; background:#765844; }
+  .entry-bow i::before,.entry-bow i::after{
+    content:''; position:absolute; top:5px; width:7px; height:21px; background:linear-gradient(#aa8871,#725745); clip-path:polygon(0 0,100% 0,72% 100%,48% 78%,20% 100%);
+  }
+  .entry-bow i::before{ right:2px; transform:rotate(16deg); transform-origin:top; }
+  .entry-bow i::after{ left:2px; transform:rotate(-16deg); transform-origin:top; }
+  .play .entry-envelope{ animation:entryObjectExit .45s ease forwards 2.65s; }
+  @keyframes entryObjectExit{ to{ opacity:0; transform:translateY(5px) scale(.96); filter:blur(3px); } }
+
+  .wax-ribbon .wax{ top:60px; width:30px; height:30px; background:radial-gradient(circle at 34% 27%,#bc8a7a,#75443a 72%); font-size:8px; }
+  .organza-envelope .band-h{ height:10px; background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(223,214,204,.4)); border-color:rgba(255,255,255,.62); box-shadow:0 2px 7px rgba(75,60,48,.12); }
+  .organza-envelope .entry-bow::before,.organza-envelope .entry-bow::after{ background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(205,193,183,.44)); }
+  .organza-envelope .entry-bow i,.organza-envelope .entry-bow i::before,.organza-envelope .entry-bow i::after{ background:rgba(218,207,196,.72); }
+
+  /* 오간자 리본 시스템: 얇은 직조결, 겹침의 농도, 부드러운 가장자리 */
+  .entry-bow{
+    --organza-hi:rgba(255,255,255,.82);
+    --organza-mid:rgba(218,202,187,.54);
+    --organza-edge:rgba(189,169,150,.3);
+    width:28px; height:20px;
+    filter:drop-shadow(0 4px 5px rgba(65,48,36,.15));
+  }
+  .entry-bow::before,.entry-bow::after{
+    top:-7px; width:31px; height:26px;
+    border:1px solid var(--organza-edge);
+    border-radius:68% 25% 62% 35% / 58% 34% 66% 42%;
+    background:
+      linear-gradient(118deg,var(--organza-hi) 4%,rgba(255,255,255,.18) 38%,var(--organza-mid) 72%,rgba(255,255,255,.62)),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,rgba(181,164,148,.035) 1px 3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.78),
+      inset 0 -1px 0 rgba(157,139,123,.14),
+      0 2px 5px rgba(65,48,36,.09);
+    -webkit-backdrop-filter:blur(1.2px);
+    backdrop-filter:blur(1.2px);
+  }
+  .entry-bow::before{ right:13px; transform:rotate(12deg) skewX(-8deg); }
+  .entry-bow::after{ left:13px; transform:scaleX(-1) rotate(12deg) skewX(-8deg); }
+  .entry-bow i{
+    left:8px; top:2px; width:12px; height:10px;
+    border:1px solid rgba(255,255,255,.72); border-radius:48% 52% 55% 45%;
+    background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(201,185,169,.58));
+    box-shadow:inset 0 0 4px rgba(255,255,255,.7),0 2px 3px rgba(61,44,33,.13);
+  }
+  .entry-bow i::before,.entry-bow i::after{
+    top:7px; width:12px; height:34px;
+    border:1px solid rgba(255,255,255,.52);
+    background:
+      linear-gradient(100deg,rgba(255,255,255,.72),rgba(214,198,183,.4) 58%,rgba(255,255,255,.55)),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 1px,rgba(158,142,127,.03) 1px 3px);
+    clip-path:polygon(7% 0,93% 0,78% 100%,50% 84%,18% 100%);
+    box-shadow:inset 1px 0 rgba(255,255,255,.44);
+  }
+  .entry-bow i::before{ right:4px; transform:rotate(22deg) skewY(5deg); }
+  .entry-bow i::after{ left:4px; transform:rotate(-22deg) skewY(-5deg); }
+
+  .entry-envelope:not(.wax-ribbon) .band-h,
+  .entry-envelope:not(.wax-ribbon) .band-v{
+    border:1px solid rgba(185,164,145,.22); border-top-color:rgba(255,255,255,.68);
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.7),rgba(213,197,181,.4) 55%,rgba(255,255,255,.56)),
+      repeating-linear-gradient(90deg,rgba(255,255,255,.055) 0 1px,rgba(157,137,119,.025) 1px 3px);
+    box-shadow:0 2px 7px rgba(65,48,36,.1),inset 0 1px rgba(255,255,255,.65);
+    -webkit-backdrop-filter:blur(1.4px);
+    backdrop-filter:blur(1.4px);
+  }
+  .entry-envelope:not(.wax-ribbon) .band-h::before,
+  .entry-envelope:not(.wax-ribbon) .band-v::before{
+    content:''; position:absolute; inset:2px 0 auto; height:1px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);
+  }
+  .elin-card .vribbon{
+    border-left:1px solid rgba(255,255,255,.62); border-right:1px solid rgba(172,150,130,.14);
+    background:
+      linear-gradient(90deg,rgba(255,255,255,.7),rgba(225,212,199,.38) 50%,rgba(255,255,255,.64)),
+      repeating-linear-gradient(0deg,rgba(255,255,255,.18) 0 1px,rgba(153,134,116,.06) 1px 2px);
+    box-shadow:1px 0 4px rgba(54,38,28,.1); opacity:.9;
+    -webkit-backdrop-filter:blur(1px); backdrop-filter:blur(1px);
+  }
+  .organza-envelope .entry-bow{ width:29px; height:21px; }
+  .organza-envelope .entry-bow::before,.organza-envelope .entry-bow::after{ width:32px; height:26px; }
+  .organza-envelope .entry-bow::before{ right:13px; }
+  .organza-envelope .entry-bow::after{ left:13px; }
+  @keyframes entryOrganzaBow{
+    0%{ transform:translate(-50%,-50%) rotate(0); }
+    32%{ transform:translate(-50%,-52%) rotate(-5deg) scale(1.08); }
+    62%{ transform:translate(30px,-42px) rotate(24deg) scale(.96); opacity:.9; }
+    100%{ transform:translate(100px,-92px) rotate(76deg) scale(.7); opacity:0; }
+  }
+  @keyframes entryOrganzaBand{
+    0%{ transform:translateX(0) skewY(0); }
+    38%{ transform:translateX(-9%) skewY(2deg); }
+    100%{ transform:translateX(-118%) skewY(-4deg); opacity:0; filter:blur(.7px); }
+  }
+
+  .pull-entry{ background:linear-gradient(145deg,#dde5df,#b9c9bf); }
+  .pull-entry .paper-cover{
+    inset:13px 58px; overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.48);
+    background:linear-gradient(rgba(20,28,23,.05),rgba(20,28,23,.48)),url('../thumb.jpg') center 39%/cover;
+  }
+  .pull-entry .pull-ribbon{ height:8px; background:linear-gradient(#789282,#486656); box-shadow:0 2px 5px rgba(40,63,51,.22); }
+  .pull-entry .pull-ribbon::after{ content:''; position:absolute; left:0; right:0; top:1px; height:1px; background:rgba(255,255,255,.34); }
+  .pull-entry .pull-tail{ height:7px; background:linear-gradient(#718c7b,#405f4f); }
+  .pull-entry .pull-hint{ padding:4px 7px; border-radius:999px; color:#314d3f; background:rgba(255,255,255,.68); backdrop-filter:blur(4px); }
 </style>
 </head>
 <body>
@@ -990,15 +1233,19 @@
   <div id="sidePanelList"><div class="empty">아직 선택된 효과가 없어요</div></div>
 </div>
 <header>
-  <h1>청첩장 애니메이션 시안 200 (전체)</h1>
-  <p>기존 50가지(국내 흔한 연출)에 해외 트렌드·추가 아이디어 150가지를 더한 전체 200가지 카탈로그입니다. 이 페이지의 선택 상태는 /concept/ 페이지와 동일하게 실시간 공유·저장됩니다.</p>
+  <h1>청첩장 애니메이션 시안 200+ (전체)</h1>
+  <p>국내외 모바일 청첩장 사례와 추가 아이디어를 모은 전체 카탈로그입니다. 이 페이지의 선택 상태는 /concept/ 페이지와 동일하게 실시간 공유·저장됩니다.</p>
   <div class="catnav">
+    <a href="#cat-entry">진입 애니메이션</a>
     <a href="#cat-a">A.오프닝</a><a href="#cat-b">B.텍스트</a><a href="#cat-c">C.갤러리</a><a href="#cat-d">D.배경</a><a href="#cat-e">E.스크롤</a><a href="#cat-f">F.버튼</a>
     <a href="#cat-g">G.봉투</a><a href="#cat-h">H.지도</a><a href="#cat-i">I.디데이</a><a href="#cat-j">J.RSVP</a><a href="#cat-k">K.축의금</a><a href="#cat-l">L.방명록</a>
     <a href="#cat-m">M.사운드</a><a href="#cat-n">N.로딩</a><a href="#cat-o">O.호버</a><a href="#cat-p">P.3D카드</a><a href="#cat-q">Q.다크모드</a>
     <a href="#cat-r">R.스토리텔링</a><a href="#cat-s">S.티켓</a><a href="#cat-t">T.네온</a><a href="#cat-u">U.엔딩</a>
   </div>
 </header>
+
+<div id="cat-entry" class="cat-title">진입 애니메이션 <span>엘린 · 리본 언타이 · 봉투 오픈 조합 테스트</span></div>
+<div class="grid" id="grid-entry"></div>
 
 <div id="cat-a" class="cat-title">A. 오프닝 · 리빌 <span>진입 시 첫인상을 만드는 연출</span></div>
 <div class="grid" id="grid-a"></div>
@@ -1049,6 +1296,14 @@ const IMG = i => `../gallery${i}.jpg`;
 const THUMB = '../thumb.jpg';
 
 const CATS = {
+  entry: [
+    { t:'엘린 무드 · 오간자 리본 펼침', d:'엘린의 세로 리본과 한 번 접는 카드 구조에서 착안해 반투명 오간자 질감으로 재해석한 진입 연출', stage:`<div class="entry-scene"><div class="elin-card"><div class="inside">Y & J<br>WEDDING</div><div class="door left"></div><div class="door right"></div><div class="vribbon"></div><div class="entry-bow"><i></i></div></div><div class="entry-finale"><img src="${THUMB}" alt="최연준 김유진 웨딩 사진"><div class="final-copy"><div class="final-kicker">SAVE THE DATE</div><div class="final-names">YEONJUN & YUJIN</div><div class="final-date">2027 · 03 · 13</div></div></div></div>` },
+    { t:'오간자 보우 → 봉투 → 초대장', d:'아이보리 오간자 매듭의 겹침과 직조결이 보이며 느슨하게 풀린 뒤 실제 사진 초대장이 올라오는 연출', stage:`<div class="entry-scene"><div class="entry-envelope bow-envelope"><div class="back"></div><div class="letter photo-letter"><span>YEONJUN & YUJIN</span><small>2027 · 03 · 13</small></div><div class="flap"></div><div class="pocket"></div><div class="band-h"></div><div class="entry-bow"><i></i></div></div><div class="entry-finale"><img src="${THUMB}" alt="최연준 김유진 웨딩 사진"><div class="final-copy"><div class="final-kicker">SAVE THE DATE</div><div class="final-names">YEONJUN & YUJIN</div><div class="final-date">2027 · 03 · 13</div></div></div></div>` },
+    { t:'오간자 크로스 언랩 오프닝', d:'가느다란 반투명 오간자 리본이 순서대로 풀린 뒤 사진 청첩장이 전체 화면으로 연결되는 연출', stage:`<div class="entry-scene"><div class="entry-envelope cross-envelope"><div class="back"></div><div class="letter photo-letter"><span>OUR WEDDING</span><small>YOU ARE INVITED</small></div><div class="flap"></div><div class="pocket"></div><div class="band-h"></div><div class="band-v"></div><div class="entry-bow"><i></i></div></div><div class="entry-finale"><img src="${THUMB}" alt="최연준 김유진 웨딩 사진"><div class="final-copy"><div class="final-kicker">OUR WEDDING</div><div class="final-names">YEONJUN & YUJIN</div><div class="final-date">2027 · 03 · 13</div></div></div></div>` },
+    { t:'리본 끝 당기기 → 풀스크린', d:'세이지 리본 끝을 당기면 사진 카드가 자연스럽게 전체 히어로 화면으로 확대되는 연출', stage:`<div class="entry-scene pull-entry"><div class="paper-cover">YEONJUN & YUJIN</div><div class="pull-ribbon"></div><div class="pull-tail"></div><div class="pull-hint">리본을 당겨주세요 →</div><div class="entry-finale"><img src="${THUMB}" alt="최연준 김유진 웨딩 사진"><div class="final-copy"><div class="final-kicker">SAVE THE DATE</div><div class="final-names">YEONJUN & YUJIN</div><div class="final-date">2027 · 03 · 13</div></div></div></div>` },
+    { t:'왁스 씰 + 리본 봉인 해제', d:'톤다운 로즈 왁스 씰과 새틴 리본이 해제된 뒤 실제 사진 초대장이 열리는 클래식 연출', stage:`<div class="entry-scene"><div class="entry-envelope wax-ribbon"><div class="back"></div><div class="letter photo-letter"><span>SAVE THE DATE</span><small>Y & J</small></div><div class="flap"></div><div class="pocket"></div><div class="band-h"></div><div class="wax">YJ</div></div><div class="entry-finale"><img src="${THUMB}" alt="최연준 김유진 웨딩 사진"><div class="final-copy"><div class="final-kicker">SAVE THE DATE</div><div class="final-names">YEONJUN & YUJIN</div><div class="final-date">2027 · 03 · 13</div></div></div></div>` },
+    { t:'오간자 리본 슬립 오프닝', d:'반투명 아이보리 오간자 리본이 가볍게 빠져나가며 사진 화면으로 전환되는 연출', stage:`<div class="entry-scene"><div class="entry-envelope organza-envelope"><div class="back"></div><div class="letter photo-letter"><span>WITH LOVE</span><small>03 · 13 · 2027</small></div><div class="flap"></div><div class="pocket"></div><div class="band-h"></div><div class="entry-bow"><i></i></div></div><div class="entry-finale"><img src="${THUMB}" alt="최연준 김유진 웨딩 사진"><div class="final-copy"><div class="final-kicker">WITH LOVE</div><div class="final-names">YEONJUN & YUJIN</div><div class="final-date">2027 · 03 · 13</div></div></div></div>` },
+  ],
   a: [
     { t:'커튼 와이프(좌우)', d:'양쪽 패널이 좌우로 갈라지며 사진이 드러남', stage:`<img class="bg" src="${THUMB}"><div class="panelL wipe"></div><div class="panelR wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },
     { t:'커튼 와이프(상하)', d:'위아래 패널이 갈라지며 리빌', stage:`<img class="bg" src="${THUMB}"><div class="panelT wipe"></div><div class="panelB wipe"></div><div class="label"><div class="n">최연준 · 김유진</div></div>` },

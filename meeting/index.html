@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f3efe7">
+<meta property="og:type" content="website">
+<meta property="og:title" content="두 가족의 첫 인사에 초대합니다">
+<meta property="og:description" content="2026년 10월 5일 월요일 오후 1시 30분 · 동화고옥 롯데월드몰점">
+<title>두 가족의 첫 인사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f3efe7;
+    --paper-light:#fbf9f4;
+    --ink:#1d2925;
+    --ink-soft:#6f7771;
+    --green:#244b40;
+    --sage:#9eac9d;
+    --coral:#ea664d;
+    --line:rgba(29,41,37,.13);
+    --shadow:0 22px 55px rgba(42,48,43,.12);
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    overflow-x:hidden;
+    background:#d9ddd8;
+    color:var(--ink);
+    font-family:'Noto Sans KR',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    word-break:keep-all;
+  }
+  button,a{ font:inherit; -webkit-tap-highlight-color:transparent; }
+  button{ border:0; }
+  a{ color:inherit; text-decoration:none; }
+  .page{
+    width:100%; max-width:min(480px,100vw); min-height:100svh; margin:0 auto;
+    overflow:hidden; background:var(--paper); box-shadow:var(--shadow);
+  }
+  .hero{
+    position:relative; min-width:0; min-height:100svh; padding:calc(30px + env(safe-area-inset-top)) 26px 36px;
+    display:flex; flex-direction:column; isolation:isolate;
+    background:
+      radial-gradient(circle at 86% 10%,rgba(234,102,77,.13),transparent 27%),
+      radial-gradient(circle at 8% 72%,rgba(36,75,64,.11),transparent 31%),
+      var(--paper);
+  }
+  .hero::before{
+    content:''; position:absolute; inset:0; z-index:-2; opacity:.2; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 90 90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
+  }
+  .topline{ min-width:0; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .monogram{
+    width:44px; height:44px; display:grid; place-items:center; border:1px solid var(--green);
+    border-radius:50%; font:700 12px/1 'Gowun Batang',serif; letter-spacing:.08em; color:var(--green);
+  }
+  .edition{ min-width:0; white-space:nowrap; font-size:10px; font-weight:600; letter-spacing:.16em; color:var(--ink-soft); }
+  .hero-copy{ margin-top:clamp(56px,11svh,96px); }
+  .eyebrow{ display:flex; align-items:center; gap:8px; margin-bottom:16px; color:var(--coral); font-size:10px; font-weight:700; letter-spacing:.2em; }
+  .eyebrow::before{ content:''; width:22px; height:1px; background:currentColor; }
+  h1{ margin:0; font:700 clamp(37px,10vw,48px)/1.25 'Gowun Batang',serif; letter-spacing:-.06em; }
+  h1 .accent{ position:relative; color:var(--green); }
+  h1 .accent::after{ content:''; position:absolute; left:0; right:0; bottom:2px; height:8px; z-index:-1; background:rgba(234,102,77,.2); transform:rotate(-1deg); }
+  .intro{ margin:22px 0 0; color:var(--ink-soft); font-size:14px; font-weight:300; line-height:1.9; }
+  .date-ticket{
+    position:relative; width:100%; min-width:0; margin-top:auto; padding:22px 21px 20px; overflow:hidden;
+    color:#fff; background:var(--green); border-radius:6px 30px 6px 6px; box-shadow:0 18px 35px rgba(36,75,64,.2);
+  }
+  .date-ticket::after{ content:''; position:absolute; top:-34px; right:-18px; width:120px; height:120px; border:1px solid rgba(255,255,255,.16); border-radius:50%; box-shadow:0 0 0 20px rgba(255,255,255,.035),0 0 0 42px rgba(255,255,255,.025); }
+  .ticket-label{ font-size:9px; font-weight:600; letter-spacing:.25em; opacity:.66; }
+  .ticket-main{ min-width:0; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin-top:13px; }
+  .ticket-date{ font:700 47px/.9 'Gowun Batang',serif; letter-spacing:-.06em; }
+  .ticket-time{ padding-bottom:3px; text-align:right; font-size:13px; line-height:1.5; }
+  .ticket-place{ margin-top:18px; padding-top:15px; border-top:1px solid rgba(255,255,255,.18); font-size:13px; font-weight:500; letter-spacing:-.02em; }
+  .scroll-hint{ display:flex; justify-content:center; gap:8px; align-items:center; margin-top:25px; color:var(--ink-soft); font-size:9px; letter-spacing:.16em; }
+  .scroll-hint i{ display:block; width:1px; height:25px; background:var(--green); transform-origin:top; animation:scrollLine 1.7s ease-in-out infinite; }
+  @keyframes scrollLine{ 0%,100%{ transform:scaleY(.25); opacity:.25; } 50%{ transform:scaleY(1); opacity:.8; } }
+
+  main{ padding:0 24px 84px; background:var(--paper-light); }
+  section{ padding:78px 0 0; }
+  .section-no{ color:var(--coral); font-size:9px; font-weight:700; letter-spacing:.2em; }
+  h2{ margin:9px 0 0; font:700 27px/1.38 'Gowun Batang',serif; letter-spacing:-.04em; }
+  .section-desc{ margin:13px 0 0; color:var(--ink-soft); font-size:13px; font-weight:300; line-height:1.8; }
+  .info-card{ margin-top:25px; border-top:1px solid var(--ink); }
+  .info-row{ display:grid; grid-template-columns:76px 1fr; gap:12px; padding:19px 2px; border-bottom:1px solid var(--line); }
+  .info-key{ color:var(--ink-soft); font-size:11px; font-weight:500; letter-spacing:.08em; }
+  .info-value{ font-size:14px; font-weight:500; line-height:1.65; }
+  .info-value small{ display:block; margin-top:3px; color:var(--ink-soft); font-size:11px; font-weight:300; }
+  .calendar-strip{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-top:24px; text-align:center; }
+  .calendar-strip span{ padding:10px 0; border-radius:999px; color:var(--ink-soft); font-size:10px; }
+  .calendar-strip .selected{ color:#fff; background:var(--coral); box-shadow:0 7px 15px rgba(234,102,77,.2); }
+  .calendar-strip b{ display:block; margin-top:3px; font-size:12px; color:inherit; }
+  .venue-card{ position:relative; margin-top:26px; padding:27px 23px; overflow:hidden; color:#fff; background:#252d2a; border-radius:5px 27px 5px 5px; }
+  .venue-card::after{ content:'6F'; position:absolute; right:-5px; bottom:-30px; color:rgba(255,255,255,.045); font:700 112px/1 'Gowun Batang',serif; }
+  .venue-label{ color:#d7b19d; font-size:9px; font-weight:700; letter-spacing:.2em; }
+  .venue-name{ position:relative; z-index:1; margin-top:9px; font:700 24px/1.35 'Gowun Batang',serif; }
+  .venue-address{ position:relative; z-index:1; margin-top:12px; color:rgba(255,255,255,.7); font-size:12px; font-weight:300; line-height:1.7; }
+  .action-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:11px; }
+  .action{
+    min-height:48px; padding:0 10px; border:1px solid var(--line); border-radius:3px;
+    display:flex; align-items:center; justify-content:center; gap:7px; color:var(--green); background:#fff; font-size:12px; font-weight:600;
+  }
+  .action.primary{ color:#fff; border-color:var(--green); background:var(--green); }
+  .action svg{ width:15px; height:15px; }
+  .menu-box{ margin-top:25px; padding:23px; border:1px solid var(--line); border-radius:4px; background:#fff; box-shadow:0 13px 35px rgba(34,45,40,.06); }
+  .menu-top{ display:flex; align-items:center; justify-content:space-between; }
+  .menu-tag{ padding:5px 8px; border-radius:999px; color:var(--coral); background:rgba(234,102,77,.1); font-size:9px; font-weight:700; letter-spacing:.08em; }
+  .menu-count{ color:var(--ink-soft); font-size:10px; }
+  .menu-name{ margin-top:17px; font:700 22px/1.4 'Gowun Batang',serif; }
+  .menu-note{ margin-top:7px; color:var(--ink-soft); font-size:11px; font-weight:300; }
+  .closing{ text-align:center; padding-bottom:12px; }
+  .closing-mark{ width:47px; height:47px; margin:0 auto 19px; display:grid; place-items:center; border-radius:50%; color:#fff; background:var(--coral); font:700 16px 'Gowun Batang',serif; transform:rotate(-5deg); }
+  .closing p{ margin:17px auto 0; max-width:310px; color:var(--ink-soft); font-size:13px; font-weight:300; line-height:1.9; }
+  .from{ margin-top:27px; color:var(--green); font:700 15px 'Gowun Batang',serif; letter-spacing:.05em; }
+  .bottom-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:34px; }
+  .toast{ position:fixed; left:50%; bottom:24px; z-index:50; padding:11px 15px; border-radius:999px; color:#fff; background:#222b27; font-size:11px; opacity:0; transform:translate(-50%,12px); transition:.25s ease; pointer-events:none; white-space:nowrap; }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .75s ease,transform .75s cubic-bezier(.2,.7,.25,1); }
+  .reveal.visible{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } *{ animation:none!important; transition:none!important; } .reveal{ opacity:1; transform:none; } }
+  @media (max-width:359px){
+    .hero{ padding-left:20px; padding-right:20px; }
+    .edition{ font-size:9px; letter-spacing:.1em; }
+    .ticket-date{ font-size:42px; }
+    main{ padding-left:20px; padding-right:20px; }
+  }
+  @media (min-width:481px){ .page{ margin-top:24px; margin-bottom:24px; min-height:calc(100vh - 48px); border-radius:9px; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <div class="topline">
+      <div class="monogram">初禮</div>
+      <div class="edition">FAMILY MEETING · 2026</div>
+    </div>
+
+    <div class="hero-copy">
+      <div class="eyebrow">INVITATION</div>
+      <h1>두 가족의<br><span class="accent">첫 인사</span>에<br>초대합니다</h1>
+      <p class="intro">서로의 가족이 처음 마주 앉는 날,<br>따뜻한 식사를 함께 나누고자 합니다.</p>
+    </div>
+
+    <div class="date-ticket">
+      <div class="ticket-label">SAVE OUR DATE</div>
+      <div class="ticket-main">
+        <div class="ticket-date">10.05</div>
+        <div class="ticket-time">MONDAY<br>1:30 PM</div>
+      </div>
+      <div class="ticket-place">동화고옥 · 롯데월드몰 6F</div>
+    </div>
+    <div class="scroll-hint"><i></i>SCROLL FOR DETAILS</div>
+  </header>
+
+  <main>
+    <section class="reveal" id="schedule">
+      <div class="section-no">01 · THE DAY</div>
+      <h2>우리의 소중한 약속</h2>
+      <p class="section-desc">편안한 마음으로 오셔서 두 가족의 시작을 함께해 주세요.</p>
+      <div class="calendar-strip" aria-label="2026년 10월 첫째 주">
+        <span>목<b>1</b></span><span>금<b>2</b></span><span>토<b>3</b></span><span>일<b>4</b></span><span class="selected">월<b>5</b></span><span>화<b>6</b></span><span>수<b>7</b></span>
+      </div>
+      <div class="info-card">
+        <div class="info-row"><div class="info-key">일시</div><div class="info-value">2026년 10월 5일 월요일<small>오후 1시 30분</small></div></div>
+        <div class="info-row"><div class="info-key">자리</div><div class="info-value">상견례 단독 룸</div></div>
+        <div class="info-row"><div class="info-key">인원</div><div class="info-value">아홉 분</div></div>
+      </div>
+      <button class="action primary" id="calendarBtn" type="button" style="width:100%;margin-top:12px;">캘린더에 일정 저장</button>
+    </section>
+
+    <section class="reveal" id="place">
+      <div class="section-no">02 · THE PLACE</div>
+      <h2>동화고옥에서 만나요</h2>
+      <p class="section-desc">잠실 롯데월드몰 6층에 위치한 프라이빗 한식 다이닝입니다.</p>
+      <div class="venue-card">
+        <div class="venue-label">DONGHWA GOOK</div>
+        <div class="venue-name">동화고옥<br>롯데월드몰점</div>
+        <div class="venue-address">서울 송파구 올림픽로 300<br>롯데월드몰 6층</div>
+      </div>
+      <div class="action-grid">
+        <a class="action primary" href="https://map.naver.com/p/search/%EB%8F%99%ED%99%94%EA%B3%A0%EC%98%A5%20%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0%EC%A0%90" target="_blank" rel="noopener">네이버 지도</a>
+        <a class="action" href="https://map.kakao.com/link/search/%EB%8F%99%ED%99%94%EA%B3%A0%EC%98%A5%20%EB%A1%AF%EB%8D%B0%EC%9B%94%EB%93%9C%EB%AA%B0%EC%A0%90" target="_blank" rel="noopener">카카오맵</a>
+        <a class="action" href="tel:0232134665">매장 전화</a>
+        <button class="action" id="copyAddressBtn" type="button">주소 복사</button>
+      </div>
+    </section>
+
+    <section class="reveal" id="menu">
+      <div class="section-no">03 · THE TABLE</div>
+      <h2>함께 나눌 식사</h2>
+      <div class="menu-box">
+        <div class="menu-top"><div class="menu-tag">KOREAN DINING</div><div class="menu-count">9인 예약</div></div>
+        <div class="menu-name">금란(錦蘭) 갈비 코스</div>
+        <div class="menu-note">정갈한 한식 코스로 준비했습니다.</div>
+      </div>
+    </section>
+
+    <section class="closing reveal">
+      <div class="closing-mark">福</div>
+      <div class="section-no">SEE YOU THERE</div>
+      <h2>기쁜 마음으로<br>기다리고 있겠습니다</h2>
+      <p>귀한 시간 내어 함께해 주셔서 감사합니다. 즐겁고 편안한 자리가 되도록 잘 준비하겠습니다.</p>
+      <div class="from">최연준 · 김유진 드림</div>
+      <div class="bottom-actions">
+        <button class="action primary" id="shareBtn" type="button">초대장 공유</button>
+        <a class="action" href="#schedule">일정 다시 보기</a>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(message){
+    clearTimeout(toastTimer);
+    toast.textContent = message;
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold:.16 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  document.getElementById('copyAddressBtn').addEventListener('click', async () => {
+    const address = '서울 송파구 올림픽로 300 롯데월드몰 6층';
+    try{
+      await navigator.clipboard.writeText(address);
+      showToast('주소를 복사했습니다');
+    }catch(e){ showToast(address); }
+  });
+
+  document.getElementById('calendarBtn').addEventListener('click', () => {
+    const ics = [
+      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//YJ//Family Meeting//KO','BEGIN:VEVENT',
+      'UID:family-meeting-20261005@yj','DTSTAMP:20260923T000000Z',
+      'DTSTART;TZID=Asia/Seoul:20261005T133000','DTEND;TZID=Asia/Seoul:20261005T153000',
+      'SUMMARY:두 가족의 첫 인사','LOCATION:동화고옥 롯데월드몰점\\, 서울 송파구 올림픽로 300 롯데월드몰 6층',
+      'DESCRIPTION:최연준 · 김유진 상견례','END:VEVENT','END:VCALENDAR'
+    ].join('\r\n');
+    const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = '두-가족의-첫-인사.ics'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('캘린더 파일을 저장합니다');
+  });
+
+  document.getElementById('shareBtn').addEventListener('click', async () => {
+    const data = {
+      title:'두 가족의 첫 인사',
+      text:'2026년 10월 5일 월요일 오후 1시 30분 · 동화고옥 롯데월드몰점',
+      url:location.href
+    };
+    try{
+      if(navigator.share){ await navigator.share(data); }
+      else{ await navigator.clipboard.writeText(location.href); showToast('초대장 주소를 복사했습니다'); }
+    }catch(e){ if(e.name !== 'AbortError') showToast('공유하지 못했습니다'); }
+  });
+</script>
+</body>
+</html>
