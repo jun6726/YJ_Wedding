@@ -589,7 +589,6 @@
   .dday-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .dday-top .tag{ font-size:10px; font-weight:700; letter-spacing:.18em; opacity:.85; }
   .dday-top .tag b{ display:block; margin-top:2px; font-size:14px; letter-spacing:-.01em; }
-  .dday-top .close{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:rgba(255,255,255,.18); color:#fff; font-size:13px; display:grid; place-items:center; }
   .dday-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
   .dday-actions a{
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
@@ -607,7 +606,6 @@
   <div class="dday-banner" id="ddayBanner">
     <div class="dday-top">
       <div class="tag">TODAY · WEDDING DAY<b>오늘, 결혼합니다</b></div>
-      <button class="close" id="ddayClose" type="button" aria-label="닫기">✕</button>
     </div>
     <div class="dday-actions">
       <a href="https://map.naver.com/v5/search/서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener"><span class="ic">📍</span>길찾기</a>
@@ -1066,19 +1064,14 @@ tickCountdown();
 /* ---------------- 당일 모드 배너 ---------------- */
 (function(){
   const banner = document.getElementById('ddayBanner');
-  const closeBtn = document.getElementById('ddayClose');
   if(!banner) return;
   const now = new Date();
   const isWeddingDay = now.getFullYear() === weddingDate.getFullYear()
     && now.getMonth() === weddingDate.getMonth()
     && now.getDate() === weddingDate.getDate();
-  if(isWeddingDay && !sessionStorage.getItem('ddayBannerClosed')){
+  if(isWeddingDay){
     banner.classList.add('show');
   }
-  closeBtn.addEventListener('click', () => {
-    banner.classList.remove('show');
-    sessionStorage.setItem('ddayBannerClosed', '1');
-  });
 })();
 
 /* ---------------- 미니 캘린더 ---------------- */
