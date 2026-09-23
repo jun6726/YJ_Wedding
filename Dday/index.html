@@ -1063,16 +1063,12 @@ function tickCountdown(){
 setInterval(tickCountdown, 1000);
 tickCountdown();
 
-/* ---------------- 당일 모드 배너 ---------------- */
+/* ---------------- 당일 모드 배너 (테스트 페이지: 날짜와 무관하게 항상 표시) ---------------- */
 (function(){
   const banner = document.getElementById('ddayBanner');
   const closeBtn = document.getElementById('ddayClose');
   if(!banner) return;
-  const now = new Date();
-  const isWeddingDay = now.getFullYear() === weddingDate.getFullYear()
-    && now.getMonth() === weddingDate.getMonth()
-    && now.getDate() === weddingDate.getDate();
-  if(isWeddingDay && !sessionStorage.getItem('ddayBannerClosed')){
+  if(!sessionStorage.getItem('ddayBannerClosed')){
     banner.classList.add('show');
   }
   closeBtn.addEventListener('click', () => {
