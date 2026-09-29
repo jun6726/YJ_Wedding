@@ -619,8 +619,8 @@
     </div>
   </div>
 
-  <!-- SEVEN INTRO -->
-  <section class="seven-intro" id="sevenIntro">
+  <!-- SEVEN INTRO (임시 숨김처리 - 필요 시 style="display:none;" 제거하면 다시 노출) -->
+  <section class="seven-intro" id="sevenIntro" style="display:none;">
     <div class="seven-row">
       <div class="seven-date seven-date1">2023.07.07<span class="seven-caption">우리가 처음 만난 날</span></div>
       <div class="seven-date seven-date2">2027.03.13<span class="seven-caption">우리가 결혼하는 날</span></div>
@@ -927,8 +927,9 @@ const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
     return;
   }
 
-  const JAMO_DELAY = 55;    // 자음/모음 단위 타이핑 속도(ms)
-  const START_DELAY = 1400; // 사진 등장 애니메이션 이후 시작 지연(ms)
+  const JAMO_DELAY = 75;    // 자음/모음 단위 타이핑 속도(ms)
+  const START_DELAY = 3100; // poster-overlay 클립 애니메이션(0.5s 지연 + 2.5s)이 끝난 뒤 시작해야
+                             // 타이핑 과정이 화면에 보임 (이전엔 오버레이가 다 열리기 전에 타이핑이 끝나버려 보이지 않았음)
 
   const KR_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
   function decomposeHangul(ch){
