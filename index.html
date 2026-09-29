@@ -345,6 +345,12 @@
     height:180px; border-radius:var(--radius); overflow:hidden; position:relative;
     background: repeating-linear-gradient(0deg, #e3ddcd 0 2px, #ece6d8 2px 40px), repeating-linear-gradient(90deg, #e3ddcd 0 2px, transparent 2px 40px);
   }
+  .map-box iframe{ width:100%; height:100%; border:0; display:block; }
+  .map-facade{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:6px; background:inherit; color:var(--ink-soft); font-size:0.75rem; cursor:pointer;
+  }
+  .map-facade .icon{ font-size:22px; }
   .map-pin{
     position:absolute; left:50%; top:50%; transform:translate(-50%,-100%);
   }
@@ -728,7 +734,9 @@
   <section id="mapSection">
     <div class="section-title">오시는 길</div>
     <div class="section-sub">LOCATION</div>
-    <div class="map-box" id="mapBox"><iframe src="https://maps.google.com/maps?q=%EC%84%9C%EC%9A%B8%20%EB%8F%99%EB%8C%80%EB%AC%B8%EA%B5%AC%20%EC%99%95%EC%82%B0%EB%A1%9C%20200%20SKY-L65&output=embed" width="100%" height="100%" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="오시는 길 지도"></iframe></div>
+    <div class="map-box" id="mapBox">
+      <div class="map-facade" id="mapFacade"><span class="icon">📍</span>지도 불러오는 중...</div>
+    </div>
     <div class="venue-name">L65호텔 웨딩컨벤션</div>
     <div class="venue-name" style="font-size:0.8125rem; font-weight:400; color:var(--ink-soft); margin-top:2px;">가든홀</div>
     <div class="venue-addr">서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층</div>
@@ -919,15 +927,38 @@ const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
     return;
   }
 
-  const CHAR_DELAY = 90;   // 한 글자당 타이핑 속도(ms)
+  const JAMO_DELAY = 55;    // 자음/모음 단위 타이핑 속도(ms)
   const START_DELAY = 1400; // 사진 등장 애니메이션 이후 시작 지연(ms)
+
+  const KR_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  function decomposeHangul(ch){
+    const code = ch.charCodeAt(0) - 0xAC00;
+    if(code < 0 || code > 11171) return null;
+    return { cho: Math.floor(code/588), jung: Math.floor((code%588)/28), jong: code%28 };
+  }
+  function composeHangul(cho, jung, jong){
+    return String.fromCharCode(0xAC00 + cho*588 + jung*28 + jong);
+  }
+  // 글자를 자음(초성) → 자음+모음 → (받침 있으면) 자음+모음+받침 순서로 쪼개어
+  // 실제 손으로 타이핑하는 것처럼 한 프레임씩 조합해 나감
+  const frames = [];
+  let out = '';
+  HERO_QUOTE_TEXT.split('').forEach(ch=>{
+    const d = decomposeHangul(ch);
+    if(!d){ out += ch; frames.push(out); return; }
+    frames.push(out + KR_CHO[d.cho]);
+    frames.push(out + composeHangul(d.cho, d.jung, 0));
+    if(d.jong > 0) frames.push(out + composeHangul(d.cho, d.jung, d.jong));
+    out += ch;
+  });
+  frames.push(out);
 
   let i = 0;
   function tick(){
-    textEl.textContent = HERO_QUOTE_TEXT.slice(0, i);
-    if(i < HERO_QUOTE_TEXT.length){
+    textEl.textContent = frames[i];
+    if(i < frames.length - 1){
       i++;
-      setTimeout(tick, CHAR_DELAY);
+      setTimeout(tick, JAMO_DELAY);
     } else if(cursorEl){
       cursorEl.classList.add('done');
     }
@@ -1484,6 +1515,39 @@ async function submitGuestbook(){
   await loadGuestbook();
   showToast('방명록이 등록되었습니다');
 }
+
+/* ---------------- 오시는 길 지도 (지연 로딩) ----------------
+   구글맵 iframe은 무거워서 처음부터 로드하면 페이지 진입 속도가 느려짐.
+   화면에 가까워질 때(또는 탭했을 때)만 실제 지도를 삽입해 초기 로딩을 개선. */
+(function lazyLoadMap(){
+  const box = document.getElementById('mapBox');
+  const facade = document.getElementById('mapFacade');
+  if(!box || !facade) return;
+  const MAP_SRC = 'https://maps.google.com/maps?q=%EC%84%9C%EC%9A%B8%20%EB%8F%99%EB%8C%80%EB%AC%B8%EA%B5%AC%20%EC%99%95%EC%82%B0%EB%A1%9C%20200%20SKY-L65&output=embed';
+  let loaded = false;
+  function loadMap(){
+    if(loaded) return;
+    loaded = true;
+    const iframe = document.createElement('iframe');
+    iframe.src = MAP_SRC;
+    iframe.loading = 'lazy';
+    iframe.referrerPolicy = 'no-referrer-when-downgrade';
+    iframe.title = '오시는 길 지도';
+    facade.remove();
+    box.appendChild(iframe);
+  }
+  facade.addEventListener('click', loadMap);
+  if('IntersectionObserver' in window){
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){ loadMap(); observer.disconnect(); }
+      });
+    }, { rootMargin: '400px 0px' });
+    observer.observe(box);
+  } else {
+    loadMap();
+  }
+})();
 
 /* ---------------- 공유 ---------------- */
 const KAKAO_JS_KEY = 'eae830b527d0222c0c41d019f13d8156';
