@@ -128,7 +128,7 @@
   #openingOverlay .opening-fallback-img.opening-open{
     clip-path: polygon(evenodd,
       0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
-      25.0% 14.3%, 25.0% 75.8%, 80.5% 75.8%, 80.5% 14.3%, 25.0% 14.3%);
+      13.7% 3.1%, 13.7% 94.0%, 85.5% 94.0%, 85.5% 3.1%, 13.7% 3.1%);
   }
   @media (prefers-reduced-motion: reduce){
     #openingOverlay .opening-video,
@@ -1699,7 +1699,7 @@ document.addEventListener('visibilitychange', ()=>{
   });
 
   video.addEventListener('timeupdate', function(){
-    if(video.duration && (video.currentTime / video.duration) >= 0.789){
+    if(video.duration && (video.currentTime / video.duration) >= 0.63){
       video.classList.add('opening-open');
       fallbackImg.classList.add('opening-open');
     }
