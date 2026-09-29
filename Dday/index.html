@@ -596,11 +596,146 @@
     font-size:10.5px; font-weight:700; text-decoration:none; letter-spacing:-.01em;
   }
   .dday-actions a .ic{ font-size:15px; }
+
+  /* ---------------- 커스텀 하트 커서 (데스크톱 전용) ---------------- */
+  @media (pointer:fine) and (hover:hover){
+    body{ cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="22" height="20" viewBox="0 0 22 20"><path d="M11 19S1 12.5 1 6.6C1 2.9 3.8 1 6.6 1c2 0 3.6 1.1 4.4 2.7C11.8 2.1 13.4 1 15.4 1 18.2 1 21 2.9 21 6.6 21 12.5 11 19 11 19Z" fill="%23C98686" stroke="%23fff" stroke-width="1"/></svg>') 11 10, auto;
+    a, button, .pill-btn, .copy-btn, .acc-card-head, .acc-btns, .toss-btn{
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 22 20"><path d="M11 19S1 12.5 1 6.6C1 2.9 3.8 1 6.6 1c2 0 3.6 1.1 4.4 2.7C11.8 2.1 13.4 1 15.4 1 18.2 1 21 2.9 21 6.6 21 12.5 11 19 11 19Z" fill="%23B68A4E" stroke="%23fff" stroke-width="1"/></svg>') 13 11, pointer;
+    }
+  }
+
+  /* ---------------- 배경 하트 낙하 / 터치 하트 ---------------- */
+  #heartField{ position:fixed; inset:0; pointer-events:none; z-index:1; overflow:hidden; }
+  .fall-heart{
+    position:absolute; top:-24px; font-size:14px; color:var(--blush); opacity:.45;
+    animation: heart-fall linear forwards;
+  }
+  @keyframes heart-fall{
+    to{ transform:translateY(112vh) rotate(45deg); opacity:0; }
+  }
+  .tap-heart{
+    position:fixed; pointer-events:none; z-index:70; font-size:20px; color:var(--blush);
+    animation: heart-pop .9s ease-out forwards;
+  }
+  @keyframes heart-pop{
+    0%{ transform:translate(-50%,-50%) scale(.4); opacity:0; }
+    25%{ opacity:1; }
+    100%{ transform:translate(-50%,-160%) scale(1.2); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    #heartField, .tap-heart{ display:none !important; }
+  }
+
+  /* ---------------- 나비 배경 장식 ---------------- */
+  .butterfly{
+    position:fixed; z-index:1; pointer-events:none; font-size:16px; top:14%; left:-30px; opacity:.55;
+    animation: butterfly-fly 13s linear infinite;
+  }
+  .butterfly.b2{ top:38%; font-size:13px; animation-duration:17s; animation-delay:4s; }
+  @keyframes butterfly-fly{
+    0%{ left:-30px; transform:translateY(0) rotate(0deg); }
+    25%{ transform:translateY(-18px) rotate(8deg); }
+    50%{ transform:translateY(6px) rotate(-6deg); }
+    75%{ transform:translateY(-10px) rotate(6deg); }
+    100%{ left:106%; transform:translateY(0) rotate(0deg); }
+  }
+  @media (prefers-reduced-motion: reduce){ .butterfly{ display:none !important; } }
+
+  /* ---------------- 히어로 사진 패럴랙스 ---------------- */
+  .hero-photo{ will-change: background-position; }
+
+  /* ---------------- 갤러리 캐러셀 활성 슬라이드 ---------------- */
+  .g-slide .ph{ transition: transform .35s ease, opacity .35s ease; opacity:.55; transform:scale(.92); }
+  .g-slide .ph.active{ opacity:1; transform:scale(1); }
+
+  /* ---------------- 지도 핀 펄스 링 ---------------- */
+  .map-pin{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-100%); z-index:2;
+    display:flex; flex-direction:column; align-items:center; pointer-events:none;
+  }
+  .map-pin .dot{ width:12px; height:12px; border-radius:50%; background:var(--blush); border:2px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,.3); position:relative; z-index:1; }
+  .map-pin .ring{
+    position:absolute; top:6px; left:50%; width:12px; height:12px; margin-left:-6px; border-radius:50%;
+    border:2px solid var(--blush); opacity:0; animation: pin-pulse 2.2s ease-out infinite;
+  }
+  .map-pin .ring.r2{ animation-delay:.7s; }
+  .map-pin .ring.r3{ animation-delay:1.4s; }
+  @keyframes pin-pulse{
+    0%{ transform:scale(1); opacity:.7; }
+    100%{ transform:scale(3.2); opacity:0; }
+  }
+  @media (prefers-reduced-motion: reduce){ .map-pin .ring{ animation:none !important; opacity:0 !important; } }
+
+  /* ---------------- 디데이 여정 링 프로그레스 ---------------- */
+  .dday-ring-wrap{ display:flex; justify-content:center; margin:14px 0 4px; }
+  .dday-ring-wrap svg{ transform:rotate(-90deg); }
+  .dday-ring-track{ fill:none; stroke:var(--paper-deep); stroke-width:6; }
+  .dday-ring-bar{ fill:none; stroke:var(--blush); stroke-width:6; stroke-linecap:round; transition: stroke-dashoffset 1s ease; }
+  .dday-ring-label{ font-size:0.6875rem; fill:var(--ink-soft); transform:rotate(90deg); }
+
+  /* ---------------- 계좌 카드 복사 플립 피드백 ---------------- */
+  .acc-row{ position:relative; }
+  .acc-row.flipped .num, .acc-row.flipped .who{ animation: acc-flip .6s ease; }
+  @keyframes acc-flip{
+    0%{ transform:rotateX(0); } 50%{ transform:rotateX(90deg); opacity:.3; } 100%{ transform:rotateX(0); opacity:1; }
+  }
+  .acc-row-check{
+    position:absolute; right:0; top:50%; transform:translateY(-50%) scale(0); z-index:2;
+    background:var(--celadon-deep); color:#fff; font-size:0.6875rem; font-weight:700;
+    padding:4px 9px; border-radius:20px; transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .acc-row-check.show{ transform:translateY(-50%) scale(1); }
+
+  /* ---------------- 방명록 카드 스택 등장 ---------------- */
+  .gb-item.stack-in{ animation: gb-stack-in .5s cubic-bezier(.22,.68,.35,1); }
+  @keyframes gb-stack-in{
+    0%{ transform:translateY(-26px) scale(.9) rotate(-2deg); opacity:0; }
+    100%{ transform:translateY(0) scale(1) rotate(0); opacity:1; }
+  }
+
+  /* ---------------- 하트 스탬프 ---------------- */
+  .heart-stamp{
+    position:fixed; left:50%; top:50%; z-index:90; font-size:64px; color:var(--blush);
+    transform:translate(-50%,-50%) scale(2.6) rotate(-18deg); opacity:0; pointer-events:none;
+    animation: stamp-in .7s cubic-bezier(.2,.8,.3,1.2) forwards;
+  }
+  @keyframes stamp-in{
+    0%{ transform:translate(-50%,-50%) scale(2.6) rotate(-18deg); opacity:0; }
+    40%{ transform:translate(-50%,-50%) scale(.9) rotate(-8deg); opacity:.9; }
+    60%{ transform:translate(-50%,-50%) scale(1.1) rotate(-10deg); opacity:.9; }
+    100%{ transform:translate(-50%,-50%) scale(1) rotate(-10deg); opacity:0; }
+  }
+
+  /* ---------------- 하트 로딩 스피너 (스냅 업로드) ---------------- */
+  .heart-spin{ display:none; font-size:14px; margin-right:5px; animation: heart-beat .8s ease-in-out infinite; }
+  .snap-upload-btn.uploading .heart-spin{ display:inline-block; }
+  @keyframes heart-beat{
+    0%,100%{ transform:scale(1); } 50%{ transform:scale(1.35); }
+  }
+
+  /* ---------------- 참석 체크마크 드로잉 ---------------- */
+  .check-draw-wrap{ display:flex; justify-content:center; margin-top:10px; }
+  .check-draw-wrap svg{ width:46px; height:46px; }
+  .check-draw-circle{ fill:none; stroke:var(--celadon-deep); stroke-width:3; stroke-dasharray:126; stroke-dashoffset:126; animation: draw-circle .5s ease forwards; }
+  .check-draw-tick{ fill:none; stroke:var(--celadon-deep); stroke-width:3.5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:24; stroke-dashoffset:24; animation: draw-tick .35s ease forwards .5s; }
+  @keyframes draw-circle{ to{ stroke-dashoffset:0; } }
+  @keyframes draw-tick{ to{ stroke-dashoffset:0; } }
+
+  /* ---------------- 엔딩 로고 워터마크 ---------------- */
+  .ending-watermark{
+    text-align:center; margin:26px 0 4px; opacity:.4; letter-spacing:.3em;
+    font-size:0.75rem; font-weight:600; color:var(--gold);
+  }
 </style>
 </head>
 <body>
 
 <div class="app">
+
+  <div id="heartField"></div>
+  <div class="butterfly">🦋</div>
+  <div class="butterfly b2">🦋</div>
 
   <!-- D-DAY 당일 모드 배너 -->
   <div class="dday-banner" id="ddayBanner">
@@ -678,6 +813,13 @@
         <div class="box"><div class="num" id="cd-m">00</div><div class="lab">MIN</div></div>
         <div class="box"><div class="num" id="cd-s">00</div><div class="lab">SEC</div></div>
       </div>
+      <div class="dday-ring-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="dday-ring-track" cx="60" cy="60" r="52"></circle>
+          <circle class="dday-ring-bar" id="ddayRingBar" cx="60" cy="60" r="52" stroke-dasharray="327" stroke-dashoffset="327"></circle>
+          <text class="dday-ring-label" x="60" y="64" text-anchor="middle">우리가 걸어온 여정</text>
+        </svg>
+      </div>
       <div class="cal">
         <div class="cal-head">2027년 3월</div>
         <div class="cal-grid" id="calGrid"></div>
@@ -729,7 +871,10 @@
   <section id="mapSection">
     <div class="section-title">오시는 길</div>
     <div class="section-sub">LOCATION</div>
-    <div class="map-box" id="mapBox"></div>
+    <div style="position:relative;">
+      <div class="map-box" id="mapBox"></div>
+      <div class="map-pin"><div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div><div class="dot"></div></div>
+    </div>
     <div class="venue-name">L65호텔 웨딩컨벤션</div>
     <div class="venue-name" style="font-size:0.8125rem; font-weight:400; color:var(--ink-soft); margin-top:2px;">가든홀</div>
     <div class="venue-addr">서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층</div>
@@ -771,7 +916,7 @@
       업로드된 사진은 공개되지 않고 신랑신부만 확인해요.
     </p>
     <label class="snap-upload-btn" id="snapUploadBtn">
-      <span id="snapUploadBtnText">📷 사진 올리기</span>
+      <span class="heart-spin">♥</span><span id="snapUploadBtnText">📷 사진 올리기</span>
       <input type="file" id="snapInput" accept="image/*" multiple style="display:none;">
     </label>
     <div id="snapStatus" style="text-align:center; font-size:0.8125rem; font-weight:600; color:var(--celadon-deep); margin-top:10px; min-height:16px;"></div>
@@ -865,6 +1010,7 @@
       </select>
     </div>
     <button class="seal-submit" onclick="submitRsvp()">전달<br>하기</button>
+    <div id="rsvpCheck"></div>
     <div class="rsvp-note">* 전달해주신 내용은 신랑신부만 확인합니다</div>
   </section>
 
@@ -878,6 +1024,7 @@
       <button class="share-btn kakao" onclick="shareKakao()">카카오톡 공유</button>
       <button class="share-btn link" onclick="copyText(window.location.href,'링크가 복사되었습니다')">링크 복사</button>
     </div>
+    <div class="ending-watermark">Y &amp; J · 2027.03.13</div>
   </section>
 
   <footer>
@@ -920,15 +1067,36 @@ const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
     return;
   }
 
-  const CHAR_DELAY = 90;   // 한 글자당 타이핑 속도(ms)
+  const JAMO_DELAY = 55;    // 자모 단위 타이핑 속도(ms)
   const START_DELAY = 1400; // 사진 등장 애니메이션 이후 시작 지연(ms)
+
+  const KR_CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  function decomposeHangul(ch){
+    const code = ch.charCodeAt(0) - 0xAC00;
+    if(code < 0 || code > 11171) return null;
+    return { cho: Math.floor(code/588), jung: Math.floor((code%588)/28), jong: code%28 };
+  }
+  function composeHangul(cho, jung, jong){
+    return String.fromCharCode(0xAC00 + cho*588 + jung*28 + jong);
+  }
+  const frames = [];
+  let out = '';
+  HERO_QUOTE_TEXT.split('').forEach(ch=>{
+    const d = decomposeHangul(ch);
+    if(!d){ out += ch; frames.push(out); return; }
+    frames.push(out + KR_CHO[d.cho]);
+    frames.push(out + composeHangul(d.cho, d.jung, 0));
+    if(d.jong > 0) frames.push(out + composeHangul(d.cho, d.jung, d.jong));
+    out += ch;
+  });
+  frames.push(out);
 
   let i = 0;
   function tick(){
-    textEl.textContent = HERO_QUOTE_TEXT.slice(0, i);
-    if(i < HERO_QUOTE_TEXT.length){
+    textEl.textContent = frames[i];
+    if(i < frames.length - 1){
       i++;
-      setTimeout(tick, CHAR_DELAY);
+      setTimeout(tick, JAMO_DELAY);
     } else if(cursorEl){
       cursorEl.classList.add('done');
     }
@@ -1038,10 +1206,32 @@ function showToast(msg){
   showToast._tid = setTimeout(()=> t.classList.remove('show'), 1800);
 }
 function copyText(text, msg){
+  const iconMsg = '✓ ' + msg;
   if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=> showToast(msg)).catch(()=> showToast(msg));
-  } else { showToast(msg); }
+    navigator.clipboard.writeText(text).then(()=> showToast(iconMsg)).catch(()=> showToast(iconMsg));
+  } else { showToast(iconMsg); }
 }
+
+/* ---------------- 계좌 카드 복사 플립 피드백 ---------------- */
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.acc-row .copy-btn');
+  if(!btn) return;
+  const row = btn.closest('.acc-row');
+  if(!row) return;
+  row.classList.remove('flipped');
+  void row.offsetWidth;
+  row.classList.add('flipped');
+  let badge = row.querySelector('.acc-row-check');
+  if(!badge){
+    badge = document.createElement('div');
+    badge.className = 'acc-row-check';
+    badge.textContent = '복사완료';
+    row.appendChild(badge);
+  }
+  requestAnimationFrame(()=> badge.classList.add('show'));
+  clearTimeout(row._badgeTid);
+  row._badgeTid = setTimeout(()=> badge.classList.remove('show'), 1400);
+});
 
 /* ---------------- 카운트다운 ---------------- */
 const weddingDate = new Date('2027-03-13T12:00:00+09:00');
@@ -1332,18 +1522,41 @@ async function submitRsvp(){
   const btn = document.querySelector('.seal-submit');
   if(btn) btn.innerHTML = '수정<br>하기';
   showToast(name + '님의 참석 의사가 전달되었습니다');
+  showCheckDraw('rsvpCheck');
+  showHeartStamp();
+}
+
+/* ---------------- 참석 체크마크 드로잉 / 하트 스탬프 ---------------- */
+function showCheckDraw(targetId){
+  const host = document.getElementById(targetId);
+  if(!host) return;
+  host.innerHTML = `
+    <div class="check-draw-wrap">
+      <svg viewBox="0 0 46 46">
+        <circle class="check-draw-circle" cx="23" cy="23" r="20"></circle>
+        <polyline class="check-draw-tick" points="14,24 20,30 32,16"></polyline>
+      </svg>
+    </div>
+  `;
+}
+function showHeartStamp(){
+  const el = document.createElement('div');
+  el.className = 'heart-stamp';
+  el.textContent = '♥';
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 750);
 }
 
 /* ---------------- 방명록 ---------------- */
 let guestbook = [];
-function renderGuestbook(){
+function renderGuestbook(highlightFirst){
   const list = document.getElementById('gbList');
   if(guestbook.length===0){
     list.innerHTML = '<div class="gb-empty">아직 남겨진 메시지가 없어요. 첫 축하를 남겨보세요 :)</div>';
     return;
   }
-  list.innerHTML = guestbook.map((g)=>`
-    <div class="gb-item">
+  list.innerHTML = guestbook.map((g, idx)=>`
+    <div class="gb-item${highlightFirst && idx===0 ? ' stack-in' : ''}">
       <div class="gb-item-head">
         <span class="gb-item-name">${escapeHtml(g.name)}</span>
         <span class="gb-item-date">${g.date}</span>
@@ -1356,7 +1569,7 @@ function renderGuestbook(){
 function escapeHtml(str){
   const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
 }
-async function loadGuestbook(){
+async function loadGuestbook(highlightFirst){
   if(!sb) return;
   const { data, error } = await sb.from('guestbook').select('*').order('created_at', { ascending:false });
   if(error || !data) return;
@@ -1366,7 +1579,7 @@ async function loadGuestbook(){
     text: row.message,
     priv: row.is_private
   }));
-  renderGuestbook();
+  renderGuestbook(highlightFirst);
 }
 loadGuestbook();
 
@@ -1476,8 +1689,9 @@ async function submitGuestbook(){
   document.getElementById('gbName').value = '';
   document.getElementById('gbMsg').value = '';
   document.getElementById('gbPrivate').checked = false;
-  await loadGuestbook();
+  await loadGuestbook(true);
   showToast('방명록이 등록되었습니다');
+  showHeartStamp();
 }
 
 const VENUE_ADDRESS = "서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층";
@@ -1568,6 +1782,97 @@ document.addEventListener('visibilitychange', ()=>{
     bgmAudio.play().catch(()=>{});
   }
 });
+
+/* ---------------- 배경 하트 낙하 + 터치 하트 ---------------- */
+(function(){
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduceMotion) return;
+
+  const field = document.getElementById('heartField');
+  if(field){
+    function spawnFallHeart(){
+      const h = document.createElement('div');
+      h.className = 'fall-heart';
+      h.textContent = '♥';
+      h.style.left = (Math.random()*100) + 'vw';
+      h.style.fontSize = (10 + Math.random()*10) + 'px';
+      const dur = 7 + Math.random()*5;
+      h.style.animationDuration = dur + 's';
+      field.appendChild(h);
+      setTimeout(()=> h.remove(), dur*1000 + 200);
+    }
+    for(let i=0;i<3;i++) setTimeout(spawnFallHeart, i*1500);
+    setInterval(spawnFallHeart, 2600);
+  }
+
+  document.addEventListener('click', (e)=>{
+    if(e.target.closest('button, a, input, textarea, select, label')) return;
+    const heart = document.createElement('div');
+    heart.className = 'tap-heart';
+    heart.textContent = '♥';
+    heart.style.left = e.clientX + 'px';
+    heart.style.top = e.clientY + 'px';
+    document.body.appendChild(heart);
+    setTimeout(()=> heart.remove(), 950);
+  });
+})();
+
+/* ---------------- 히어로 사진 패럴랙스 스크롤 ---------------- */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const photo = document.querySelector('.hero-photo');
+  if(!photo) return;
+  let ticking = false;
+  function updateParallax(){
+    const rect = photo.getBoundingClientRect();
+    const offset = rect.top * -0.15;
+    photo.style.backgroundPosition = `center calc(50% + ${offset}px)`;
+    ticking = false;
+  }
+  document.addEventListener('scroll', ()=>{
+    if(!ticking){
+      requestAnimationFrame(updateParallax);
+      ticking = true;
+    }
+  }, { passive:true });
+  updateParallax();
+})();
+
+/* ---------------- 갤러리 캐러셀 활성 슬라이드 강조 ---------------- */
+(function(){
+  const slide = document.getElementById('gallerySlide');
+  if(!slide || !('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      entry.target.classList.toggle('active', entry.intersectionRatio > 0.6);
+    });
+  }, { root: slide, threshold: [0, 0.6, 1] });
+  function observeSlides(){
+    slide.querySelectorAll('.ph').forEach(ph => observer.observe(ph));
+  }
+  const mo = new MutationObserver(observeSlides);
+  mo.observe(slide, { childList:true });
+  observeSlides();
+})();
+
+/* ---------------- 디데이 여정 링 프로그레스 ---------------- */
+(function(){
+  const bar = document.getElementById('ddayRingBar');
+  if(!bar) return;
+  const CIRCUMFERENCE = 2 * Math.PI * 52; // r=52
+  const startDate = new Date('2023-07-07T00:00:00+09:00'); // 처음 만난 날
+  function updateRing(){
+    const now = new Date();
+    const total = weddingDate - startDate;
+    const elapsed = now - startDate;
+    let ratio = total > 0 ? elapsed / total : 1;
+    ratio = Math.min(1, Math.max(0, ratio));
+    bar.setAttribute('stroke-dasharray', CIRCUMFERENCE.toFixed(1));
+    bar.style.strokeDashoffset = (CIRCUMFERENCE * (1 - ratio)).toFixed(1);
+  }
+  updateRing();
+  setInterval(updateRing, 60000);
+})();
 </script>
 </body>
 </html>
