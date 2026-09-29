@@ -101,6 +101,40 @@
     box-shadow: var(--shadow);
   }
 
+  /* ---------- OPENING (최초 진입 리본풀림 애니메이션) ---------- */
+  #openingOverlay{
+    position:fixed; inset:0; max-width:430px; margin:0 auto;
+    z-index:9999; display:flex; align-items:center; justify-content:center;
+    background:transparent; opacity:1; transition:opacity .3s ease;
+    box-sizing:border-box;
+    padding:
+      max(10px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+  #openingOverlay.opening-hide{ opacity:0; pointer-events:none; }
+  #openingOverlay .opening-stage{
+    position:relative; width:96%; aspect-ratio:512/768;
+    max-height:94dvh; max-height:94vh;
+  }
+  #openingOverlay .opening-video,
+  #openingOverlay .opening-fallback-img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:contain; display:block;
+    clip-path: polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
+  }
+  #openingOverlay .opening-video.opening-open,
+  #openingOverlay .opening-fallback-img.opening-open{
+    clip-path: polygon(evenodd,
+      0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+      25.0% 14.3%, 25.0% 75.8%, 80.5% 75.8%, 80.5% 14.3%, 25.0% 14.3%);
+  }
+  @media (prefers-reduced-motion: reduce){
+    #openingOverlay .opening-video,
+    #openingOverlay .opening-fallback-img{ clip-path:none; }
+  }
+
   /* ---------- COVER / ENVELOPE ---------- */
   #cover{
     position:fixed; inset:0; max-width:430px; margin:0 auto;
@@ -599,6 +633,16 @@
 </style>
 </head>
 <body>
+
+<div id="openingOverlay" aria-hidden="true">
+  <div class="opening-stage">
+    <video id="openingVideo" class="opening-video" muted playsinline autoplay preload="auto" poster="../opening/opening-poster.jpg">
+      <source src="../opening/opening.webm" type="video/webm">
+      <source src="../opening/opening.mp4" type="video/mp4">
+    </video>
+    <img id="openingFallbackImg" class="opening-fallback-img" src="../opening/opening-fallback.jpg" alt="" style="display:none;">
+  </div>
+</div>
 
 <div class="app">
 
@@ -1591,6 +1635,91 @@ document.addEventListener('visibilitychange', ()=>{
     bgmAudio.play().catch(()=>{});
   }
 });
+</script>
+<script>
+(function(){
+  // 최초 진입 리본풀림 오프닝 애니메이션 컨트롤러
+  var OPENING_CONFIG = {
+    // true로 바꾸면 같은 세션 내 새로고침/복귀에서도 매번 재생됨(테스트용). 기본은 최초 1회만.
+    replayOnRefresh: false
+  };
+  var STORAGE_KEY = 'wedding_opening_played_v1';
+
+  var overlay = document.getElementById('openingOverlay');
+  if(!overlay){ return; }
+  var video = document.getElementById('openingVideo');
+  var fallbackImg = document.getElementById('openingFallbackImg');
+
+  function unlockScroll(){
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  }
+
+  function removeOverlay(){
+    if(overlay && overlay.parentNode){ overlay.parentNode.removeChild(overlay); }
+    unlockScroll();
+  }
+
+  var finished = false;
+  function finishOpening(){
+    if(finished) return;
+    finished = true;
+    overlay.classList.add('opening-hide');
+    setTimeout(removeOverlay, 320);
+  }
+
+  var alreadyPlayed = false;
+  try{ alreadyPlayed = sessionStorage.getItem(STORAGE_KEY) === '1'; }catch(e){}
+
+  if(alreadyPlayed && !OPENING_CONFIG.replayOnRefresh){
+    removeOverlay();
+    return;
+  }
+
+  try{ sessionStorage.setItem(STORAGE_KEY, '1'); }catch(e){}
+
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if(reduceMotion || !video || typeof video.play !== 'function'){
+    setTimeout(finishOpening, 30);
+    return;
+  }
+
+  function showFallback(){
+    fallbackImg.style.display = 'block';
+    video.style.display = 'none';
+  }
+
+  video.addEventListener('error', function(){
+    showFallback();
+    finishOpening();
+  });
+
+  video.addEventListener('timeupdate', function(){
+    if(video.duration && (video.currentTime / video.duration) >= 0.789){
+      video.classList.add('opening-open');
+      fallbackImg.classList.add('opening-open');
+    }
+  });
+
+  video.addEventListener('ended', function(){
+    clearTimeout(safetyTimer);
+    finishOpening();
+  });
+
+  var safetyTimer = setTimeout(finishOpening, 4200);
+
+  var playPromise = video.play();
+  if(playPromise && typeof playPromise.catch === 'function'){
+    playPromise.catch(function(){
+      showFallback();
+      finishOpening();
+    });
+  }
+})();
 </script>
 </body>
 </html>
