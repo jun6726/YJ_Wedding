@@ -4,11 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <script>
-/* 같은 기기 재접속 시: 홀수번째=일반모드, 짝수번째=스케치모드. 단, 수동 전환 버튼을 누른 적 있으면 그 값 우선. CSS 그려지기 전에 먼저 판별해서 깜빡임 방지 */
+/* 같은 기기 재접속 시: 홀수번째=일반모드, 짝수번째=스케치모드. 부모님 전용 링크는 일반 모드로 고정. */
 (function(){
   try{
+    var params = new URLSearchParams(window.location.search);
+    var isParentView = params.get('for') === 'parent' || params.get('view') === 'parents';
     var n = parseInt(localStorage.getItem('wedding_visit_count') || '0', 10) + 1;
     localStorage.setItem('wedding_visit_count', n);
+    if(isParentView){ return; }
     var override = localStorage.getItem('wedding_sketch_override');
     var sketch = (override === '1') ? true : (override === '0') ? false : (n % 2 === 0);
     if(sketch){ document.documentElement.classList.add('sketch-mode'); }
@@ -26,7 +29,7 @@
 <title>연준 ♥ 유진 결혼합니다</title>
 <link rel="icon" type="image/jpeg" href="../images/web/normal/thumb.jpg">
 <link rel="apple-touch-icon" href="../images/web/normal/thumb.jpg">
-<link rel="preload" as="image" href="../images/web/normal/thumb.jpg">
+<link rel="preload" as="image" href="../images/web/normal/thumb.jpg" fetchpriority="high">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
@@ -100,6 +103,48 @@
     position:relative;
     overflow-x:hidden;
     box-shadow: var(--shadow);
+  }
+
+  /* ---------- OPENING (풀스크린 포토 → 본문 페이드 전환) ---------- */
+  .invitation-entry{ position:relative; }
+  .letter-frame-layer{
+    position:fixed; inset:0; width:100vw; height:100vh; height:100dvh;
+    z-index:9999; overflow:hidden; background:#2a2723;
+    opacity:1; visibility:visible;
+    transition:opacity 1.05s cubic-bezier(.22,.61,.36,1),visibility 0s linear 1.05s;
+  }
+  .letter-frame-layer::after{
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg,rgba(21,18,16,.03),rgba(21,18,16,.13));
+  }
+  .letter-frame-layer.opening-hide{ opacity:0; visibility:hidden; pointer-events:none; }
+  .letter-frame-layer img{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; object-position:center 38%; display:block;
+    transform:scale(1.045); filter:saturate(.92) contrast(1.02);
+    transition:transform 2.2s cubic-bezier(.2,.65,.25,1),filter 1.05s ease;
+  }
+  .letter-frame-layer.opening-play img{ transform:scale(1); }
+  .letter-frame-layer.opening-hide img{ filter:saturate(.96) contrast(1); }
+
+  /* 사진 뒤에서 실제 초대장이 부드럽게 자리를 잡도록 연결 */
+  .entry-active .invitation-page{
+    opacity:0; transform:translateY(12px) scale(.992); filter:blur(5px);
+    pointer-events:none; will-change:opacity,transform,filter;
+    transition:opacity .9s ease,transform 1.05s cubic-bezier(.22,.7,.25,1),filter .9s ease;
+  }
+  .entry-active.entry-reveal .invitation-page{ opacity:1; transform:none; filter:none; }
+
+  @media (orientation:landscape) and (min-width:700px){
+    .letter-frame-layer img{ object-position:center 35%; }
+  }
+  @media (max-width:430px) and (max-aspect-ratio:9/16){
+    .letter-frame-layer img{ object-position:center 40%; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .letter-frame-layer{ display:none; }
+    .entry-active .invitation-page{ opacity:1 !important; transform:none !important; filter:none !important; position:relative !important; }
   }
 
   /* ---------- COVER / ENVELOPE ---------- */
@@ -289,14 +334,46 @@
   .cal-grid .day.muted{ color:#b8b2aa; }
   .cal-grid .day.blank{ visibility:hidden; }
 
-  /* ---------- STORY ---------- */
-  .story{ position:relative; padding-left:22px; }
-  .story::before{ content:""; position:absolute; left:5px; top:6px; bottom:6px; width:1px; background:var(--paper-deep); }
-  .story-item{ position:relative; padding-bottom:26px; }
-  .story-item:last-child{ padding-bottom:0; }
-  .story-item::before{ content:""; position:absolute; left:-22px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--blush); }
-  .story-date{ font-size:0.6875rem; color:var(--gold); letter-spacing:.1em; margin-bottom:4px; }
-  .story-text{ font-size:0.8438rem; line-height:1.6; }
+  /* ---------- OUR STORY / TIMELINE ---------- */
+  .our-story{
+    width:100%; padding:68px 0 52px; overflow:hidden; text-align:center;
+    background:
+      radial-gradient(circle at 13% 18%,rgba(201,134,134,.08),transparent 23%),
+      radial-gradient(circle at 90% 82%,rgba(126,153,134,.07),transparent 24%);
+  }
+  .story-kicker{ color:var(--blush); font-size:.6875rem; font-weight:700; letter-spacing:.22em; }
+  .our-story .section-title{ margin:10px 0 38px; }
+  .story-timeline{ width:100%; }
+  .story-moment{ width:100%; padding:0 22px; text-align:center; }
+  .story-date{
+    display:inline-flex; min-width:112px; min-height:34px; padding:7px 16px;
+    align-items:center; justify-content:center; border-radius:999px;
+    color:#fff; background:linear-gradient(135deg,#d99a98,#c77f82);
+    box-shadow:0 7px 18px rgba(201,134,134,.18);
+    font-size:.8438rem; font-weight:600; letter-spacing:.06em;
+  }
+  .story-text{
+    width:100%; margin-top:15px; color:var(--ink);
+    font-size:1rem; font-weight:500; line-height:1.75; letter-spacing:-.025em;
+  }
+  .story-connector{
+    position:relative; width:100%; height:86px;
+    display:grid; place-items:center;
+  }
+  .story-connector::before{
+    content:''; position:absolute; top:5px; bottom:5px; left:50%; width:1px;
+    background:linear-gradient(180deg,transparent 0%,rgba(201,134,134,.24) 18%,rgba(201,134,134,.72) 50%,rgba(201,134,134,.24) 82%,transparent 100%);
+    transform:translateX(-50%);
+  }
+  .story-heart{
+    position:relative; z-index:1; width:34px; height:28px;
+    display:grid; place-items:center; color:var(--blush); background:var(--paper);
+    font-family:Arial,sans-serif; font-size:1rem; line-height:1;
+  }
+  @media (max-width:340px){
+    .story-moment{ padding-left:16px; padding-right:16px; }
+    .story-text{ font-size:.9375rem; }
+  }
 
   /* ---------- GALLERY ---------- */
   .gallery-toggle{ display:flex; justify-content:center; gap:8px; margin-bottom:16px; }
@@ -602,6 +679,10 @@
 </head>
 <body>
 
+<div id="letterFrameLayer" class="letter-frame-layer" aria-hidden="true">
+  <img src="../images/web/normal/thumb.jpg" alt="" fetchpriority="high" decoding="async">
+</div>
+
 <div class="app invitation-page">
 
   <!-- D-DAY 당일 모드 배너 -->
@@ -687,29 +768,27 @@
     </div>
   </section>
 
-  <!-- STORY -->
-<!--  <section>-->
-<!--    <div class="section-title">우리의 이야기</div>-->
-<!--    <div class="section-sub">OUR STORY</div>-->
-<!--    <div class="story">-->
-<!--      <div class="story-item">-->
-<!--        <div class="story-date">2021. 03</div>-->
-<!--        <div class="story-text">같은 동아리에서 처음 만난 두 사람, 어색한 인사를 나누다.</div>-->
-<!--      </div>-->
-<!--      <div class="story-item">-->
-<!--        <div class="story-date">2022. 07</div>-->
-<!--        <div class="story-text">우연히 함께한 여행에서 서로의 진심을 확인하다.</div>-->
-<!--      </div>-->
-<!--      <div class="story-item">-->
-<!--        <div class="story-date">2024. 12</div>-->
-<!--        <div class="story-text">함께 살아갈 미래를 그리며 프러포즈를 하다.</div>-->
-<!--      </div>-->
-<!--      <div class="story-item">-->
-<!--        <div class="story-date">2026. 11</div>-->
-<!--        <div class="story-text">이제 부부의 연을 맺는 새로운 시작을 함께합니다.</div>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </section>-->
+  <!-- OUR STORY -->
+  <section class="our-story" aria-labelledby="storyTitle">
+    <div class="story-kicker">TIMELINE</div>
+    <div class="section-title" id="storyTitle">우리의 이야기</div>
+    <div class="story-timeline">
+      <article class="story-moment">
+        <div class="story-date">2023.07.07</div>
+        <div class="story-text">유나♡성준의 소개로 만남을 시작했어요</div>
+      </article>
+      <div class="story-connector" aria-hidden="true"><span class="story-heart">♥</span></div>
+      <article class="story-moment">
+        <div class="story-date">2026.10.05</div>
+        <div class="story-text">두 가족이 만나는 날이에요</div>
+      </article>
+      <div class="story-connector" aria-hidden="true"><span class="story-heart">♥</span></div>
+      <article class="story-moment">
+        <div class="story-date">2027.03.13</div>
+        <div class="story-text">드디어 결혼해요!</div>
+      </article>
+    </div>
+  </section>
 
   <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
@@ -764,10 +843,10 @@
     </div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="snapDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- GUEST SNAP -->
-  <section>
+  <section id="guestSnapSection">
     <div class="section-title">게스트 스냅</div>
     <div class="section-sub">GUEST SNAP</div>
     <p style="text-align:center; font-size:0.8125rem; color:var(--ink-soft); line-height:1.7; margin-bottom:18px;">
@@ -781,10 +860,10 @@
     <div id="snapStatus" style="text-align:center; font-size:0.8125rem; font-weight:600; color:var(--celadon-deep); margin-top:10px; min-height:16px;"></div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="guestbookDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- GUESTBOOK -->
-  <section>
+  <section id="guestbookSection">
     <div class="section-title">방명록</div>
     <div class="section-sub">GUEST BOOK</div>
     <div class="gb-form">
@@ -828,7 +907,7 @@
     </div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="rsvpDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- RSVP -->
   <section id="rsvpSection">
@@ -872,7 +951,7 @@
     <div class="rsvp-note">* 전달해주신 내용은 신랑신부만 확인합니다</div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="shareDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- SHARE -->
   <section>
@@ -965,10 +1044,25 @@ const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
 
 /* ---------------- 혼주용/지인용 링크 구분 (?for=parent) ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
-const audienceMode = (urlParams.get('for') === 'parent') ? 'parent' : 'guest';
+const audienceMode = (urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents') ? 'parent' : 'guest';
 (function applyAudienceMode(){
   if(audienceMode !== 'parent') return;
   document.documentElement.classList.add('audience-parent');
+  document.documentElement.classList.remove('sketch-mode');
+
+  [
+    'guestSnapSection',
+    'snapDivider',
+    'guestbookSection',
+    'guestbookDivider',
+    'rsvpSection',
+    'rsvpDivider',
+    'shareDivider',
+    'visitDebug'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.hidden = true;
+  });
 
   const mapSection = document.getElementById('mapSection');
   const accountsSection = document.getElementById('accountsSection');
@@ -1605,6 +1699,89 @@ document.addEventListener('visibilitychange', ()=>{
     bgmAudio.play().catch(()=>{});
   }
 });
+</script>
+<script>
+(function(){
+  // 최초 진입: 대표 사진을 기기 화면에 가득 채운 뒤 본문으로 페이드
+  var OPENING_CONFIG = {
+    replayOnRefresh: true,
+    holdDuration: 1150,
+    fadeDuration: 1050
+  };
+  var STORAGE_KEY = 'wedding_photo_opening_played_v2';
+
+  var layer = document.getElementById('letterFrameLayer');
+  var page = document.querySelector('.invitation-page');
+  if(!layer || !page){ return; }
+  var openingImage = layer.querySelector('img');
+
+  function unlockScroll(){
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+    document.body.classList.remove('entry-active','entry-reveal');
+  }
+
+  function removeLayer(){
+    if(layer && layer.parentNode){ layer.parentNode.removeChild(layer); }
+    unlockScroll();
+  }
+
+  var finished = false, started = false;
+  function finishOpening(){
+    if(finished) return;
+    finished = true;
+    document.body.classList.add('entry-reveal');
+    layer.classList.add('opening-hide');
+    setTimeout(removeLayer, OPENING_CONFIG.fadeDuration + 80);
+  }
+
+  function abortToRealPage(){
+    if(finished) return;
+    finished = true;
+    if(layer && layer.parentNode){ layer.parentNode.removeChild(layer); }
+    unlockScroll();
+  }
+
+  var alreadyPlayed = false;
+  try{ alreadyPlayed = sessionStorage.getItem(STORAGE_KEY) === '1'; }catch(e){}
+
+  if(alreadyPlayed && !OPENING_CONFIG.replayOnRefresh){
+    abortToRealPage();
+    return;
+  }
+
+  try{ sessionStorage.setItem(STORAGE_KEY, '1'); }catch(e){}
+
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  document.body.classList.add('entry-active');
+
+  if(reduceMotion){
+    abortToRealPage();
+    return;
+  }
+
+  function startPlayback(){
+    if(started || finished) return;
+    started = true;
+    requestAnimationFrame(function(){
+      layer.classList.add('opening-play');
+      setTimeout(finishOpening, OPENING_CONFIG.holdDuration);
+    });
+  }
+
+  if(openingImage.complete && openingImage.naturalWidth > 0){
+    startPlayback();
+  }else{
+    openingImage.addEventListener('load', startPlayback, { once:true });
+    openingImage.addEventListener('error', abortToRealPage, { once:true });
+  }
+
+  // 이미지 로딩이 길어져도 본문 접근은 막지 않음
+  setTimeout(function(){ if(!started && !finished){ abortToRealPage(); } }, 3500);
+})();
 </script>
 </body>
 </html>
