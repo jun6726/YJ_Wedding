@@ -61,7 +61,16 @@
   .bs-mock .fr::before{ top:-1px; left:-1px; border-right:0; border-bottom:0; }
   .bs-mock .fr::after{ bottom:-1px; right:-1px; border-left:0; border-top:0; }
   .bs-label{ font-size:10px; letter-spacing:.32em; color:#c9a24b; font-weight:700; }
+  .bs-photo{
+    position:relative; width:min(76%,300px); aspect-ratio:4/5; margin:20px auto 21px;
+    padding:6px; background:#fff; border:1px solid rgba(201,162,75,.34);
+    box-shadow:0 14px 30px rgba(64,48,30,.12); overflow:hidden;
+  }
+  .bs-photo img{ width:100%; height:100%; display:block; object-fit:cover; object-position:center 38%; filter:saturate(.88) contrast(1.02); }
+  .bs-photo::after{ content:''; position:absolute; inset:6px; background:linear-gradient(180deg,transparent 66%,rgba(34,27,20,.2)); pointer-events:none; }
+  .bs-photo .photo-caption{ position:absolute; z-index:2; left:12px; right:12px; bottom:13px; color:#fff; font:400 9px/1.2 'Noto Serif KR',serif; letter-spacing:.22em; text-shadow:0 1px 7px rgba(0,0,0,.55); }
   .bs-mock h2{ margin:20px 0 0; font:700 30px/1.35 'Gowun Batang',serif; letter-spacing:-.02em; color:#2c2620; }
+  .bs-photo + h2{ margin-top:0; }
   .bs-mock .amp{ display:block; margin:8px auto; width:26px; height:1px; background:#c9a24b; }
   .bs-mock .date{ margin-top:18px; font-size:12px; color:#8a7c62; letter-spacing:.05em; }
   .bs-mock .quote{ margin-top:26px; font-size:11.5px; color:#a4977f; font-style:italic; line-height:1.8; }
@@ -78,15 +87,15 @@
   #case2{ --accent:#e08a8a; }
   .bj-mock{ background:#fff; }
   .bj-photo{
-    height:280px; background:
-      linear-gradient(180deg, rgba(30,20,20,0) 45%, rgba(30,20,20,.55) 100%),
-      linear-gradient(135deg,#f4c9c9,#e6a3a3 45%,#d98a95);
+    height:360px; background:#e8d8d1;
     position:relative; display:flex; align-items:flex-end; padding:22px;
   }
-  .bj-photo .txt{ color:#fff; }
+  .bj-photo::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(30,20,20,0) 48%,rgba(30,20,20,.62) 100%); }
+  .bj-photo > img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 61%; }
+  .bj-photo .txt{ position:relative; z-index:2; color:#fff; }
   .bj-photo .txt .sub{ font-size:10px; letter-spacing:.2em; opacity:.85; font-weight:700; }
   .bj-photo .txt h2{ margin:8px 0 0; font:700 24px/1.3 'Gowun Batang',serif; }
-  .bj-photo .heart-deco{ position:absolute; top:16px; right:18px; font-size:20px; opacity:.9; }
+  .bj-photo .heart-deco{ position:absolute; z-index:2; top:16px; right:18px; font-size:20px; opacity:.9; }
   .bj-body{ padding:20px; }
   .bj-info{ display:flex; justify-content:space-between; font-size:11.5px; color:#8a7c76; border-bottom:1px dashed rgba(38,34,29,.15); padding-bottom:14px; }
   .bj-icons{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:16px; }
@@ -103,6 +112,10 @@
   .dd-eyebrow{ font-size:9.5px; letter-spacing:.28em; color:#7c8a5e; font-weight:700; }
   .dd-mock h2{ margin:16px 0 0; font:300 27px/1.55 'Noto Serif KR',serif; letter-spacing:-.01em; color:#33342a; }
   .dd-mock h2 b{ font-weight:700; }
+  .dd-photo{ position:relative; margin-top:25px; aspect-ratio:4/5; overflow:hidden; background:#e7e6df; }
+  .dd-photo img{ width:100%; height:100%; display:block; object-fit:cover; object-position:center 38%; filter:saturate(.72) contrast(.98); }
+  .dd-photo::after{ content:''; position:absolute; inset:0; border:1px solid rgba(255,255,255,.48); }
+  .dd-photo-note{ margin-top:8px; color:#8b8c7c; font:9px/1.5 'Noto Serif KR',serif; letter-spacing:.12em; text-align:right; }
   .dd-line{ margin-top:24px; width:100%; }
   .dd-info{ margin-top:26px; display:flex; flex-direction:column; gap:6px; font-size:12px; color:#5e5f52; font-weight:300; line-height:1.8; }
   .dd-info b{ font-weight:600; color:#33342a; }
@@ -136,6 +149,10 @@
       <div class="mock bs-mock">
         <div class="fr"></div>
         <div class="bs-label">THE WEDDING INVITATION</div>
+        <div class="bs-photo">
+          <img src="../thumb.jpg" alt="최연준 김유진 웨딩 사진">
+          <div class="photo-caption">OUR FAVORITE MOMENT</div>
+        </div>
         <h2>최연준<span class="amp"></span>김유진</h2>
         <div class="date">2027. 03. 13 SAT PM 12:00<br>L65호텔 웨딩컨벤션 · 가든홀</div>
         <div class="quote">"서로 다른 두 사람이 걸어온 길이<br>하나의 길이 되려 합니다"</div>
@@ -156,6 +173,7 @@
     <div class="mock-wrap">
       <div class="mock bj-mock">
         <div class="bj-photo">
+          <img src="../gallery1.jpg" alt="최연준 김유진 웨딩 사진">
           <div class="heart-deco">♥</div>
           <div class="txt">
             <div class="sub">WEDDING DAY</div>
@@ -188,6 +206,8 @@
       <div class="mock dd-mock">
         <div class="dd-eyebrow">WEDDING INVITATION</div>
         <h2>서로의 계절이 되어,<br><b>결혼합니다</b></h2>
+        <div class="dd-photo"><img src="../gallery3.jpg" alt="최연준 김유진 웨딩 사진"></div>
+        <div class="dd-photo-note">YEONJUN &amp; YUJIN · 2027</div>
         <svg class="dd-line" viewBox="0 0 220 26" fill="none">
           <path d="M4 18 C 30 4, 50 4, 70 14 S 110 24, 130 12 S 170 2, 196 12" stroke="#7c8a5e" stroke-width="1"/>
           <circle cx="70" cy="14" r="2" fill="#7c8a5e"/><circle cx="130" cy="12" r="2" fill="#7c8a5e"/>
@@ -220,15 +240,24 @@
 <script>
   const tabs = document.querySelectorAll('.tab');
   const panels = document.querySelectorAll('.panel');
+  function activateCase(target, updateHash = false){
+    const nextTab = document.querySelector(`.tab[data-target="${target}"]`);
+    const nextPanel = document.getElementById(target);
+    if(!nextTab || !nextPanel) return;
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    nextTab.classList.add('active');
+    nextPanel.classList.add('active');
+    document.getElementById('tabbar').style.setProperty('--accent', getComputedStyle(nextTab).getPropertyValue('--accent'));
+    if(updateHash) history.replaceState(null, '', `#${target}`);
+  }
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      panels.forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(tab.dataset.target).classList.add('active');
-      document.getElementById('tabbar').style.setProperty('--accent', getComputedStyle(tab).getPropertyValue('--accent'));
+      activateCase(tab.dataset.target, true);
     });
   });
+  activateCase(location.hash.slice(1) || 'case1');
+  if(location.hash) requestAnimationFrame(() => window.scrollTo(0, 0));
 </script>
 </body>
 </html>
