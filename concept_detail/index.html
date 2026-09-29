@@ -26,6 +26,20 @@
 
   .catnav{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:16px; padding:0 20px; max-width:900px; margin-left:auto; margin-right:auto; }
   .catnav a{ font-size:10.5px; padding:5px 10px; border-radius:999px; background:#fff; color:#8a6a3c; text-decoration:none; border:1px solid #e6dcc6; }
+  .picked-overview{ max-width:1160px; margin:16px auto 14px; padding:0 20px; }
+  .picked-overview .box{ background:#fff; border:1px solid #e6dcc6; border-radius:16px; padding:14px 16px; box-shadow:0 5px 18px rgba(0,0,0,.06); }
+  .picked-overview .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+  .picked-overview h2{ margin:0; font-size:13px; color:#6f5632; letter-spacing:.08em; }
+  .picked-overview .count{ flex-shrink:0; font-size:11px; color:#b08a4e; font-weight:700; }
+  .picked-overview .chips{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:thin; }
+  .picked-overview .chip{ flex:0 0 auto; max-width:230px; border:1px solid #e6dcc6; background:#faf8f4; color:#5c4a2e; border-radius:999px; padding:8px 12px; font-size:11px; line-height:1.25; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .picked-overview .chip:hover{ background:#f2ead9; }
+  .picked-overview .empty{ color:#999; font-size:12px; line-height:1.6; }
+  @media (max-width:720px){
+    .picked-overview{ margin-top:12px; }
+    .picked-overview .box{ padding:12px; }
+    .picked-overview .chip{ max-width:72vw; }
+  }
   .cat-title{ width:100%; margin:40px auto 4px; padding:0 20px; font-size:13px; letter-spacing:.15em; color:#a08a5c; font-weight:700; }
   .cat-title span{ color:#bbb; font-weight:400; margin-left:8px; }
   .grid{ width:100%; margin:0 auto; padding:12px 20px 20px; display:grid; grid-template-columns:repeat(auto-fill, 451px); justify-content:center; gap:18px; }
@@ -1094,7 +1108,7 @@
   .elin-card{ width:108px; height:152px; }
   .elin-card .inside{
     overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.7);
-    background:linear-gradient(rgba(32,28,25,.12),rgba(32,28,25,.55)),url('../thumb.jpg') center 39%/cover;
+    background:linear-gradient(rgba(32,28,25,.12),rgba(32,28,25,.55)),url('../images/web/normal/thumb.jpg') center 39%/cover;
   }
   .elin-card .door{ background:linear-gradient(145deg,#fffdf8,#e9dfd1); border-color:rgba(116,91,65,.12); }
   .elin-card .vribbon{ width:7px; margin-left:-3.5px; background:linear-gradient(90deg,#8e7767,#d9c4b2 45%,#746052); box-shadow:0 1px 3px rgba(45,33,25,.25); }
@@ -1107,7 +1121,7 @@
   .entry-envelope .letter{ left:17px; right:17px; height:98px; border:1px solid rgba(120,95,70,.12); }
   .entry-envelope .letter.photo-letter{
     overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.55);
-    background:linear-gradient(rgba(25,23,20,.05),rgba(25,23,20,.55)),url('../thumb.jpg') center 39%/cover;
+    background:linear-gradient(rgba(25,23,20,.05),rgba(25,23,20,.55)),url('../images/web/normal/thumb.jpg') center 39%/cover;
   }
   .entry-envelope .letter.photo-letter > *{ position:relative; z-index:1; }
   .entry-envelope .band-h{ top:56px; height:8px; background:linear-gradient(#d7c3b1,#9f8069); box-shadow:0 1px 3px rgba(62,42,29,.22); }
@@ -1218,7 +1232,7 @@
   .pull-entry{ background:linear-gradient(145deg,#dde5df,#b9c9bf); }
   .pull-entry .paper-cover{
     inset:13px 58px; overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.48);
-    background:linear-gradient(rgba(20,28,23,.05),rgba(20,28,23,.48)),url('../thumb.jpg') center 39%/cover;
+    background:linear-gradient(rgba(20,28,23,.05),rgba(20,28,23,.48)),url('../images/web/normal/thumb.jpg') center 39%/cover;
   }
   .pull-entry .pull-ribbon{ height:8px; background:linear-gradient(#789282,#486656); box-shadow:0 2px 5px rgba(40,63,51,.22); }
   .pull-entry .pull-ribbon::after{ content:''; position:absolute; left:0; right:0; top:1px; height:1px; background:rgba(255,255,255,.34); }
@@ -1243,6 +1257,18 @@
     <a href="#cat-r">R.스토리텔링</a><a href="#cat-s">S.티켓</a><a href="#cat-t">T.네온</a><a href="#cat-u">U.엔딩</a>
   </div>
 </header>
+
+<section class="picked-overview" aria-labelledby="pickedOverviewTitle">
+  <div class="box">
+    <div class="head">
+      <h2 id="pickedOverviewTitle">선택된 효과</h2>
+      <div class="count" id="pickedOverviewCount">0개</div>
+    </div>
+    <div class="chips" id="pickedOverviewList">
+      <div class="empty">아직 선택된 효과가 없어요</div>
+    </div>
+  </div>
+</section>
 
 <div id="cat-entry" class="cat-title">진입 애니메이션 <span>엘린 · 리본 언타이 · 봉투 오픈 조합 테스트</span></div>
 <div class="grid" id="grid-entry"></div>
@@ -1292,8 +1318,8 @@
 <div class="grid" id="grid-u"></div>
 
 <script>
-const IMG = i => `../gallery${i}.jpg`;
-const THUMB = '../thumb.jpg';
+const IMG = i => `../images/web/normal/gallery${i}.jpg`;
+const THUMB = '../images/web/normal/thumb.jpg';
 
 const CATS = {
   entry: [
@@ -1672,34 +1698,16 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const LABELS = {};
 document.querySelectorAll('.pick').forEach(btn => { LABELS[btn.dataset.pick] = btn.dataset.label; });
+const PICK_ORDER = {};
+document.querySelectorAll('.pick').forEach((btn, index) => { PICK_ORDER[btn.dataset.pick] = index; });
 
-async function refreshPicks(){
-  const { data, error } = await sb.from('design_picks').select('*').eq('picked', true);
-  if(error){
-    document.getElementById('summaryBar').textContent = '선택 정보를 불러오지 못했어요 (design_picks 테이블 생성 필요)';
-    return;
-  }
-  const pickedIds = new Set(data.map(r => r.id));
-  document.querySelectorAll('.pick').forEach(btn => {
-    const on = pickedIds.has(btn.dataset.pick);
-    btn.classList.toggle('on', on);
-    document.getElementById('card-' + btn.dataset.pick).classList.toggle('picked', on);
-  });
-  const count = pickedIds.size;
-  const names = [...pickedIds].map(id => LABELS[id]).filter(Boolean).join(' · ');
-  document.getElementById('summaryBar').innerHTML =
-    `선택된 효과: <b>${count}</b>개` + (names ? `<div class="list">${names}</div>` : '');
-
-  const sidePanelList = document.getElementById('sidePanelList');
-  sidePanelList.innerHTML = pickedIds.size
-    ? [...pickedIds].map(id => `<div class="item" data-jump="${id}">${LABELS[id] || id}</div>`).join('')
-    : '<div class="empty">아직 선택된 효과가 없어요</div>';
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
 }
 
-document.getElementById('sidePanelList').addEventListener('click', (e) => {
-  const item = e.target.closest('.item');
-  if (!item) return;
-  const id = item.dataset.jump;
+function jumpToPick(id){
   const card = document.getElementById('card-' + id);
   const stage = document.getElementById(id);
   if (!card) return;
@@ -1708,6 +1716,48 @@ document.getElementById('sidePanelList').addEventListener('click', (e) => {
   card.style.boxShadow = '0 0 0 4px rgba(216,185,120,.85)';
   setTimeout(() => { card.style.boxShadow = ''; }, 1300);
   if (stage) playStage(stage);
+}
+
+async function refreshPicks(){
+  const { data, error } = await sb.from('design_picks').select('*').eq('picked', true);
+  if(error){
+    document.getElementById('summaryBar').textContent = '선택 정보를 불러오지 못했어요 (design_picks 테이블 생성 필요)';
+    return;
+  }
+  const pickedIds = new Set(data.map(r => r.id));
+  const orderedPickedIds = [...pickedIds].sort((a, b) => (PICK_ORDER[a] ?? 9999) - (PICK_ORDER[b] ?? 9999));
+  document.querySelectorAll('.pick').forEach(btn => {
+    const on = pickedIds.has(btn.dataset.pick);
+    btn.classList.toggle('on', on);
+    document.getElementById('card-' + btn.dataset.pick).classList.toggle('picked', on);
+  });
+  const count = pickedIds.size;
+  const names = orderedPickedIds.map(id => LABELS[id]).filter(Boolean).join(' · ');
+  document.getElementById('summaryBar').innerHTML =
+    `선택된 효과: <b>${count}</b>개` + (names ? `<div class="list">${names}</div>` : '');
+
+  const sidePanelList = document.getElementById('sidePanelList');
+  sidePanelList.innerHTML = pickedIds.size
+    ? orderedPickedIds.map(id => `<div class="item" data-jump="${escapeHtml(id)}">${escapeHtml(LABELS[id] || id)}</div>`).join('')
+    : '<div class="empty">아직 선택된 효과가 없어요</div>';
+
+  document.getElementById('pickedOverviewCount').textContent = `${count}개`;
+  const pickedOverviewList = document.getElementById('pickedOverviewList');
+  pickedOverviewList.innerHTML = pickedIds.size
+    ? orderedPickedIds.map(id => `<button class="chip" type="button" data-jump="${escapeHtml(id)}" title="${escapeHtml(LABELS[id] || id)}">${escapeHtml(LABELS[id] || id)}</button>`).join('')
+    : '<div class="empty">아직 선택된 효과가 없어요</div>';
+}
+
+document.getElementById('sidePanelList').addEventListener('click', (e) => {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  jumpToPick(item.dataset.jump);
+});
+
+document.getElementById('pickedOverviewList').addEventListener('click', (e) => {
+  const item = e.target.closest('[data-jump]');
+  if (!item) return;
+  jumpToPick(item.dataset.jump);
 });
 
 async function togglePick(id, nextState){
