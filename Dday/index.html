@@ -51,6 +51,12 @@
     font-weight: 700;
     font-display: swap;
   }
+  @font-face {
+    font-family: 'OngeulipParkDahyun';
+    src: url('../fonts/OngeulipParkDahyun.ttf') format('truetype');
+    font-weight: 400;
+    font-display: swap;
+  }
   :root{
     --paper:#F4EEE3;
     --paper-deep:#EAE0CC;
@@ -582,12 +588,12 @@
      스케치 모드 (짝수번째 접속 시 자동 적용)
      ============================================ */
   .sketch-mode, .sketch-mode input, .sketch-mode select, .sketch-mode textarea, .sketch-mode button{
-    font-family:'Gaegu', cursive;
+    font-family:'OngeulipParkDahyun','Gaegu', cursive;
   }
   .sketch-mode h1, .sketch-mode h2, .sketch-mode h3, .sketch-mode .serif,
   .sketch-mode .section-title, .sketch-mode .hero-names, .sketch-mode .venue-name,
   .sketch-mode .count-nums .num{
-    font-family:'Gaegu', cursive !important;
+    font-family:'OngeulipParkDahyun','Gaegu', cursive !important;
   }
   /* 최상단 날짜(2023.07.07 / 2027.03.13)는 스케치모드에서도 기본 폰트 유지 */
   .sketch-mode .seven-date{
@@ -651,6 +657,7 @@
     border-radius:255px 15px 225px 15px/15px 225px 15px 255px !important;
     border:1.4px solid var(--ink) !important;
   }
+  .sketch-mode .pill-btn{ font-size:0.7812rem !important; }
 
   .sketch-mode .field input[type=text],
   .sketch-mode .field select,
