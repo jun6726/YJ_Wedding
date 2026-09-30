@@ -1744,14 +1744,20 @@ window.addEventListener('pagehide', ()=>{
   if(bgmAudio){ bgmAudio.pause(); bgmAudio.currentTime = 0; }
 });
 
-/* 진입 시 1px 스크롤을 발생시켜 모바일 브라우저(카카오톡 인앱, 크롬 등)의
-   상단 주소창/툴바가 처음부터 접힌 상태로 보이도록 유도 */
+/* 진입 시 스크롤을 발생시켜 모바일 브라우저(카카오톡 인앱, 크롬 등)의
+   상단 주소창/툴바가 처음부터 접힌 상태로 보이도록 유도.
+   1px로는 툴바 접힘이 끝까지 완료되지 않는 기기/브라우저가 있어,
+   툴바 높이보다 넉넉한 값(120px)까지 스크롤해 접힘을 확실히 끝낸다. */
 (function(){
-  function hideToolbar(){ window.scrollTo(0, 1); }
-  window.addEventListener('load', function(){
-    setTimeout(hideToolbar, 0);
-    setTimeout(hideToolbar, 300);
-  });
+  var HIDE_SCROLL_Y = 120;
+  function hideToolbar(){ window.scrollTo(0, HIDE_SCROLL_Y); }
+  function trigger(){
+    hideToolbar();
+    setTimeout(hideToolbar, 150);
+    setTimeout(hideToolbar, 400);
+  }
+  window.addEventListener('load', trigger);
+  document.addEventListener('touchstart', trigger, { once:true, passive:true });
 })();
 </script>
 <script>
