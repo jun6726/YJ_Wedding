@@ -1737,6 +1737,16 @@ document.addEventListener('visibilitychange', ()=>{
 window.addEventListener('pagehide', ()=>{
   if(bgmAudio){ bgmAudio.pause(); bgmAudio.currentTime = 0; }
 });
+
+/* 진입 시 1px 스크롤을 발생시켜 모바일 브라우저(카카오톡 인앱, 크롬 등)의
+   상단 주소창/툴바가 처음부터 접힌 상태로 보이도록 유도 */
+(function(){
+  function hideToolbar(){ window.scrollTo(0, 1); }
+  window.addEventListener('load', function(){
+    setTimeout(hideToolbar, 0);
+    setTimeout(hideToolbar, 300);
+  });
+})();
 </script>
 <script>
 (function(){
