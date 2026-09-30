@@ -1733,10 +1733,14 @@ document.addEventListener('visibilitychange', ()=>{
   }
 });
 
-/* 페이지를 나가면(새로고침, 다른 페이지 이동, 탭 닫기) 음악 정지 */
-window.addEventListener('pagehide', ()=>{
+/* 페이지를 나가면(새로고침, 다른 페이지 이동, 탭/인앱브라우저 닫기) 음악 정지
+   카카오톡 등 인앱브라우저는 웹뷰를 닫을 때 pagehide가 발생하지 않는 경우가 있어
+   beforeunload와 visibilitychange(hidden)에서도 함께 정지시켜 안정성을 높인다. */
+function stopBgm(){
   if(bgmAudio){ bgmAudio.pause(); bgmAudio.currentTime = 0; }
-});
+}
+window.addEventListener('pagehide', stopBgm);
+window.addEventListener('beforeunload', stopBgm);
 
 /* 진입 시 스크롤을 발생시켜 모바일 브라우저(카카오톡 인앱, 크롬 등)의
    상단 주소창/툴바가 처음부터 접힌 상태로 보이도록 유도.
