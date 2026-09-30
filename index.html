@@ -89,16 +89,6 @@
   }
   html{ font-size: calc(16px * var(--font-scale)); transition: font-size .2s ease; }
   html.sketch-mode{ font-size: calc(16px * var(--font-scale) * 1.18); }
-  html.audience-parent{ font-size: calc(16px * var(--font-scale) * 1.15); }
-  .audience-parent #fontScaleBtn,
-  .audience-parent #sketchToggleBtn,
-  .audience-parent #bgmBtn{ display:none; }
-  .audience-parent h1, .audience-parent h2, .audience-parent h3, .audience-parent .serif{
-    font-family:'Malgun Gothic', '맑은 고딕', 'Noto Sans KR', sans-serif !important;
-  }
-  .audience-parent, .audience-parent input, .audience-parent select, .audience-parent textarea, .audience-parent button{
-    font-family:'Malgun Gothic', '맑은 고딕', 'Noto Sans KR', sans-serif !important;
-  }
   html,body{
     background: linear-gradient(180deg,#e9e2d3 0%, #d9d0bb 100%);
     font-family:'NexonMaplestory', 'Noto Sans KR', sans-serif;
@@ -613,7 +603,8 @@
   /* ============================================
      스케치 모드 (짝수번째 접속 시 자동 적용)
      ============================================ */
-  .sketch-mode, .sketch-mode input, .sketch-mode select, .sketch-mode textarea, .sketch-mode button{
+  .sketch-mode, .sketch-mode input, .sketch-mode select, .sketch-mode textarea, .sketch-mode button,
+  .sketch-mode a, .sketch-mode .acc-body .inner{
     font-family:'OngeulipParkDahyun','Gaegu', cursive;
   }
   .sketch-mode h1, .sketch-mode h2, .sketch-mode h3, .sketch-mode .serif,
@@ -1113,7 +1104,6 @@ function updateAudienceToggleLabel(){
 function setAudienceMode(isParent){
   audienceMode = isParent ? 'parent' : 'guest';
   document.documentElement.classList.toggle('audience-parent', isParent);
-  if(isParent) document.documentElement.classList.remove('sketch-mode');
 
   AUDIENCE_HIDE_IDS.forEach(id => {
     const el = document.getElementById(id);
