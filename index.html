@@ -259,7 +259,7 @@
   .hero{ padding:0 28px 10px; text-align:center; } /* seven-intro 숨김 처리로 히어로가 최상단이 되어 상단 padding 제거 */
   .eyebrow{ letter-spacing:.35em; font-size:0.6875rem; color:var(--celadon-deep); font-weight:500; }
   .hero-photo{
-    margin:0 -28px 22px; width:calc(100% + 56px); height:100vh; height:100dvh; border-radius:0;
+    margin:0 -28px 22px; width:calc(100% + 56px); height:100vh; height:100svh; border-radius:0;
     background: url('images/web/normal/thumb.jpg') center/cover no-repeat, linear-gradient(160deg,#93aa98,#5a7362);
     display:flex; align-items:flex-end; justify-content:center;
     position:relative; overflow:hidden;
@@ -323,14 +323,21 @@
   }
   .count-nums{ display:flex; justify-content:center; gap:14px; margin:18px 0 4px; }
   .count-nums .box{ width:62px; }
-  .count-nums .num{ font-size:1.5rem; font-weight:700; color:var(--celadon-deep); font-family:'NexonMaplestory','Noto Sans KR',sans-serif; }
+  .count-nums .num{ font-size:1.5rem; font-weight:700; color:var(--blush); font-family:'NexonMaplestory','Noto Sans KR',sans-serif; }
   .count-nums .lab{ font-size:0.6562rem; color:var(--ink-soft); margin-top:2px; }
   .cal{ margin-top:22px; }
   .cal-head{ font-size:0.8125rem; font-weight:600; margin-bottom:10px; }
   .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
   .cal-grid span{ font-size:0.6875rem; color:var(--ink-soft); }
   .cal-grid .day{ font-size:0.7812rem; padding:6px 0; border-radius:8px; }
-  .cal-grid .day.mark{ background:var(--celadon); color:#fff; font-weight:700; }
+  .cal-grid .day.mark{
+    position:relative; background:none; color:var(--white); font-weight:800; z-index:0;
+  }
+  .cal-grid .day.mark::before{
+    content:'♥'; position:absolute; inset:0; z-index:-1;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.85rem; line-height:1; color:var(--blush);
+  }
   .cal-grid .day.muted{ color:#b8b2aa; }
   .cal-grid .day.blank{ visibility:hidden; }
 
@@ -762,7 +769,7 @@
         <div class="box"><div class="num" id="cd-s">00</div><div class="lab">SEC</div></div>
       </div>
       <div class="cal">
-        <div class="cal-head" id="calHead">2027년 3월 7일 - 13일</div>
+        <div class="cal-head" id="calHead">2027년 3월 13일</div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
     </div>
@@ -1210,10 +1217,7 @@ function buildCalendar(year, month, markDay){ // month: 1-12
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
   if(head){
-    const sameMonth = weekStart.getMonth() === weekEnd.getMonth();
-    head.textContent = sameMonth
-      ? `${year}년 ${month}월 ${weekStart.getDate()}일 - ${weekEnd.getDate()}일`
-      : `${weekStart.getFullYear()}년 ${weekStart.getMonth()+1}월 ${weekStart.getDate()}일 - ${weekEnd.getFullYear()}년 ${weekEnd.getMonth()+1}월 ${weekEnd.getDate()}일`;
+    head.textContent = `${year}년 ${month}월 ${markDay}일`;
   }
   for(let i=0; i<7; i++){
     const date = new Date(weekStart);
