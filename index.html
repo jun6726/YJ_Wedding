@@ -1078,9 +1078,23 @@ const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
   setTimeout(tick, START_DELAY);
 })();
 
-/* ---------------- 혼주용/지인용 링크 구분 (?for=parent, 버튼으로도 토글 가능) ---------------- */
+/* ---------------- 혼주용/지인용 모드 구분 ----------------
+   우선순위: URL 쿼리(?for=parent, 테스트용) > 기기별 수동 토글 저장값 > 날짜 범위 기본값
+   날짜 범위: 2026-10-01 ~ 2026-10-07 은 기본 혼주용, 그 외 기간은 기본 일반(guest) */
 const urlParams = new URLSearchParams(window.location.search);
-let audienceMode = (urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents') ? 'parent' : 'guest';
+const PARENT_DEFAULT_START = new Date('2026-10-01T00:00:00+09:00');
+const PARENT_DEFAULT_END = new Date('2026-10-07T23:59:59+09:00');
+function getDefaultAudienceMode(){
+  const now = new Date();
+  return (now >= PARENT_DEFAULT_START && now <= PARENT_DEFAULT_END) ? 'parent' : 'guest';
+}
+let audienceMode;
+if(urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents'){
+  audienceMode = 'parent';
+} else {
+  const audienceOverride = localStorage.getItem('wedding_audience_override');
+  audienceMode = (audienceOverride === '1') ? 'parent' : (audienceOverride === '0') ? 'guest' : getDefaultAudienceMode();
+}
 
 const AUDIENCE_HIDE_IDS = [
   'mapDivider',
@@ -1147,7 +1161,9 @@ function setAudienceMode(isParent){
 }
 
 function toggleAudienceMode(){
-  setAudienceMode(audienceMode !== 'parent');
+  const willBeParent = audienceMode !== 'parent';
+  try{ localStorage.setItem('wedding_audience_override', willBeParent ? '1' : '0'); }catch(e){}
+  setAudienceMode(willBeParent);
 }
 
 setAudienceMode(audienceMode === 'parent');
@@ -1258,7 +1274,9 @@ function tickCountdown(){
 setInterval(tickCountdown, 1000);
 tickCountdown();
 
-/* ---------------- 당일 모드 배너 ---------------- */
+/* ---------------- 당일 모드 배너 ----------------
+   평소엔 숨기고 결혼식 당일에만 자동 노출.
+   ?preview=dday 쿼리로 날짜와 무관하게 미리보기 가능(테스트용). */
 (function(){
   const banner = document.getElementById('ddayBanner');
   if(!banner) return;
@@ -1266,7 +1284,8 @@ tickCountdown();
   const isWeddingDay = now.getFullYear() === weddingDate.getFullYear()
     && now.getMonth() === weddingDate.getMonth()
     && now.getDate() === weddingDate.getDate();
-  if(isWeddingDay){
+  const isPreview = urlParams.get('preview') === 'dday';
+  if(isWeddingDay || isPreview){
     banner.classList.add('show');
   }
 })();
