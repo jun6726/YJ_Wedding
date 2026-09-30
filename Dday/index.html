@@ -6,15 +6,26 @@
 <script>
 /* 같은 기기 재접속 시: 홀수번째=일반모드, 짝수번째=스케치모드. 부모님 전용 링크는 일반 모드로 고정. */
 (function(){
+  var sketch = false;
   try{
     var params = new URLSearchParams(window.location.search);
     var isParentView = params.get('for') === 'parent' || params.get('view') === 'parents';
     var n = parseInt(localStorage.getItem('wedding_visit_count') || '0', 10) + 1;
     localStorage.setItem('wedding_visit_count', n);
-    if(isParentView){ return; }
-    var override = localStorage.getItem('wedding_sketch_override');
-    var sketch = (override === '1') ? true : (override === '0') ? false : (n % 2 === 0);
-    if(sketch){ document.documentElement.classList.add('sketch-mode'); }
+    if(!isParentView){
+      var override = localStorage.getItem('wedding_sketch_override');
+      sketch = (override === '1') ? true : (override === '0') ? false : (n % 2 === 0);
+      if(sketch){ document.documentElement.classList.add('sketch-mode'); }
+    }
+  }catch(e){}
+  /* 히어로 사진을 모드(일반/스케치)에 맞는 파일로 최대한 일찍 preload
+     (기존엔 normal 파일만 고정 preload되어 스케치 모드에서 preload 효과가 없었음) */
+  try{
+    var link = document.createElement('link');
+    link.rel = 'preload'; link.as = 'image';
+    link.href = '../images/web/' + (sketch ? 'sketch' : 'normal') + '/thumb.jpg';
+    link.setAttribute('fetchpriority', 'high');
+    document.head.appendChild(link);
   }catch(e){}
 })();
 </script>
@@ -29,7 +40,6 @@
 <title>연준 ♥ 유진 결혼합니다</title>
 <link rel="icon" type="image/jpeg" href="../images/web/normal/thumb.jpg">
 <link rel="apple-touch-icon" href="../images/web/normal/thumb.jpg">
-<link rel="preload" as="image" href="../images/web/normal/thumb.jpg" fetchpriority="high">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
@@ -690,8 +700,12 @@
 <body>
 
 <div id="letterFrameLayer" class="letter-frame-layer" aria-hidden="true">
-  <img src="../images/web/normal/thumb.jpg" alt="" fetchpriority="high" decoding="async">
+  <img id="openingHeroImg" alt="" fetchpriority="high" decoding="async">
 </div>
+<script>
+  document.getElementById('openingHeroImg').src =
+    '../images/web/' + (document.documentElement.classList.contains('sketch-mode') ? 'sketch' : 'normal') + '/thumb.jpg';
+</script>
 
 <div class="app invitation-page">
 

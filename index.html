@@ -6,15 +6,26 @@
 <script>
 /* 같은 기기 재접속 시: 홀수번째=일반모드, 짝수번째=스케치모드. 부모님 전용 링크는 일반 모드로 고정. */
 (function(){
+  var sketch = false;
   try{
     var params = new URLSearchParams(window.location.search);
     var isParentView = params.get('for') === 'parent' || params.get('view') === 'parents';
     var n = parseInt(localStorage.getItem('wedding_visit_count') || '0', 10) + 1;
     localStorage.setItem('wedding_visit_count', n);
-    if(isParentView){ return; }
-    var override = localStorage.getItem('wedding_sketch_override');
-    var sketch = (override === '1') ? true : (override === '0') ? false : (n % 2 === 0);
-    if(sketch){ document.documentElement.classList.add('sketch-mode'); }
+    if(!isParentView){
+      var override = localStorage.getItem('wedding_sketch_override');
+      sketch = (override === '1') ? true : (override === '0') ? false : (n % 2 === 0);
+      if(sketch){ document.documentElement.classList.add('sketch-mode'); }
+    }
+  }catch(e){}
+  /* 히어로 사진을 모드(일반/스케치)에 맞는 파일로 최대한 일찍 preload
+     (기존엔 normal 파일만 고정 preload되어 스케치 모드에서 preload 효과가 없었음) */
+  try{
+    var link = document.createElement('link');
+    link.rel = 'preload'; link.as = 'image';
+    link.href = 'images/web/' + (sketch ? 'sketch' : 'normal') + '/thumb.jpg';
+    link.setAttribute('fetchpriority', 'high');
+    document.head.appendChild(link);
   }catch(e){}
 })();
 </script>
@@ -29,7 +40,6 @@
 <title>연준 ♥ 유진 결혼합니다</title>
 <link rel="icon" type="image/jpeg" href="images/web/normal/thumb.jpg">
 <link rel="apple-touch-icon" href="images/web/normal/thumb.jpg">
-<link rel="preload" as="image" href="images/web/normal/thumb.jpg" fetchpriority="high">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
@@ -550,6 +560,22 @@
   }
   .float-controls.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
 
+  .float-controls-left{
+    position:fixed; left:16px; bottom:22px; z-index:60;
+    display:flex; flex-direction:row; align-items:center; gap:10px;
+    opacity:0; pointer-events:none; transform:translateY(10px);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .float-controls-left.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
+
+  #audienceToggleBtn{
+    min-width:46px; height:46px; padding:0 14px; border-radius:23px; background:var(--ink); color:var(--paper);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(0,0,0,.3);
+    font-size:13px; font-weight:700; letter-spacing:.02em; white-space:nowrap; flex-shrink:0;
+    box-sizing:border-box;
+  }
+  .audience-parent #audienceToggleBtn{ background:var(--celadon-deep); }
+
   #bgmBtn{
     width:46px; height:46px; border-radius:50%; background:var(--ink); color:var(--paper);
     display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(0,0,0,.3);
@@ -690,8 +716,12 @@
 <body>
 
 <div id="letterFrameLayer" class="letter-frame-layer" aria-hidden="true">
-  <img src="images/web/normal/thumb.jpg" alt="" fetchpriority="high" decoding="async">
+  <img id="openingHeroImg" alt="" fetchpriority="high" decoding="async">
 </div>
+<script>
+  document.getElementById('openingHeroImg').src =
+    'images/web/' + (document.documentElement.classList.contains('sketch-mode') ? 'sketch' : 'normal') + '/thumb.jpg';
+</script>
 
 <div class="app invitation-page">
 
@@ -984,6 +1014,10 @@
 
 </div>
 
+<div class="float-controls-left">
+  <button id="audienceToggleBtn" onclick="toggleAudienceMode()">혼주용</button>
+</div>
+
 <div class="float-controls">
   <button id="fontScaleBtn" onclick="cycleFontScale()">폰트<br>크게</button>
   <button id="bgmBtn" onclick="toggleBgm()">
@@ -1052,51 +1086,78 @@ const HERO_QUOTE_TEXT = "우리, 사랑으로 하나 되는 날";
   setTimeout(tick, START_DELAY);
 })();
 
-/* ---------------- 혼주용/지인용 링크 구분 (?for=parent) ---------------- */
+/* ---------------- 혼주용/지인용 링크 구분 (?for=parent, 버튼으로도 토글 가능) ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
-const audienceMode = (urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents') ? 'parent' : 'guest';
-(function applyAudienceMode(){
-  if(audienceMode !== 'parent') return;
-  document.documentElement.classList.add('audience-parent');
-  document.documentElement.classList.remove('sketch-mode');
+let audienceMode = (urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents') ? 'parent' : 'guest';
 
-  [
-    'guestSnapSection',
-    'snapDivider',
-    'guestbookSection',
-    'guestbookDivider',
-    'rsvpSection',
-    'rsvpDivider',
-    'shareDivider',
-    'visitDebug'
-  ].forEach(id => {
+const AUDIENCE_HIDE_IDS = [
+  'guestSnapSection',
+  'snapDivider',
+  'guestbookSection',
+  'guestbookDivider',
+  'rsvpSection',
+  'rsvpDivider',
+  'shareDivider',
+  'visitDebug'
+];
+
+// 토글 시 원래 순서로 되돌리기 위해 최초 1회 DOM 순서를 저장해 둠
+let audienceOriginalOrder = null;
+
+function updateAudienceToggleLabel(){
+  const btn = document.getElementById('audienceToggleBtn');
+  if(!btn) return;
+  btn.textContent = audienceMode === 'parent' ? '일반모드' : '혼주용';
+}
+
+function setAudienceMode(isParent){
+  audienceMode = isParent ? 'parent' : 'guest';
+  document.documentElement.classList.toggle('audience-parent', isParent);
+  if(isParent) document.documentElement.classList.remove('sketch-mode');
+
+  AUDIENCE_HIDE_IDS.forEach(id => {
     const el = document.getElementById(id);
-    if(el) el.hidden = true;
+    if(el) el.hidden = isParent;
   });
 
   const mapSection = document.getElementById('mapSection');
   const accountsSection = document.getElementById('accountsSection');
   const greeting = document.querySelector('.greeting');
-  if(!mapSection || !accountsSection || !greeting) return;
+  if(!mapSection || !accountsSection || !greeting){ updateAudienceToggleLabel(); return; }
 
   const parent = greeting.parentNode;
-  const mapDivider = mapSection.nextElementSibling;
-  const accDivider = accountsSection.nextElementSibling;
+  if(!audienceOriginalOrder) audienceOriginalOrder = Array.from(parent.children);
 
-  // 지도 -> 계좌 순서로 히어로 바로 다음(인사말 앞)으로 이동, 뒤따르던 구분선도 같이 이동
-  parent.insertBefore(mapSection, greeting);
-  if(mapDivider && mapDivider.classList.contains('divider')) parent.insertBefore(mapDivider, greeting);
-  parent.insertBefore(accountsSection, greeting);
-  if(accDivider && accDivider.classList.contains('divider')) parent.insertBefore(accDivider, greeting);
+  if(isParent){
+    const mapDivider = mapSection.nextElementSibling;
+    const accDivider = accountsSection.nextElementSibling;
 
-  // 이동 후 원래 자리에 구분선이 연달아 남는 경우 정리
-  const kids = Array.from(parent.children);
-  for(let i = kids.length - 1; i >= 1; i--){
-    if(kids[i].classList.contains('divider') && kids[i-1].classList.contains('divider')){
-      kids[i].remove();
+    // 지도 -> 계좌 순서로 히어로 바로 다음(인사말 앞)으로 이동, 뒤따르던 구분선도 같이 이동
+    parent.insertBefore(mapSection, greeting);
+    if(mapDivider && mapDivider.classList.contains('divider')) parent.insertBefore(mapDivider, greeting);
+    parent.insertBefore(accountsSection, greeting);
+    if(accDivider && accDivider.classList.contains('divider')) parent.insertBefore(accDivider, greeting);
+
+    // 이동 후 원래 자리에 구분선이 연달아 남는 경우 정리
+    const kids = Array.from(parent.children);
+    for(let i = kids.length - 1; i >= 1; i--){
+      if(kids[i].classList.contains('divider') && kids[i-1].classList.contains('divider')){
+        kids[i].remove();
+      }
     }
+  } else {
+    // 저장해 둔 원래 순서대로 복원
+    audienceOriginalOrder.forEach(el => parent.appendChild(el));
   }
-})();
+
+  updateAudienceToggleLabel();
+}
+
+function toggleAudienceMode(){
+  setAudienceMode(audienceMode !== 'parent');
+}
+
+setAudienceMode(audienceMode === 'parent');
 
 /* ---------------- 스케치모드 수동 전환 ---------------- */
 function updateSketchToggleLabel(){
@@ -1130,9 +1191,12 @@ function cycleFontScale(){
 /* ---------------- 플로팅 버튼: 최상단에서 숨기고 스크롤 시 노출 ---------------- */
 (function(){
   const controls = document.querySelector('.float-controls');
-  if(!controls) return;
+  const controlsLeft = document.querySelector('.float-controls-left');
+  if(!controls && !controlsLeft) return;
   function updateFloatControls(){
-    controls.classList.toggle('visible', window.scrollY > 60);
+    const visible = window.scrollY > 60;
+    if(controls) controls.classList.toggle('visible', visible);
+    if(controlsLeft) controlsLeft.classList.toggle('visible', visible);
   }
   document.addEventListener('scroll', updateFloatControls, { passive:true });
   updateFloatControls();
