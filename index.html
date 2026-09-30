@@ -199,6 +199,7 @@
 
   /* ---------- DIVIDER ---------- */
   .divider{ display:flex; align-items:center; justify-content:center; gap:10px; padding:6px 0 30px; }
+  .divider[hidden]{ display:none; }
   .divider svg{ width:120px; height:14px; opacity:.55; }
   .divider .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); opacity:.7;}
 
@@ -835,7 +836,7 @@
     <div class="g-slide hidden" id="gallerySlide"></div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="mapDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- MAP -->
   <section id="mapSection">
@@ -910,7 +911,7 @@
     <div id="gbList"></div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="accountsDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- ACCOUNTS -->
   <section id="accountsSection">
@@ -1082,10 +1083,12 @@ const urlParams = new URLSearchParams(window.location.search);
 let audienceMode = (urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents') ? 'parent' : 'guest';
 
 const AUDIENCE_HIDE_IDS = [
+  'mapDivider',
   'guestSnapSection',
   'snapDivider',
   'guestbookSection',
   'guestbookDivider',
+  'accountsDivider',
   'rsvpSection',
   'rsvpDivider',
   'shareDivider',
@@ -1802,21 +1805,6 @@ function stopBgm(){
 window.addEventListener('pagehide', stopBgm);
 window.addEventListener('beforeunload', stopBgm);
 
-/* 진입 시 스크롤을 발생시켜 모바일 브라우저(카카오톡 인앱, 크롬 등)의
-   상단 주소창/툴바가 처음부터 접힌 상태로 보이도록 유도.
-   1px로는 툴바 접힘이 끝까지 완료되지 않는 기기/브라우저가 있어,
-   툴바 높이보다 넉넉한 값(120px)까지 스크롤해 접힘을 확실히 끝낸다. */
-(function(){
-  var HIDE_SCROLL_Y = 120;
-  function hideToolbar(){ window.scrollTo(0, HIDE_SCROLL_Y); }
-  function trigger(){
-    hideToolbar();
-    setTimeout(hideToolbar, 150);
-    setTimeout(hideToolbar, 400);
-  }
-  window.addEventListener('load', trigger);
-  document.addEventListener('touchstart', trigger, { once:true, passive:true });
-})();
 </script>
 <script>
 (function(){
