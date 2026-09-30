@@ -1669,13 +1669,13 @@ function shareKakao(){
 }
 
 /* ---------------- BGM ----------------
-   w 폴더에 bgm.mp3 파일을 넣으면 재생 버튼을 눌렀을 때 재생됩니다.
-   자동재생은 하지 않아요 - 하객이 이미 다른 음악(스포티파이 등)을 듣고 있을 수 있어서,
-   버튼을 직접 눌렀을 때만 재생되도록 해서 다른 소리를 방해하지 않게 했어요. */
+   페이지 진입 시 자동재생을 시도합니다. 브라우저 정책상 사용자 상호작용 없이는
+   소리 있는 자동재생이 막힐 수 있어서, 자동재생이 실패하면 사용자의 첫 터치/클릭에
+   맞춰 바로 재생을 시작합니다. */
 let bgmAudio = null;
 function getBgmAudio(){
   if(!bgmAudio){
-    bgmAudio = new Audio('bgm.mp3');
+    bgmAudio = new Audio('../bgm.mp3');
     bgmAudio.loop = true;
     bgmAudio.volume = 1; // 기본 음량
     bgmAudio.addEventListener('play', ()=> document.getElementById('bgmBtn').classList.add('playing'));
@@ -1688,6 +1688,21 @@ function toggleBgm(){
   if(audio.paused){ audio.play().catch(()=>{}); } else { audio.pause(); }
 }
 
+function tryAutoplayBgm(){
+  const audio = getBgmAudio();
+  audio.play().catch(()=>{
+    const resume = ()=>{
+      audio.play().catch(()=>{});
+      document.removeEventListener('touchstart', resume);
+      document.removeEventListener('click', resume);
+    };
+    document.addEventListener('touchstart', resume, { once:true });
+    document.addEventListener('click', resume, { once:true });
+  });
+}
+if(document.readyState === 'complete'){ tryAutoplayBgm(); }
+else { window.addEventListener('load', tryAutoplayBgm); }
+
 /* 화면이 백그라운드로 가면(잠금, 앱 전환, 다른 탭 이동 등) 자동으로 멈춤 */
 let bgmWasPlayingBeforeHidden = false;
 document.addEventListener('visibilitychange', ()=>{
@@ -1698,6 +1713,11 @@ document.addEventListener('visibilitychange', ()=>{
   } else if(bgmWasPlayingBeforeHidden){
     bgmAudio.play().catch(()=>{});
   }
+});
+
+/* 페이지를 나가면(새로고침, 다른 페이지 이동, 탭 닫기) 음악 정지 */
+window.addEventListener('pagehide', ()=>{
+  if(bgmAudio){ bgmAudio.pause(); bgmAudio.currentTime = 0; }
 });
 </script>
 <script>
