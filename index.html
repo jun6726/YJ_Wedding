@@ -535,42 +535,38 @@
   footer .fam{ font-size:0.7812rem; color:var(--ink-soft); line-height:2; margin-bottom:18px; }
   footer .notice{ font-size:0.6562rem; color:var(--ink-soft); opacity:.75; line-height:1.9; }
 
-  /* ---------- 좌측 하단 플로팅 버튼 그룹 (배율 → 노래 → 스케치) ---------- */
+  /* ---------- 우측 하단 플로팅 버튼 그룹 (배율 → 노래 → 스케치) ---------- */
   .float-controls{
-    position:fixed; left:calc(50% - 195px); bottom:22px; z-index:60;
+    position:fixed; right:16px; bottom:22px; z-index:60;
     display:flex; flex-direction:row; align-items:center; gap:10px;
+    opacity:0; pointer-events:none; transform:translateY(10px);
+    transition: opacity .25s ease, transform .25s ease;
   }
-  @media (max-width:430px){ .float-controls{ left:22px; } }
+  .float-controls.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
 
   #bgmBtn{
     width:46px; height:46px; border-radius:50%; background:var(--ink); color:var(--paper);
     display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(0,0,0,.3);
-    transition: background .25s ease; flex-shrink:0;
+    transition: background .25s ease; flex-shrink:0; box-sizing:border-box;
   }
   #bgmBtn.playing{ background: var(--celadon-deep); }
   #bgmBtn svg{ width:18px; height:18px; }
-  #bgmBtn .eq{ display:none; align-items:flex-end; gap:3px; height:16px; }
+  #bgmBtn .note-icon{ display:none; }
   #bgmBtn.playing .stop-icon{ display:none; }
-  #bgmBtn.playing .eq{ display:flex; }
-  #bgmBtn .eq span{ width:3px; background:var(--paper); border-radius:2px; animation: eq 0.9s ease-in-out infinite; }
-  #bgmBtn .eq span:nth-child(1){ animation-delay:0s; }
-  #bgmBtn .eq span:nth-child(2){ animation-delay:.2s; }
-  #bgmBtn .eq span:nth-child(3){ animation-delay:.4s; }
-  @keyframes eq{
-    0%, 100%{ height:5px; }
-    50%{ height:16px; }
-  }
+  #bgmBtn.playing .note-icon{ display:block; }
 
   #fontScaleBtn{
-    min-width:46px; height:46px; padding:0 14px; border-radius:23px; background:var(--ink); color:var(--paper);
+    min-width:46px; height:46px; padding:0 12px; border-radius:23px; background:var(--ink); color:var(--paper);
     display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(0,0,0,.3);
-    font-size:0.8125rem; font-weight:700; letter-spacing:.02em; white-space:nowrap; flex-shrink:0;
+    font-size:11px; line-height:1.15; font-weight:700; letter-spacing:.02em; white-space:nowrap; flex-shrink:0;
+    box-sizing:border-box; text-align:center;
   }
 
   #sketchToggleBtn{
     min-width:46px; height:46px; padding:0 14px; border-radius:23px; background:var(--ink); color:var(--paper);
     display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(0,0,0,.3);
-    font-size:0.8125rem; font-weight:700; letter-spacing:.02em; white-space:nowrap; flex-shrink:0;
+    font-size:13px; font-weight:700; letter-spacing:.02em; white-space:nowrap; flex-shrink:0;
+    box-sizing:border-box;
   }
   .sketch-mode #sketchToggleBtn{ background:var(--blush); }
 
@@ -982,10 +978,10 @@
 </div>
 
 <div class="float-controls">
-  <button id="fontScaleBtn" onclick="cycleFontScale()">x1</button>
+  <button id="fontScaleBtn" onclick="cycleFontScale()">폰트<br>크게</button>
   <button id="bgmBtn" onclick="toggleBgm()">
     <svg class="stop-icon" viewBox="0 0 24 24" fill="none"><rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"/></svg>
-    <span class="eq"><span></span><span></span><span></span></span>
+    <svg class="note-icon" viewBox="0 0 24 24" fill="none"><path d="M9 17V5l10-2v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2.2" fill="currentColor"/><circle cx="17" cy="15" r="2.2" fill="currentColor"/></svg>
   </button>
   <button id="sketchToggleBtn" onclick="toggleSketchMode()">🎨 스케치</button>
 </div>
@@ -1121,8 +1117,19 @@ function cycleFontScale(){
   fontScaleIdx = (fontScaleIdx + 1) % FONT_SCALES.length;
   const scale = FONT_SCALES[fontScaleIdx];
   document.documentElement.style.setProperty('--font-scale', scale);
-  document.getElementById('fontScaleBtn').textContent = 'x' + scale;
+  document.getElementById('fontScaleBtn').innerHTML = scale > 1 ? '폰트<br>작게' : '폰트<br>크게';
 }
+
+/* ---------------- 플로팅 버튼: 최상단에서 숨기고 스크롤 시 노출 ---------------- */
+(function(){
+  const controls = document.querySelector('.float-controls');
+  if(!controls) return;
+  function updateFloatControls(){
+    controls.classList.toggle('visible', window.scrollY > 60);
+  }
+  document.addEventListener('scroll', updateFloatControls, { passive:true });
+  updateFloatControls();
+})();
 
 /* ---------------- 숫자 7 스토리 애니메이션 ---------------- */
 /* 최상단 요소라 스크롤 감지 없이 처음부터 바로 보이도록 변경 (이전엔 IntersectionObserver로 지연 노출) */
