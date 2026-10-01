@@ -68,12 +68,12 @@
     font-display: swap;
   }
   :root{
-    --paper:#F4EEE3;
-    --paper-deep:#EAE0CC;
+    --paper:#ffffff;
+    --paper-deep:#F7E9EC;
     --ink:#2C2620;
     --ink-soft:#6b6153;
-    --celadon:#7E9986;
-    --celadon-deep:#4F6C58;
+    --celadon:#C98686;
+    --celadon-deep:#B06B76;
     --blush:#C98686;
     --gold:#B68A4E;
     --white:#FFFDF9;
@@ -90,7 +90,7 @@
   html{ font-size: calc(16px * var(--font-scale)); transition: font-size .2s ease; }
   html.sketch-mode{ font-size: calc(16px * var(--font-scale) * 1.18); }
   html,body{
-    background: linear-gradient(180deg,#e9e2d3 0%, #d9d0bb 100%);
+    background:#ffffff;
     font-family:'NexonMaplestory', 'Noto Sans KR', sans-serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
@@ -684,25 +684,29 @@
     border:1.6px dashed var(--ink) !important; border-radius:10px !important; background:#fffdf8 !important;
   }
 
-  /* ---------------- 당일 모드 배너 ---------------- */
+  /* ---------------- 당일 모드 배너 (refstyle/보자기카드 탭 스타일 적용) ---------------- */
   .dday-banner{
     display:none;
     position:sticky; top:0; z-index:60;
-    padding:calc(10px + env(safe-area-inset-top)) 18px 10px;
-    background:var(--celadon-deep); color:#fff;
+    padding:calc(16px + env(safe-area-inset-top)) 18px 16px;
+    background:var(--blush); color:#fff;
     box-shadow:0 8px 20px rgba(44,38,32,.18);
   }
   .dday-banner.show{ display:block; }
-  .dday-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
-  .dday-top .tag{ font-size:10px; font-weight:700; letter-spacing:.18em; opacity:.85; }
-  .dday-top .tag b{ display:block; margin-top:2px; font-size:14px; letter-spacing:-.01em; }
-  .dday-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+  .dday-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; position:relative; }
+  .dday-top .tag{ font-size:10px; font-weight:700; letter-spacing:.2em; opacity:.9; }
+  .dday-top .tag b{ display:block; margin-top:4px; font-family:'Noto Serif KR',serif; font-size:17px; font-weight:700; letter-spacing:-.01em; }
+  .dday-top .heart-deco{ font-size:20px; opacity:.9; }
+  .dday-actions{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:14px; }
   .dday-actions a{
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-    padding:9px 4px; border-radius:9px; background:rgba(255,255,255,.14); color:#fff;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    padding:12px 4px; border-radius:12px; background:#fff5f5; color:var(--blush);
     font-size:10.5px; font-weight:700; text-decoration:none; letter-spacing:-.01em;
   }
-  .dday-actions a .ic{ font-size:15px; }
+  .dday-actions a .ic{
+    width:30px; height:30px; border-radius:50%; background:var(--blush); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+  }
 </style>
 </head>
 <body>
@@ -721,6 +725,7 @@
   <div class="dday-banner" id="ddayBanner">
     <div class="dday-top">
       <div class="tag">TODAY · WEDDING DAY<b>오늘, 결혼합니다</b></div>
+      <span class="heart-deco">♥</span>
     </div>
     <div class="dday-actions">
       <a href="https://map.naver.com/v5/search/서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener"><span class="ic">📍</span>길찾기</a>
@@ -787,12 +792,6 @@
     <div class="section-sub">D-DAY COUNTDOWN</div>
     <div class="count-card">
       <div class="hero-date" style="margin-bottom:0;">2027년 03월 13일 토요일 낮 12시</div>
-      <div class="count-nums">
-        <div class="box"><div class="num" id="cd-d">00</div><div class="lab">DAYS</div></div>
-        <div class="box"><div class="num" id="cd-h">00</div><div class="lab">HOURS</div></div>
-        <div class="box"><div class="num" id="cd-m">00</div><div class="lab">MIN</div></div>
-        <div class="box"><div class="num" id="cd-s">00</div><div class="lab">SEC</div></div>
-      </div>
       <div class="cal">
         <div class="cal-head" id="calHead">2027년 3월 13일</div>
         <div class="cal-grid" id="calGrid"></div>
@@ -1256,23 +1255,8 @@ function copyText(text, msg){
   } else { showToast(msg); }
 }
 
-/* ---------------- 카운트다운 ---------------- */
+/* ---------------- 결혼식 날짜 ---------------- */
 const weddingDate = new Date('2027-03-13T12:00:00+09:00');
-function tickCountdown(){
-  const now = new Date();
-  let diff = weddingDate - now;
-  if(diff < 0) diff = 0;
-  const d = Math.floor(diff/86400000);
-  const h = Math.floor(diff/3600000)%24;
-  const m = Math.floor(diff/60000)%60;
-  const s = Math.floor(diff/1000)%60;
-  document.getElementById('cd-d').textContent = String(d).padStart(2,'0');
-  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
-}
-setInterval(tickCountdown, 1000);
-tickCountdown();
 
 /* ---------------- 당일 모드 배너 ----------------
    평소엔 숨기고 결혼식 당일에만 자동 노출.
