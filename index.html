@@ -9,26 +9,16 @@ if('scrollRestoration' in history){ history.scrollRestoration = 'manual'; }
 window.scrollTo(0, 0);
 </script>
 <script>
-/* 같은 기기 재접속 시: 홀수번째=일반모드, 짝수번째=스케치모드. 부모님 전용 링크는 일반 모드로 고정. */
 (function(){
-  var sketch = false;
   try{
-    var params = new URLSearchParams(window.location.search);
-    var isParentView = params.get('for') === 'parent' || params.get('view') === 'parents';
     var n = parseInt(localStorage.getItem('wedding_visit_count') || '0', 10) + 1;
     localStorage.setItem('wedding_visit_count', n);
-    if(!isParentView){
-      var override = localStorage.getItem('wedding_sketch_override');
-      sketch = (override === '1') ? true : (override === '0') ? false : (n % 2 === 0);
-      if(sketch){ document.documentElement.classList.add('sketch-mode'); }
-    }
   }catch(e){}
-  /* 히어로 사진을 모드(일반/스케치)에 맞는 파일로 최대한 일찍 preload
-     (기존엔 normal 파일만 고정 preload되어 스케치 모드에서 preload 효과가 없었음) */
+  /* 히어로 사진을 최대한 일찍 preload */
   try{
     var link = document.createElement('link');
     link.rel = 'preload'; link.as = 'image';
-    link.href = 'images/web/' + (sketch ? 'sketch' : 'normal') + '/thumb.jpg';
+    link.href = 'images/web/normal/thumb.jpg';
     link.setAttribute('fetchpriority', 'high');
     document.head.appendChild(link);
   }catch(e){}
@@ -55,21 +45,17 @@ window.scrollTo(0, 0);
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Gaegu:wght@400;700&family=Parisienne&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <style>
   @font-face {
-    font-family: 'NexonMaplestory';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/MaplestoryOTFLight.woff') format('woff');
-    font-weight: 300;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'NexonMaplestory';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/MaplestoryOTFBold.woff') format('woff');
-    font-weight: 700;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: 'OngeulipParkDahyun';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2411-3@1.0/Ownglyph_ParkDaHyun.woff2') format('woff2');
+    font-family: 'Cafe24Ssurround';
+    src: url('font/Cafe24SsurroundAir-v1.1/webfont/Cafe24SsurroundAir-v1.1.woff2') format('woff2'),
+         url('font/Cafe24SsurroundAir-v1.1/webfont/Cafe24SsurroundAir-v1.1.woff') format('woff');
     font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Cafe24Ssurround';
+    src: url('font/Cafe24Ssurround-v2.0/webfont/Cafe24Ssurround-v2.0.woff2') format('woff2'),
+         url('font/Cafe24Ssurround-v2.0/webfont/Cafe24Ssurround-v2.0.woff') format('woff');
+    font-weight: 700;
     font-display: swap;
   }
   :root{
@@ -93,17 +79,16 @@ window.scrollTo(0, 0);
     pointer-events:auto;
   }
   html{ font-size: calc(16px * var(--font-scale)); transition: font-size .2s ease; }
-  html.sketch-mode{ font-size: calc(16px * var(--font-scale) * 1.18); }
   html,body{
     background:#ffffff;
-    font-family:'NexonMaplestory', 'Noto Sans KR', sans-serif;
+    font-family:'Cafe24Ssurround', 'Noto Sans KR', sans-serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
   }
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.001s !important; transition-duration:.001s !important;}
   }
-  h1,h2,h3,.serif{font-family:'Noto Serif KR', serif;}
+  h1,h2,h3,.serif{font-family:'Cafe24Ssurround', serif;}
   button{font-family:inherit; cursor:pointer; border:none; background:none; color:var(--ink);}
   input,select,textarea{font-family:inherit; font-size:0.9375rem; color:var(--ink);}
   .app{
@@ -256,10 +241,6 @@ window.scrollTo(0, 0);
   .hero-heart-clear{
     position:absolute; inset:0; z-index:0; pointer-events:none;
     background:url('images/web/normal/thumb.jpg') center/cover no-repeat;
-  }
-  .sketch-mode .hero-heart-blur,
-  .sketch-mode .hero-heart-clear{
-    background-image:url('images/web/sketch/thumb.jpg');
   }
   .poster-overlay{
     width:100%; box-sizing:border-box; padding:34px 20px 26px;
@@ -563,6 +544,8 @@ window.scrollTo(0, 0);
   .rsvp-sheet-close{
     position:absolute; top:14px; right:18px; font-size:1.125rem; color:var(--ink-soft); padding:4px;
   }
+  .audience-parent #rsvpSection.rsvp-sheet,
+  .audience-parent .rsvp-sheet-backdrop{ display:none !important; }
 
   /* ---------- GUESTBOOK ---------- */
   .gb-form{ background:var(--white); border-radius:16px; padding:16px; box-shadow:var(--shadow); margin-bottom:20px; }
@@ -601,7 +584,7 @@ window.scrollTo(0, 0);
 
   /* ---------- 우측 하단 플로팅 버튼 그룹 (배율 → 노래 → 스케치) ---------- */
   .float-controls{
-    position:fixed; right:16px; bottom:22px; z-index:60;
+    position:fixed; right:max(16px, calc((100vw - 430px) / 2 + 16px)); bottom:22px; z-index:60;
     display:flex; flex-direction:row; align-items:center; gap:10px;
     opacity:0; pointer-events:none; transform:translateY(10px);
     transition: opacity .25s ease, transform .25s ease;
@@ -609,7 +592,7 @@ window.scrollTo(0, 0);
   .float-controls.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
 
   .float-controls-left{
-    position:fixed; left:16px; bottom:22px; z-index:60;
+    position:fixed; left:max(16px, calc((100vw - 430px) / 2 + 16px)); bottom:22px; z-index:60;
     display:flex; flex-direction:row; align-items:center; gap:10px;
     opacity:0; pointer-events:none; transform:translateY(10px);
     transition: opacity .25s ease, transform .25s ease;
@@ -642,14 +625,6 @@ window.scrollTo(0, 0);
     box-sizing:border-box; text-align:center;
   }
 
-  #sketchToggleBtn{
-    min-width:46px; height:46px; padding:0 14px; border-radius:23px; background:var(--ink); color:var(--paper);
-    display:flex; align-items:center; justify-content:center; box-shadow:0 8px 18px rgba(0,0,0,.3);
-    font-size:13px; font-weight:700; letter-spacing:.02em; white-space:nowrap; flex-shrink:0;
-    box-sizing:border-box;
-  }
-  .sketch-mode #sketchToggleBtn{ background:rgb(237,211,210); color:var(--ink); }
-
   /* ---------- TOAST ---------- */
   #toast{
     position:fixed; left:50%; bottom:90px; transform:translate(-50%,20px);
@@ -658,90 +633,6 @@ window.scrollTo(0, 0);
     white-space:nowrap; max-width:92vw; overflow:hidden; text-overflow:ellipsis;
   }
   #toast.show{ opacity:1; transform:translate(-50%,0); }
-  /* ============================================
-     스케치 모드 (짝수번째 접속 시 자동 적용)
-     ============================================ */
-  .sketch-mode, .sketch-mode input, .sketch-mode select, .sketch-mode textarea, .sketch-mode button,
-  .sketch-mode a, .sketch-mode .acc-body .inner{
-    font-family:'OngeulipParkDahyun','Gaegu', cursive;
-  }
-  .sketch-mode h1, .sketch-mode h2, .sketch-mode h3, .sketch-mode .serif,
-  .sketch-mode .section-title, .sketch-mode .hero-names, .sketch-mode .venue-name,
-  .sketch-mode .count-nums .num{
-    font-family:'OngeulipParkDahyun','Gaegu', cursive !important;
-  }
-  /* 최상단 날짜(2023.07.07 / 2027.03.13)는 스케치모드에서도 기본 폰트 유지 */
-  .sketch-mode .seven-date{
-    font-family:'Noto Sans KR', sans-serif !important;
-    font-size:calc(0.9375rem / 1.18) !important;
-  }
-
-  .sketch-mode html, .sketch-mode body{
-    background:
-      repeating-linear-gradient(0deg, transparent 0 27px, rgba(107,97,83,0.09) 27px 28px),
-      #fbf8f1;
-  }
-  .sketch-mode .app{
-    background-color:#fbf8f1;
-    box-shadow:none;
-    border-left:1.5px dashed rgba(44,38,32,.18);
-    border-right:1.5px dashed rgba(44,38,32,.18);
-  }
-
-  /* 카드류: 그림자 대신 손으로 그린 듯한 삐뚤빼뚤한 테두리 */
-  .sketch-mode .count-card,
-  .sketch-mode .acc-card,
-  .sketch-mode .gb-form,
-  .sketch-mode .gb-item,
-  .sketch-mode .map-box,
-  .sketch-mode .map-links a,
-  .sketch-mode .seal-submit,
-  .sketch-mode .share-btn{
-    box-shadow:none !important;
-    border:1.6px solid var(--ink) !important;
-    border-radius:255px 15px 225px 15px/15px 225px 15px 255px !important;
-    background-color:#fffdf8 !important;
-  }
-  .sketch-mode .gb-item:nth-child(odd),
-  .sketch-mode .acc-card:nth-child(odd){ transform:rotate(-0.6deg); }
-  .sketch-mode .gb-item:nth-child(even),
-  .sketch-mode .acc-card:nth-child(even){ transform:rotate(0.5deg); }
-
-  .sketch-mode .seal-submit{
-    background:#fffdf8 !important; color:var(--blush) !important;
-    border-radius:50% !important; border:2px solid var(--blush) !important;
-  }
-  .sketch-mode .share-btn.kakao{ background:#FEE500 !important; border-color:#3C1E1E !important; }
-
-  /* 사진: 원본 색상 유지 (흑백/스케치 필터 제거) */
-  .sketch-mode .hero-photo{
-    background-image: url('images/web/sketch/thumb.jpg'), linear-gradient(160deg,#93aa98,#5a7362) !important;
-    border:2px solid var(--ink);
-  }
-  .sketch-mode .g-grid .ph,
-  .sketch-mode .g-extra .ph,
-  .sketch-mode .g-slide .ph{
-    border:1.6px solid var(--ink);
-    border-radius:255px 15px 225px 15px/15px 225px 15px 255px;
-  }
-
-  /* 구분선: 연필로 그은 듯 살짝 두껍게 */
-  .sketch-mode .divider svg path{ stroke-width:1.6; }
-
-  /* 배지/뱃지형 요소 */
-  .sketch-mode .pill-btn, .sketch-mode .copy-btn{
-    border-radius:255px 15px 225px 15px/15px 225px 15px 255px !important;
-    border:1.4px solid var(--ink) !important;
-  }
-  .sketch-mode .pill-btn{ font-size:0.7812rem !important; }
-
-  .sketch-mode .field input[type=text],
-  .sketch-mode .field select,
-  .sketch-mode .gb-form input[type=text],
-  .sketch-mode .gb-form textarea{
-    border:1.6px dashed var(--ink) !important; border-radius:10px !important; background:#fffdf8 !important;
-  }
-
   /* ---------------- 당일 모드 배너 (refstyle/보자기카드 탭 스타일 적용) ---------------- */
   .dday-banner{
     display:none;
@@ -817,10 +708,10 @@ window.scrollTo(0, 0);
     </div>
   </section>
 
-  <div class="divider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+  <div class="divider" id="greetingDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
 
   <!-- GREETING -->
-  <section class="greeting">
+  <section class="greeting" id="greetingSection">
     <div class="section-title">인사말</div>
     <p>
       서로 다른 두 사람이 걸어온 길이<br>
@@ -1073,7 +964,6 @@ window.scrollTo(0, 0);
     <svg class="stop-icon" viewBox="0 0 24 24" fill="none"><rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"/></svg>
     <svg class="note-icon" viewBox="0 0 24 24" fill="none"><path d="M9 17V5l10-2v12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2.2" fill="currentColor"/><circle cx="17" cy="15" r="2.2" fill="currentColor"/></svg>
   </button>
-  <button id="sketchToggleBtn" onclick="toggleSketchMode()">🎨 스케치</button>
 </div>
 
 <div id="lightboxRoot"></div>
@@ -1159,16 +1049,18 @@ if(urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents'){
   audienceMode = (audienceOverride === '1') ? 'parent' : (audienceOverride === '0') ? 'guest' : getDefaultAudienceMode();
 }
 
+/* 혼주용 모드에서만 숨기는 컨텐츠: 인사말, 오시는 길, 마음 전하실 곳, 게스트 스냅
+   (각 섹션 바로 앞 구분선도 함께 숨겨 빈 구분선이 남지 않도록 한다) */
 const AUDIENCE_HIDE_IDS = [
+  'greetingDivider',
+  'greetingSection',
   'mapDivider',
-  'guestSnapSection',
-  'snapDivider',
+  'mapSection',
   'accountsDivider',
-  'shareDivider'
+  'accountsSection',
+  'snapDivider',
+  'guestSnapSection'
 ];
-
-// 토글 시 원래 순서로 되돌리기 위해 최초 1회 DOM 순서를 저장해 둠
-let audienceOriginalOrder = null;
 
 function updateAudienceToggleLabel(){
   const btn = document.getElementById('audienceToggleBtn');
@@ -1185,36 +1077,6 @@ function setAudienceMode(isParent){
     if(el) el.hidden = isParent;
   });
 
-  const mapSection = document.getElementById('mapSection');
-  const accountsSection = document.getElementById('accountsSection');
-  const greeting = document.querySelector('.greeting');
-  if(!mapSection || !accountsSection || !greeting){ updateAudienceToggleLabel(); return; }
-
-  const parent = greeting.parentNode;
-  if(!audienceOriginalOrder) audienceOriginalOrder = Array.from(parent.children);
-
-  if(isParent){
-    const mapDivider = mapSection.nextElementSibling;
-    const accDivider = accountsSection.nextElementSibling;
-
-    // 지도 -> 계좌 순서로 히어로 바로 다음(인사말 앞)으로 이동, 뒤따르던 구분선도 같이 이동
-    parent.insertBefore(mapSection, greeting);
-    if(mapDivider && mapDivider.classList.contains('divider')) parent.insertBefore(mapDivider, greeting);
-    parent.insertBefore(accountsSection, greeting);
-    if(accDivider && accDivider.classList.contains('divider')) parent.insertBefore(accDivider, greeting);
-
-    // 이동 후 원래 자리에 구분선이 연달아 남는 경우 정리
-    const kids = Array.from(parent.children);
-    for(let i = kids.length - 1; i >= 1; i--){
-      if(kids[i].classList.contains('divider') && kids[i-1].classList.contains('divider')){
-        kids[i].remove();
-      }
-    }
-  } else {
-    // 저장해 둔 원래 순서대로 복원
-    audienceOriginalOrder.forEach(el => parent.appendChild(el));
-  }
-
   updateAudienceToggleLabel();
 }
 
@@ -1225,24 +1087,6 @@ function toggleAudienceMode(){
 }
 
 setAudienceMode(audienceMode === 'parent');
-
-/* ---------------- 스케치모드 수동 전환 ---------------- */
-function updateSketchToggleLabel(){
-  const btn = document.getElementById('sketchToggleBtn');
-  if(!btn) return;
-  const isSketch = document.documentElement.classList.contains('sketch-mode');
-  btn.textContent = isSketch ? '📄 일반모드' : '🎨 스케치';
-}
-function toggleSketchMode(){
-  const willBeSketch = !document.documentElement.classList.contains('sketch-mode');
-  document.documentElement.classList.toggle('sketch-mode', willBeSketch);
-  try{ localStorage.setItem('wedding_sketch_override', willBeSketch ? '1' : '0'); }catch(e){}
-  updateSketchToggleLabel();
-  buildGallery();
-  /* 라이트박스가 열려 있는 상태였다면 그것도 새로고침 */
-  if(document.getElementById('lightboxRoot').innerHTML.trim()){ buildLightboxDOM(); }
-}
-updateSketchToggleLabel();
 
 /* ---------------- 공통 유틸 ---------------- */
 /* ---------------- 폰트 배율 조정 ---------------- */
@@ -1367,15 +1211,11 @@ buildCalendar(2027, 3, 13);
 
 /* ---------------- 갤러리 ---------------- */
 const galleryPhotos = Array.from({ length: 28 }, (_, i) => `gallery${i + 1}.jpg`);
-const sketchGalleryPhotos = new Set(Array.from({ length: 25 }, (_, i) => `gallery${i + 1}.jpg`));
 let galleryVisibleCount = 0;
 let galleryMainLayout = null;
 let galleryExtraLayout = null;
 function photoSrc(filename, size = 'web'){
   const folder = size === 'thumbs' ? 'thumbs' : 'web';
-  if(document.documentElement.classList.contains('sketch-mode') && sketchGalleryPhotos.has(filename)){
-    return `images/${folder}/sketch/${filename}`;
-  }
   return `images/${folder}/normal/${filename}`;
 }
 function pickGalleryFeatureTile(count){
@@ -1744,12 +1584,12 @@ function getDeviceToken(){
   return t;
 }
 
-/* ---------------- 접속 로그 (일반/스케치 모드, 접속 횟수) ---------------- */
+/* ---------------- 접속 로그 (접속 횟수) ---------------- */
 async function logVisit(){
   const count = parseInt(localStorage.getItem('wedding_visit_count') || '1', 10);
-  const mode = document.documentElement.classList.contains('sketch-mode') ? 'sketch' : 'normal';
+  const mode = 'normal';
   const debugEl = document.getElementById('visitDebug');
-  const modeLabel = mode === 'sketch' ? '스케치모드' : '일반모드';
+  const modeLabel = '일반모드';
 
   if(!sb){
     if(debugEl) debugEl.textContent = `${count}번째 접속 · ${modeLabel} · DB 연결 안 됨`;
@@ -1832,6 +1672,7 @@ function closeRsvpSheet(){
 }
 function checkRsvpSheetAutoOpen(){
   if(rsvpSheetAutoShown) return;
+  if(audienceMode === 'parent') return;
   const scrollBottom = window.scrollY + window.innerHeight;
   if(scrollBottom >= document.documentElement.scrollHeight - 24){
     rsvpSheetAutoShown = true;
