@@ -252,24 +252,6 @@ window.scrollTo(0, 0);
     position:relative; overflow:hidden;
     box-sizing:border-box; border:3px solid rgba(255,253,249,.85);
   }
-  .hero-parallax-stage{
-    position:absolute; inset:-3%; z-index:0; overflow:hidden; perspective:900px;
-    opacity:0; pointer-events:none; transition:opacity .7s ease;
-  }
-  .hero-parallax-stage.active{ opacity:1; }
-  .hero-parallax-layer{
-    position:absolute; inset:-2%; width:104%; height:104%; object-fit:cover; object-position:center;
-    will-change:transform; transition:transform .18s ease-out;
-  }
-  .hero-parallax-layer.background{ transform:translate3d(var(--bg-x,0px),var(--bg-y,0px),0) scale(1.045); }
-  .hero-parallax-layer.foreground{ transform:translate3d(var(--fg-x,0px),var(--fg-y,0px),0) rotateY(var(--fg-rotate,0deg)) scale(1.055); }
-  .hero-tilt-button{
-    position:absolute; top:18px; right:18px; z-index:3; border:1px solid rgba(255,255,255,.55);
-    border-radius:999px; padding:7px 11px; color:#fff; background:rgba(35,31,29,.34);
-    font-family:inherit; font-size:.6875rem; font-weight:500; letter-spacing:.02em;
-    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-  }
-  .hero-tilt-button:disabled{ opacity:.72; }
   .poster-label{
     position:absolute; top:22px; left:0; right:0; text-align:center;
     color:#fff; font-size:0.6875rem; letter-spacing:.4em; font-weight:600;
@@ -746,13 +728,8 @@ window.scrollTo(0, 0);
   <!-- HERO -->
   <section class="hero">
       <div class="hero-photo">
-      <div class="hero-parallax-stage" id="heroParallaxStage" aria-hidden="true">
-        <img class="hero-parallax-layer background" src="images/layers/hero-background.png" alt="" draggable="false">
-        <img class="hero-parallax-layer foreground" src="images/layers/hero-foreground.png" alt="" draggable="false">
-      </div>
       <div class="hero-heart-blur" aria-hidden="true"></div>
       <div class="hero-heart-clear" aria-hidden="true"></div>
-      <button class="hero-tilt-button" id="heroTiltButton" type="button">기울여 3D 보기</button>
       <div class="poster-label">SAVE THE DATE</div>
       <div class="hero-quote" id="heroQuote"><span class="hero-quote-text"></span><span class="hero-quote-cursor"></span></div>
       <div class="poster-overlay">
@@ -1460,50 +1437,6 @@ updateHeroHeartClip();
 window.addEventListener('load', updateHeroHeartClip);
 window.addEventListener('resize', updateHeroHeartClip);
 window.addEventListener('orientationchange', updateHeroHeartClip);
-
-/* ---------------- 히어로 기기 기울기 패럴랙스 ---------------- */
-(function initHeroTilt(){
-  var button = document.getElementById('heroTiltButton');
-  var stage = document.getElementById('heroParallaxStage');
-  var photo = document.querySelector('.hero-photo');
-  if(!button || !stage || !photo) return;
-  var active = false;
-  var baseline = null;
-  function applyTilt(beta, gamma){
-    if(!Number.isFinite(beta) || !Number.isFinite(gamma)) return;
-    if(!baseline) baseline = { beta:beta, gamma:gamma };
-    var x = Math.max(-1, Math.min(1, (gamma - baseline.gamma) / 24));
-    var y = Math.max(-1, Math.min(1, (beta - baseline.beta) / 28));
-    photo.style.setProperty('--bg-x', (-x * 5).toFixed(1) + 'px');
-    photo.style.setProperty('--bg-y', (-y * 5).toFixed(1) + 'px');
-    photo.style.setProperty('--fg-x', (-x * 11).toFixed(1) + 'px');
-    photo.style.setProperty('--fg-y', (-y * 10).toFixed(1) + 'px');
-    photo.style.setProperty('--fg-rotate', (x * 1.1).toFixed(2) + 'deg');
-    if(!active){ active = true; stage.classList.add('active'); }
-  }
-  function onOrientation(event){ applyTilt(event.beta, event.gamma); }
-  button.addEventListener('click', function(){
-    if(typeof DeviceOrientationEvent === 'undefined'){
-      button.textContent = '기기 기울기 미지원'; button.disabled = true; return;
-    }
-    var permission = typeof DeviceOrientationEvent.requestPermission === 'function'
-      ? DeviceOrientationEvent.requestPermission() : Promise.resolve('granted');
-    Promise.resolve(permission).then(function(result){
-      if(result !== 'granted') throw new Error('permission-denied');
-      window.addEventListener('deviceorientation', onOrientation, { passive:true });
-      button.textContent = '기기를 기울여 보세요';
-      button.disabled = true;
-      window.setTimeout(function(){
-        if(!active){
-          window.removeEventListener('deviceorientation', onOrientation);
-          button.textContent = '정적 이미지로 표시 중';
-        }
-      }, 2200);
-    }).catch(function(){
-      button.textContent = '센서 권한을 사용할 수 없어요'; button.disabled = true;
-    });
-  }, { once:true });
-})();
 
 function toggleGalleryMore(){
   const extra = document.getElementById('galleryExtra');
