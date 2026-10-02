@@ -1045,15 +1045,6 @@ const HERO_QUOTE_TEXT = "Happy Wedding";
   const cursorEl = wrap ? wrap.querySelector('.hero-quote-cursor') : null;
   if(!wrap || !textEl) return;
 
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    textEl.textContent = HERO_QUOTE_TEXT;
-    if(cursorEl) cursorEl.classList.add('done');
-    const hb0 = document.querySelector('.hero-heart-blur');
-    if(hb0) setTimeout(()=>hb0.classList.add('hb-hide'), 700);
-    wrap.classList.add('hq-hide');
-    return;
-  }
-
   const JAMO_DELAY = 75;    // 자음/모음 단위 타이핑 속도(ms)
   const START_DELAY = 0; // 시작 대기 없음
 
