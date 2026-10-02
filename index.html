@@ -1079,7 +1079,11 @@ const HERO_QUOTE_TEXT = "Happy Wedding";
     } else {
       if(cursorEl) cursorEl.classList.add('done');
       const hb = document.querySelector('.hero-heart-blur');
-      if(hb) hb.classList.add('hb-hide');
+      if(hb){
+        hb.style.setProperty('transition', 'opacity 1.1s ease', 'important');
+        hb.classList.add('hb-hide');
+      }
+      wrap.style.setProperty('transition', 'opacity 1.1s ease', 'important');
       wrap.classList.add('hq-hide');
     }
   }
