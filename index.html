@@ -287,6 +287,11 @@ window.scrollTo(0, 0);
     opacity:1; transition:opacity 1.1s ease;
   }
   .hero-heart-blur.hb-hide{ opacity:0; }
+  .hero-heart-clear{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background-image:url('images/web/thumb.jpg');
+    background-position:center; background-size:cover; background-repeat:no-repeat;
+  }
   .poster-overlay{
     width:100%; box-sizing:border-box; padding:34px 20px 26px;
     position:relative; z-index:1;
@@ -747,6 +752,7 @@ window.scrollTo(0, 0);
         <img class="hero-parallax-layer foreground" src="images/layers/hero-foreground.png" alt="" draggable="false">
       </div>
       <div class="hero-heart-blur" aria-hidden="true"></div>
+      <div class="hero-heart-clear" aria-hidden="true"></div>
       <button class="hero-tilt-button" id="heroTiltButton" type="button">기울여 3D 보기</button>
       <div class="poster-label">SAVE THE DATE</div>
       <div class="hero-quote" id="heroQuote"><span class="hero-quote-text"></span><span class="hero-quote-cursor"></span></div>
@@ -1441,15 +1447,15 @@ function buildHeroHeartPath(w, h){
 }
 function updateHeroHeartClip(){
   var photo = document.querySelector('.hero-photo');
-  var blur = document.querySelector('.hero-heart-blur');
+  var clear = document.querySelector('.hero-heart-clear');
   var quote = document.getElementById('heroQuote');
   if(!photo) return;
   var w = photo.clientWidth, h = photo.clientHeight;
   if(!w || !h) return;
-  if(blur){
+  if(clear){
     var clip = "path('" + buildHeroHeartPath(w, h) + "')";
-    blur.style.clipPath = clip;
-    blur.style.webkitClipPath = clip;
+    clear.style.clipPath = clip;
+    clear.style.webkitClipPath = clip;
   }
   if(quote){
     var box = getHeroHeartBox(w, h);
