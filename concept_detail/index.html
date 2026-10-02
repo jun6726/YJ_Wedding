@@ -26,23 +26,32 @@
 
   .catnav{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:16px; padding:0 20px; max-width:900px; margin-left:auto; margin-right:auto; }
   .catnav a{ font-size:10.5px; padding:5px 10px; border-radius:999px; background:#fff; color:#8a6a3c; text-decoration:none; border:1px solid #e6dcc6; }
-  .picked-overview{ max-width:1160px; margin:16px auto 14px; padding:0 20px; }
-  .picked-overview .box{ background:#fff; border:1px solid #e6dcc6; border-radius:16px; padding:14px 16px; box-shadow:0 5px 18px rgba(0,0,0,.06); }
-  .picked-overview .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
-  .picked-overview h2{ margin:0; font-size:13px; color:#6f5632; letter-spacing:.08em; }
+  .picked-overview{ margin:16px 0 24px; padding:16px 14px 4px; background:#fff8ec; border-bottom:2px solid #e6dcc6; }
+  .picked-overview .head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px; padding:0 6px; }
+  .picked-overview h2{ margin:0; font-size:14px; color:#6f5632; letter-spacing:.08em; }
   .picked-overview .count{ flex-shrink:0; font-size:11px; color:#b08a4e; font-weight:700; }
-  .picked-overview .chips{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; scrollbar-width:thin; }
-  .picked-overview .chip{ flex:0 0 auto; max-width:230px; border:1px solid #e6dcc6; background:#faf8f4; color:#5c4a2e; border-radius:999px; padding:8px 12px; font-size:11px; line-height:1.25; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .picked-overview .chip:hover{ background:#f2ead9; }
-  .picked-overview .empty{ color:#999; font-size:12px; line-height:1.6; }
+  .picked-overview .empty{ color:#999; font-size:12px; line-height:1.6; text-align:center; padding:20px 0 24px; }
+  .picked-overview .grid:empty{ display:none; }
+  .picked-overview .grid:empty ~ .empty{ display:block; }
+  .picked-overview .grid:not(:empty) ~ .empty{ display:none; }
   @media (max-width:720px){
-    .picked-overview{ margin-top:12px; }
-    .picked-overview .box{ padding:12px; }
-    .picked-overview .chip{ max-width:72vw; }
+    .picked-overview{ margin-top:12px; padding:12px 14px 2px; }
   }
+
+  /* ---- 미선택 효과 아코디언 ---- */
+  .more-effects{ margin:0 0 20px; padding:0 14px; }
+  .more-effects summary{
+    cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:700; color:#8a6a3c; padding:14px 18px; background:#fff;
+    border:1px solid #e6dcc6; border-radius:12px; user-select:none;
+  }
+  .more-effects summary::-webkit-details-marker{ display:none; }
+  .more-effects summary::before{ content:'▸'; transition:transform .2s ease; font-size:11px; }
+  .more-effects[open] summary::before{ transform:rotate(90deg); }
+  .more-effects summary .sub{ font-weight:400; color:#aaa; font-size:11px; }
   .cat-title{ width:100%; margin:40px auto 4px; padding:0 20px; font-size:13px; letter-spacing:.15em; color:#a08a5c; font-weight:700; }
   .cat-title span{ color:#bbb; font-weight:400; margin-left:8px; }
-  .grid{ width:100%; margin:0 auto; padding:12px 20px 20px; display:grid; grid-template-columns:repeat(auto-fill, 451px); justify-content:center; gap:18px; }
+  .grid{ width:100%; margin:0 auto; padding:12px 14px 20px; display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 451px)); justify-content:center; gap:14px; }
   @media (max-width:720px){ .grid{ grid-template-columns:minmax(0, 1fr); } }
   .card{ background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 5px 16px rgba(0,0,0,.08); position:relative; }
   .card.picked{ outline:2.5px solid #d8b978; }
@@ -1108,7 +1117,7 @@
   .elin-card{ width:108px; height:152px; }
   .elin-card .inside{
     overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.7);
-    background:linear-gradient(rgba(32,28,25,.12),rgba(32,28,25,.55)),url('../images/web/normal/thumb.jpg') center 39%/cover;
+    background:linear-gradient(rgba(32,28,25,.12),rgba(32,28,25,.55)),url('../images/web/thumb.jpg') center 39%/cover;
   }
   .elin-card .door{ background:linear-gradient(145deg,#fffdf8,#e9dfd1); border-color:rgba(116,91,65,.12); }
   .elin-card .vribbon{ width:7px; margin-left:-3.5px; background:linear-gradient(90deg,#8e7767,#d9c4b2 45%,#746052); box-shadow:0 1px 3px rgba(45,33,25,.25); }
@@ -1121,7 +1130,7 @@
   .entry-envelope .letter{ left:17px; right:17px; height:98px; border:1px solid rgba(120,95,70,.12); }
   .entry-envelope .letter.photo-letter{
     overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.55);
-    background:linear-gradient(rgba(25,23,20,.05),rgba(25,23,20,.55)),url('../images/web/normal/thumb.jpg') center 39%/cover;
+    background:linear-gradient(rgba(25,23,20,.05),rgba(25,23,20,.55)),url('../images/web/thumb.jpg') center 39%/cover;
   }
   .entry-envelope .letter.photo-letter > *{ position:relative; z-index:1; }
   .entry-envelope .band-h{ top:56px; height:8px; background:linear-gradient(#d7c3b1,#9f8069); box-shadow:0 1px 3px rgba(62,42,29,.22); }
@@ -1232,7 +1241,7 @@
   .pull-entry{ background:linear-gradient(145deg,#dde5df,#b9c9bf); }
   .pull-entry .paper-cover{
     inset:13px 58px; overflow:hidden; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.48);
-    background:linear-gradient(rgba(20,28,23,.05),rgba(20,28,23,.48)),url('../images/web/normal/thumb.jpg') center 39%/cover;
+    background:linear-gradient(rgba(20,28,23,.05),rgba(20,28,23,.48)),url('../images/web/thumb.jpg') center 39%/cover;
   }
   .pull-entry .pull-ribbon{ height:8px; background:linear-gradient(#789282,#486656); box-shadow:0 2px 5px rgba(40,63,51,.22); }
   .pull-entry .pull-ribbon::after{ content:''; position:absolute; left:0; right:0; top:1px; height:1px; background:rgba(255,255,255,.34); }
@@ -1241,8 +1250,8 @@
 </style>
 </head>
 <body>
-<div class="summary" id="summaryBar">선택된 효과: <b id="pickCount">0</b>개 불러오는 중...</div>
-<div class="sidepanel">
+<div class="summary" id="summaryBar" style="display:none;">선택된 효과: <b id="pickCount">0</b>개 불러오는 중...</div>
+<div class="sidepanel" style="display:none;">
   <h3>선택된 효과 ▸ 클릭하면 이동</h3>
   <div id="sidePanelList"><div class="empty">아직 선택된 효과가 없어요</div></div>
 </div>
@@ -1259,16 +1268,16 @@
 </header>
 
 <section class="picked-overview" aria-labelledby="pickedOverviewTitle">
-  <div class="box">
-    <div class="head">
-      <h2 id="pickedOverviewTitle">선택된 효과</h2>
-      <div class="count" id="pickedOverviewCount">0개</div>
-    </div>
-    <div class="chips" id="pickedOverviewList">
-      <div class="empty">아직 선택된 효과가 없어요</div>
-    </div>
+  <div class="head">
+    <h2 id="pickedOverviewTitle">선택된 효과</h2>
+    <div class="count" id="pickedOverviewCount">0개</div>
   </div>
+  <div class="grid" id="grid-picked"></div>
+  <div class="empty" id="pickedOverviewEmpty">아직 선택된 효과가 없어요</div>
 </section>
+
+<details class="more-effects" id="moreEffects">
+  <summary>아직 선택하지 않은 효과 전체 보기 <span class="sub" id="moreEffectsCount"></span></summary>
 
 <div id="cat-entry" class="cat-title">진입 애니메이션 <span>엘린 · 리본 언타이 · 봉투 오픈 조합 테스트</span></div>
 <div class="grid" id="grid-entry"></div>
@@ -1317,9 +1326,11 @@
 <div id="cat-u" class="cat-title">U. 엔딩 · 감사인사 연출</div>
 <div class="grid" id="grid-u"></div>
 
+</details>
+
 <script>
-const IMG = i => `../images/web/normal/gallery${i}.jpg`;
-const THUMB = '../images/web/normal/thumb.jpg';
+const IMG = i => `../images/web/gallery${i}.jpg`;
+const THUMB = '../images/web/thumb.jpg';
 
 const CATS = {
   entry: [
@@ -1602,6 +1613,13 @@ function buildGrid(id, items, prefix){
 }
 Object.keys(CATS).forEach(k => buildGrid(k, CATS[k], k));
 
+/* 카드별 원래 자리(부모 그리드 + 다음 형제)를 기억해 뒀다가,
+   선택 해제 시 원래 카테고리 자리로 되돌릴 수 있도록 한다. */
+const CARD_HOME = new Map();
+document.querySelectorAll('.card[id^="card-"]').forEach(card => {
+  CARD_HOME.set(card.id, { parent: card.parentElement, next: card.nextElementSibling });
+});
+
 document.getElementById('tilegridA').innerHTML = Array.from({length:24}).map(()=>`<div class="tile" style="animation-delay:${(Math.random()*0.6).toFixed(2)}s;"></div>`).join('');
 document.getElementById('tilesgridC').innerHTML = [1,2,3,4,5,6,7,8].map((n,i)=>`<img src="${IMG(n)}" style="animation-delay:${(i*0.12).toFixed(2)}s;">`).join('');
 document.getElementById('charstagA').innerHTML = '최연준·김유진'.split('').map((c,i)=>`<span style="animation-delay:${(i*0.08).toFixed(2)}s;">${c}</span>`).join('');
@@ -1742,20 +1760,29 @@ async function refreshPicks(){
     : '<div class="empty">아직 선택된 효과가 없어요</div>';
 
   document.getElementById('pickedOverviewCount').textContent = `${count}개`;
-  const pickedOverviewList = document.getElementById('pickedOverviewList');
-  pickedOverviewList.innerHTML = pickedIds.size
-    ? orderedPickedIds.map(id => `<button class="chip" type="button" data-jump="${escapeHtml(id)}" title="${escapeHtml(LABELS[id] || id)}">${escapeHtml(LABELS[id] || id)}</button>`).join('')
-    : '<div class="empty">아직 선택된 효과가 없어요</div>';
+
+  /* 선택된 카드는 상단 grid-picked 로 이동, 해제된 카드는 원래 카테고리 자리로 복귀 */
+  const gridPicked = document.getElementById('grid-picked');
+  orderedPickedIds.forEach(id => {
+    const card = document.getElementById('card-' + id);
+    if(card) gridPicked.appendChild(card);
+  });
+  CARD_HOME.forEach((home, cardId) => {
+    if(pickedIds.has(cardId.replace(/^card-/, ''))) return;
+    const card = document.getElementById(cardId);
+    if(!card) return;
+    if(card.parentElement === gridPicked){
+      const ref = (home.next && home.next.parentElement === home.parent) ? home.next : null;
+      home.parent.insertBefore(card, ref);
+    }
+  });
+
+  const totalCount = CARD_HOME.size;
+  document.getElementById('moreEffectsCount').textContent = `(${totalCount - count}개 미선택 / 전체 ${totalCount}개)`;
 }
 
 document.getElementById('sidePanelList').addEventListener('click', (e) => {
   const item = e.target.closest('.item');
-  if (!item) return;
-  jumpToPick(item.dataset.jump);
-});
-
-document.getElementById('pickedOverviewList').addEventListener('click', (e) => {
-  const item = e.target.closest('[data-jump]');
   if (!item) return;
   jumpToPick(item.dataset.jump);
 });
