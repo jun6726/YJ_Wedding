@@ -922,7 +922,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 
 <script>
 /* ---------------- 종이 하트 인트로 ----------------
-   기존 영상 타이밍을 2배로 늘림: 사진 0.24초, 문구 3초, 하트 4.5초, 전환 6.5초.
+   느린 등장 모션 유지: 사진 0.24초, 문구 3초, 하트 4.5초. 등장 완료 즉시 6초에 전환.
    방문할 때 한 번 자동 재생하며 클릭/재방문 분기나 반복 재생을 추가하지 않음. */
 (function playPaperIntro(){
   const intro = document.getElementById('paperIntro');
@@ -951,8 +951,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     if(finished) return;
     requestAnimationFrame(()=>{
       intro.classList.add('is-entering');
-      setTimeout(()=>intro.classList.add('is-leaving'),6500);
-      setTimeout(finish,7000);
+      setTimeout(()=>intro.classList.add('is-leaving'),6000);
+      setTimeout(finish,6500);
     });
   });
   // Broken image decoding must never leave the invitation locked.
