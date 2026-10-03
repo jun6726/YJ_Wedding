@@ -133,12 +133,12 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-confetti.c1{left:8%;top:62%;--rotation:-17deg;}
   .paper-confetti.c2{right:15%;top:18%;--rotation:13deg;}
   .paper-confetti.c3{right:8%;top:24%;--rotation:22deg;}
-  .paper-intro.is-entering .paper-portrait{animation:paperPortraitEnter 2.3s .24s both;}
-  .paper-intro.is-entering .paper-portrait:nth-child(2){animation-delay:.4s;}
-  .paper-intro.is-entering .intro-copy{animation:paperCopyEnter 1s 3s both;}
-  .paper-intro.is-entering .paper-confetti{animation:paperHeartEnter .9s 4.5s both;}
-  .paper-intro.is-entering .c2{animation-delay:4.7s;}
-  .paper-intro.is-entering .c3{animation-delay:5.1s;}
+  .paper-intro.is-entering .paper-portrait{animation:paperPortraitEnter 1.725s .18s both;}
+  .paper-intro.is-entering .paper-portrait:nth-child(2){animation-delay:.3s;}
+  .paper-intro.is-entering .intro-copy{animation:paperCopyEnter .75s .18s both;}
+  .paper-intro.is-entering .paper-confetti{animation:paperHeartEnter .675s 3.375s both;}
+  .paper-intro.is-entering .c2{animation-delay:3.525s;}
+  .paper-intro.is-entering .c3{animation-delay:3.825s;}
   .paper-intro.is-leaving{opacity:0;transition:opacity .5s linear;pointer-events:none;}
   @keyframes paperPortraitEnter{
     0%{opacity:0;transform:translateY(-42px) rotate(var(--turn)) scale(.96);}
@@ -922,7 +922,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 
 <script>
 /* ---------------- 종이 하트 인트로 ----------------
-   느린 등장 모션 유지: 사진 0.24초, 문구 3초, 하트 4.5초. 등장 완료 즉시 6초에 전환.
+   7초로 늘렸던 인트로를 총 5초로 조정. 사진/문구는 0.18초에 함께 등장.
+   마지막 하트 등장 완료 즉시 4.5초에 페이드아웃, 5초에 종료.
    방문할 때 한 번 자동 재생하며 클릭/재방문 분기나 반복 재생을 추가하지 않음. */
 (function playPaperIntro(){
   const intro = document.getElementById('paperIntro');
@@ -951,8 +952,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     if(finished) return;
     requestAnimationFrame(()=>{
       intro.classList.add('is-entering');
-      setTimeout(()=>intro.classList.add('is-leaving'),6000);
-      setTimeout(finish,6500);
+      setTimeout(()=>intro.classList.add('is-leaving'),4500);
+      setTimeout(finish,5000);
     });
   });
   // Broken image decoding must never leave the invitation locked.
