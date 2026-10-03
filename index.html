@@ -41,6 +41,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://www.google.com" crossorigin>
 <link rel="preconnect" href="https://maps.google.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap" rel="stylesheet">
 <link rel="preload" href="font/Cafe24Oneprettynight-v2.0/webfont/Cafe24Oneprettynight-v2.0.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   @font-face {
@@ -148,7 +151,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   }
   @media(prefers-reduced-motion:reduce){.paper-intro{display:none !important;}.intro-active{overflow:auto;}}
 
-  /* 메인 사진과 영문 제목도 카페24 고운밤 적용. */
+  /* 히어로 영문 제목은 이전 Caveat 폰트로 표시. */
   .hero{padding:0;text-align:center;}
   .hero-photo{width:100%;height:100vh;height:100svh;min-height:max(540px,36rem);position:relative;overflow:hidden;
     background:#EAE5E4 url('images/original/gallery8.jpg') center 40%/cover no-repeat;}
@@ -157,7 +160,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .hero-content{position:absolute;z-index:1;left:24px;right:24px;top:48%;bottom:calc(36px + env(safe-area-inset-bottom));
     display:flex;flex-direction:column;justify-content:space-between;gap:24px;}
   .hero-quote{position:relative;color:#fff;text-align:center;flex-shrink:0;
-    font-family:inherit;font-weight:500;font-size:min(clamp(4.1rem,18vw,5.4rem),calc((min(100vw,430px) - 48px)*.26));line-height:.93;letter-spacing:-.055em;
+    font-family:'Caveat',cursive;font-weight:500;font-size:min(clamp(4.1rem,18vw,5.4rem),calc((min(100vw,430px) - 48px)*.26));line-height:.93;letter-spacing:-.055em;
     transform:rotate(-7deg);text-shadow:0 1px 5px rgba(0,0,0,.08);pointer-events:none;}
   .hero-quote span{display:block;}
   .hero-info{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45);flex-shrink:0;}
@@ -942,7 +945,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   const paper = new Image();paper.src = 'images/optimized/pink-paper.webp';images.push(paper);
   const hero = new Image();hero.src = 'images/original/gallery8.jpg';images.push(hero);
   const ready = images.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
-  if(document.fonts) ready.push(document.fonts.load('400 72px Cafe24Oneprettynight','Happy Wedding Day 연준 유진').catch(()=>[]));
+  if(document.fonts){
+    ready.push(document.fonts.load('400 17px Cafe24Oneprettynight','We are getting Married! 연준 유진').catch(()=>[]));
+    ready.push(document.fonts.load('500 72px Caveat','Happy Wedding Day').catch(()=>[]));
+  }
   Promise.all(ready).then(()=>{
     if(finished) return;
     requestAnimationFrame(()=>{
