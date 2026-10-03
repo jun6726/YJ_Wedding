@@ -99,8 +99,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .reference-button{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:12px 16px;
     border-radius:5px;background:var(--blush);color:#fff;font-size:.8125rem;font-weight:400;}
 
-  /* 영상 1번 인트로: 종이 사진 → 문구 → 종이 하트 → 메인 사진. */
+  /* 종이 사진과 각 사진 옆 하트가 함께 등장한 뒤 메인 사진으로 전환. */
   .paper-intro{display:none;position:fixed;inset:0;margin:0 auto;max-width:430px;height:100vh;height:100svh;
+    --portrait-duration:1.725s;--groom-delay:.18s;--bride-delay:.3s;
     z-index:180;overflow:hidden;background-color:#F1DAD9;
     background-image:linear-gradient(rgba(241,218,217,.35),rgba(241,218,217,.35)),url('images/optimized/pink-paper.webp');background-position:center;background-size:cover;}
   .intro-active .paper-intro{display:flex;align-items:center;justify-content:center;}
@@ -125,12 +126,12 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-confetti.c1{left:8%;top:62%;--rotation:-17deg;}
   .paper-confetti.c2{right:15%;top:18%;--rotation:13deg;}
   .paper-confetti.c3{right:8%;top:24%;--rotation:22deg;}
-  .paper-intro.is-entering .paper-portrait{animation:paperPortraitEnter 1.725s .18s both;}
-  .paper-intro.is-entering .paper-portrait:nth-child(2){animation-delay:.3s;}
-  .paper-intro.is-entering .intro-copy{animation:paperCopyEnter .75s .18s both;}
-  .paper-intro.is-entering .paper-confetti{animation:paperHeartEnter .675s 3.375s both;}
-  .paper-intro.is-entering .c2{animation-delay:3.525s;}
-  .paper-intro.is-entering .c3{animation-delay:3.825s;}
+  .paper-confetti.c4{right:8%;top:58%;--rotation:18deg;}
+  .paper-intro.is-entering .paper-portrait{animation:paperPortraitEnter var(--portrait-duration) var(--groom-delay) both;}
+  .paper-intro.is-entering .paper-portrait:nth-child(2){animation-delay:var(--bride-delay);}
+  .paper-intro.is-entering .intro-copy{animation:paperCopyEnter .75s var(--groom-delay) both;}
+  .paper-intro.is-entering .paper-confetti{animation:paperHeartEnter var(--portrait-duration) var(--groom-delay) both;}
+  .paper-intro.is-entering .paper-confetti.heart-bride{animation-delay:var(--bride-delay);}
   .paper-intro.is-leaving{opacity:0;transition:opacity .5s linear;pointer-events:none;}
   @keyframes paperPortraitEnter{
     0%{opacity:0;transform:translateY(-42px) rotate(var(--turn)) scale(.96);}
@@ -586,9 +587,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   </div>
   <div class="intro-copy">We are getting<br>Married!</div>
   </div>
-  <span class="paper-confetti c1" aria-hidden="true"></span>
+  <span class="paper-confetti c1 heart-bride" aria-hidden="true"></span>
   <span class="paper-confetti c2" aria-hidden="true"></span>
   <span class="paper-confetti c3" aria-hidden="true"></span>
+  <span class="paper-confetti c4 heart-bride" aria-hidden="true"></span>
 </div>
 
 <div class="app invitation-page">
@@ -914,8 +916,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 
 <script>
 /* ---------------- 종이 하트 인트로 ----------------
-   7초로 늘렸던 인트로를 총 5초로 조정. 사진/문구는 0.18초에 함께 등장.
-   마지막 하트 등장 완료 즉시 4.5초에 페이드아웃, 5초에 종료.
+   신랑 사진과 하트 2개는 0.18초, 신부 사진과 하트 2개는 0.3초에 함께 등장.
+   사진/하트 재생 시간은 1.725초. 신부 프레임 완료 후 0.5초 유지,
+   2.525초부터 0.5초 페이드아웃하여 3.025초에 종료.
    방문할 때 한 번 자동 재생하며 클릭/재방문 분기나 반복 재생을 추가하지 않음. */
 (function playPaperIntro(){
   const intro = document.getElementById('paperIntro');
@@ -944,8 +947,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     if(finished) return;
     requestAnimationFrame(()=>{
       intro.classList.add('is-entering');
-      setTimeout(()=>intro.classList.add('is-leaving'),4500);
-      setTimeout(finish,5000);
+      const brideStyle = getComputedStyle(intro.querySelector('.paper-portrait:nth-child(2)'));
+      const brideFinishedAt = (parseFloat(brideStyle.animationDelay) + parseFloat(brideStyle.animationDuration)) * 1000;
+      setTimeout(()=>intro.classList.add('is-leaving'),brideFinishedAt + 500);
+      setTimeout(finish,brideFinishedAt + 1000);
     });
   });
   // Broken image decoding must never leave the invitation locked.
