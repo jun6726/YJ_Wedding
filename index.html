@@ -85,6 +85,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     font-family:'Cafe24Ssurround', 'Noto Sans KR', sans-serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
+    -webkit-text-size-adjust:100%;text-size-adjust:100%;
   }
   body{ position:relative; }
   @media (prefers-reduced-motion: reduce){
@@ -110,9 +111,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-intro{display:none;position:fixed;inset:0;margin:0 auto;max-width:430px;height:100vh;height:100svh;
     z-index:180;overflow:hidden;background-color:#F1DAD9;
     background-image:linear-gradient(rgba(241,218,217,.35),rgba(241,218,217,.35)),url('images/optimized/pink-paper.webp');background-position:center;background-size:cover;}
-  .intro-active .paper-intro{display:block;}
+  .intro-active .paper-intro{display:flex;align-items:center;justify-content:center;}
   .intro-active{overflow:hidden;}
-  .intro-stack{position:absolute;left:50%;top:26%;width:46%;transform:translateX(-50%);display:grid;gap:18px;}
+  .intro-composition{width:100%;display:flex;flex-direction:column;align-items:center;gap:28px;padding:24px 0;}
+  .intro-stack{width:69%;max-width:calc((100svh - 150px)/2);display:grid;gap:18px;}
   .paper-portrait{position:relative;aspect-ratio:1;opacity:0;isolation:isolate;
     transform:translateY(-42px) rotate(var(--turn)) scale(.96);filter:drop-shadow(0 2px 3px rgba(96,79,82,.1));}
   .paper-portrait:first-child{--turn:9deg;--settle:2deg;}
@@ -121,9 +123,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-portrait .portrait-groom{object-position:50% 0%;}
   .paper-portrait .portrait-bride{object-position:50% 45%;}
   .paper-portrait .paper-frame{position:relative;width:100%;height:100%;display:block;clip-path:inset(3.7%);}
-  .intro-copy{position:absolute;top:calc(26% + 46vw * 2 + 36px);left:0;right:0;text-align:center;opacity:0;
+  .intro-copy{text-align:center;opacity:0;
     font-size:1.0625rem;font-weight:400;line-height:1.35;color:#554B4F;}
-  @media(min-width:430px){.intro-copy{top:calc(26% + 198px * 2 + 36px);}}
   .paper-confetti{position:absolute;width:32px;height:30px;opacity:0;background:#F1F0ED;
     background-image:linear-gradient(128deg,transparent 28%,rgba(166,162,158,.25) 31%,rgba(255,255,255,.9) 34%,transparent 38%),
     linear-gradient(43deg,transparent 53%,rgba(155,151,147,.2) 56%,rgba(255,255,255,.8) 59%,transparent 63%);
@@ -132,13 +133,13 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-confetti.c1{left:8%;top:62%;--rotation:-17deg;}
   .paper-confetti.c2{right:15%;top:18%;--rotation:13deg;}
   .paper-confetti.c3{right:8%;top:24%;--rotation:22deg;}
-  .paper-intro.is-entering .paper-portrait{animation:paperPortraitEnter 1.15s .12s both;}
-  .paper-intro.is-entering .paper-portrait:nth-child(2){animation-delay:.2s;}
-  .paper-intro.is-entering .intro-copy{animation:paperCopyEnter .5s 1.5s both;}
-  .paper-intro.is-entering .paper-confetti{animation:paperHeartEnter .45s 2.25s both;}
-  .paper-intro.is-entering .c2{animation-delay:2.35s;}
-  .paper-intro.is-entering .c3{animation-delay:2.55s;}
-  .paper-intro.is-leaving{opacity:0;transition:opacity .25s linear;pointer-events:none;}
+  .paper-intro.is-entering .paper-portrait{animation:paperPortraitEnter 2.3s .24s both;}
+  .paper-intro.is-entering .paper-portrait:nth-child(2){animation-delay:.4s;}
+  .paper-intro.is-entering .intro-copy{animation:paperCopyEnter 1s 3s both;}
+  .paper-intro.is-entering .paper-confetti{animation:paperHeartEnter .9s 4.5s both;}
+  .paper-intro.is-entering .c2{animation-delay:4.7s;}
+  .paper-intro.is-entering .c3{animation-delay:5.1s;}
+  .paper-intro.is-leaving{opacity:0;transition:opacity .5s linear;pointer-events:none;}
   @keyframes paperPortraitEnter{
     0%{opacity:0;transform:translateY(-42px) rotate(var(--turn)) scale(.96);}
     28%{opacity:1;}
@@ -148,8 +149,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   @keyframes paperCopyEnter{from{opacity:0;}to{opacity:1;}}
   @keyframes paperHeartEnter{from{opacity:0;transform:scale(.6) rotate(var(--rotation));}to{opacity:1;transform:scale(1) rotate(var(--rotation));}}
   @media(max-height:650px){
-    .intro-stack{top:21%;width:40%;gap:12px;}
-    .intro-copy{top:auto;bottom:9%;font-size:.9375rem;}
+    .intro-composition{gap:18px;padding:8px 0;}
+    .intro-stack{width:60%;max-width:calc((100svh - 120px)/2);gap:12px;}
+    .intro-copy{font-size:.9375rem;}
   }
   @media(prefers-reduced-motion:reduce){.paper-intro{display:none !important;}.intro-active{overflow:auto;}}
 
@@ -210,8 +212,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .our-story .section-title{margin-bottom:36px;}
   .story-timeline{position:relative;}
   .story-line{position:absolute;left:50%;top:58px;bottom:58px;width:1px;background:#EFEBEC;transform:translateX(-50%);}
-  .story-progress-heart{position:absolute;left:50%;top:58px;width:19px;height:18px;transform:translate(-50%,-50%);
-    color:var(--blush);z-index:2;will-change:top;}
+  .story-progress-heart{position:absolute;left:50%;top:0;width:19px;height:18px;transform:translate3d(-50%,58px,0) translateY(-50%);
+    color:var(--blush);z-index:2;will-change:transform;transition:color .25s;}
+  .story-progress-heart.is-family-near{color:var(--celadon-deep);}
   .story-progress-heart svg{display:block;width:100%;height:100%;fill:currentColor;}
   .story-moment{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);align-items:center;position:relative;min-height:116px;margin-bottom:34px;}
   .story-moment:last-child{margin-bottom:0;}
@@ -222,6 +225,12 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .story-node{grid-column:2;grid-row:1;justify-self:center;width:5px;height:5px;border-radius:50%;background:#E6DEDF;}
   .story-date{font-size:.6875rem;font-weight:400;color:#C7ADB3;line-height:1.6;letter-spacing:.01em;}
   .story-text{font-size:.75rem;font-weight:400;line-height:1.85;color:var(--ink-soft);margin-top:9px;word-break:keep-all;}
+  .story-moment.family-moment .story-copy{position:relative;padding:18px 10px;text-align:center;isolation:isolate;}
+  .family-moment .story-date{font-size:.75rem;font-weight:700;color:var(--celadon-deep);}
+  .family-moment .story-text{font-size:.8125rem;font-weight:700;color:var(--ink);}
+  .family-circle{position:absolute;left:-7%;top:-8%;width:114%;height:116%;overflow:visible;z-index:-1;pointer-events:none;
+    fill:none;stroke:var(--celadon-deep);stroke-width:1.5;stroke-linecap:round;opacity:.75;}
+  .family-circle path{vector-effect:non-scaling-stroke;}
 
   /* 사진 공유 대표 사진과 선으로 그린 하트. */
   .snap-visual{position:relative;margin-bottom:28px;}
@@ -572,6 +581,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 <body>
 
 <div class="paper-intro" id="paperIntro" role="img" aria-label="연준과 유진의 종이 하트 청첩장 인트로">
+  <div class="intro-composition">
   <div class="intro-stack">
     <div class="paper-portrait">
       <img class="portrait-photo portrait-groom" src="images/optimized/small/gallery26.webp" width="600" height="900" alt="" fetchpriority="high" decoding="async">
@@ -583,6 +593,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     </div>
   </div>
   <div class="intro-copy">We are getting<br>Married!</div>
+  </div>
   <span class="paper-confetti c1" aria-hidden="true"></span>
   <span class="paper-confetti c2" aria-hidden="true"></span>
   <span class="paper-confetti c3" aria-hidden="true"></span>
@@ -657,10 +668,13 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy"><div class="story-date">2023.07.07</div><div class="story-text">유나♡성준의 소개로 만남을 시작했어요</div></div>
       </article>
-      <article class="story-moment">
+      <article class="story-moment family-moment" id="familyMoment">
         <img class="story-photo" data-src="images/optimized/small/gallery15.webp" width="600" height="900" alt="함께 웃는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
-        <div class="story-copy"><div class="story-date">2026.10.05</div><div class="story-text">두 가족이 만나는 날이에요</div></div>
+        <div class="story-copy">
+          <svg class="family-circle" viewBox="0 0 170 90" preserveAspectRatio="none" aria-hidden="true"><path d="M157 36C150 13 117 5 77 8C37 10 9 21 8 44C7 69 39 82 84 81C128 80 158 67 161 45C163 35 156 20 139 14"/></svg>
+          <div class="story-date">2026.10.05</div><div class="story-text">두 가족이 만나는 날이에요</div>
+        </div>
       </article>
       <article class="story-moment">
         <img class="story-photo" data-src="images/optimized/small/gallery20.webp" width="600" height="900" alt="새로운 시작을 함께하는 두 사람" loading="lazy" decoding="async">
@@ -908,7 +922,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 
 <script>
 /* ---------------- 종이 하트 인트로 ----------------
-   영상의 순서/관측 시간에 맞춤: 사진 0.12초, 문구 1.5초, 하트 2.25초, 전환 3.25초.
+   기존 영상 타이밍을 2배로 늘림: 사진 0.24초, 문구 3초, 하트 4.5초, 전환 6.5초.
    방문할 때 한 번 자동 재생하며 클릭/재방문 분기나 반복 재생을 추가하지 않음. */
 (function playPaperIntro(){
   const intro = document.getElementById('paperIntro');
@@ -932,16 +946,17 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   const paper = new Image();paper.src = 'images/optimized/pink-paper.webp';images.push(paper);
   const hero = new Image();hero.src = 'images/original/gallery8.jpg';images.push(hero);
   const ready = images.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
+  if(document.fonts) ready.push(document.fonts.load('500 72px Caveat','Happy Wedding Day').catch(()=>[]));
   Promise.all(ready).then(()=>{
     if(finished) return;
     requestAnimationFrame(()=>{
       intro.classList.add('is-entering');
-      setTimeout(()=>intro.classList.add('is-leaving'),3250);
-      setTimeout(finish,3500);
+      setTimeout(()=>intro.classList.add('is-leaving'),6500);
+      setTimeout(finish,7000);
     });
   });
   // Broken image decoding must never leave the invitation locked.
-  setTimeout(finish,10000);
+  setTimeout(finish,20000);
   window.addEventListener('pagehide',finish,{once:true});
 })();
 
@@ -963,13 +978,11 @@ if(urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents'){
   audienceMode = (audienceOverride === '1') ? 'parent' : (audienceOverride === '0') ? 'guest' : getDefaultAudienceMode();
 }
 
-/* 혼주용 모드에서만 숨기는 컨텐츠: 인사말, 오시는 길, 마음 전하실 곳, 게스트 스냅
+/* 혼주용 모드에서만 숨기는 컨텐츠: 인사말, 마음 전하실 곳, 게스트 스냅
    (각 섹션 바로 앞 구분선도 함께 숨겨 빈 구분선이 남지 않도록 한다) */
 const AUDIENCE_HIDE_IDS = [
   'greetingDivider',
   'greetingSection',
-  'mapDivider',
-  'mapSection',
   'accountsDivider',
   'accountsSection',
   'snapDivider',
@@ -993,6 +1006,7 @@ function setAudienceMode(isParent){
   });
 
   updateAudienceToggleLabel();
+  document.dispatchEvent(new Event('invitationlayoutchange'));
 }
 
 function toggleAudienceMode(){
@@ -1012,7 +1026,32 @@ function cycleFontScale(){
   const scale = FONT_SCALES[fontScaleIdx];
   document.documentElement.style.setProperty('--font-scale', scale);
   document.getElementById('fontScaleBtn').innerHTML = scale > 1 ? '폰트<br>작게' : '폰트<br>크게';
+  document.dispatchEvent(new Event('invitationlayoutchange'));
 }
+
+/* 모바일 주소창의 높이 변화는 히어로 글자 크기/위치를 바꾸지 않도록 초기 배치를 유지. */
+(function preserveHeroLayout(){
+  const hero=document.querySelector('.hero-photo');
+  const content=document.querySelector('.hero-content');
+  const quote=document.getElementById('heroQuote');
+  if(!hero || !content || !quote) return;
+  let savedWidth=0;
+  function capture(){
+    const width=document.documentElement.clientWidth;
+    if(width===savedWidth) return;
+    savedWidth=width;
+    hero.style.height='';hero.style.minHeight='';
+    content.style.top='';content.style.bottom='';quote.style.fontSize='';
+    const heroRect=hero.getBoundingClientRect();
+    const contentStyle=getComputedStyle(content);
+    const top=contentStyle.top,bottom=contentStyle.bottom;
+    const fontSize=getComputedStyle(quote).fontSize;
+    hero.style.height=heroRect.height+'px';hero.style.minHeight=heroRect.height+'px';
+    content.style.top=top;content.style.bottom=bottom;quote.style.fontSize=fontSize;
+  }
+  capture();
+  window.addEventListener('resize',capture);
+})();
 
 /* ---------------- 플로팅 버튼: 최상단에서 숨기고 스크롤 시 노출 ---------------- */
 (function(){
@@ -1126,31 +1165,65 @@ function updateWeddingCaption(){
 updateWeddingCaption();
 setInterval(updateWeddingCaption,60000);
 
-/* 영상에서 스크롤과 함께 내려가는 중앙 하트를 재현. */
+/* 선의 위치는 배치가 바뀔 때만 계산하고, 하트는 transform으로 부드럽게 따라감. */
 (function storyHeartProgress(){
   const timeline=document.getElementById('storyTimeline');
   const heart=document.getElementById('storyProgressHeart');
   if(!timeline || !heart) return;
-  let pending=false;
-  function update(){
-    pending=false;
-    const nodes=timeline.querySelectorAll('.story-node');
-    if(!nodes.length) return;
+  const line=timeline.querySelector('.story-line');
+  const nodes=Array.from(timeline.querySelectorAll('.story-node'));
+  const familyNode=document.querySelector('#familyMoment .story-node');
+  if(!line || !nodes.length) return;
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  let timelineTop=0,from=0,to=0,familyY=0,current=null,target=0,frame=0,lastTime=0,visible=false;
+  function desiredY(){return Math.max(from,Math.min(to,window.scrollY+window.innerHeight*.55-timelineTop));}
+  function paint(){
+    heart.style.transform=`translate3d(-50%,${current.toFixed(2)}px,0) translateY(-50%)`;
+    heart.classList.toggle('is-family-near',Math.abs(current-familyY)<42);
+  }
+  function animate(time){
+    frame=0;
+    const dt=lastTime ? Math.min(64,time-lastTime) : 16;
+    lastTime=time;
+    current+=(target-current)*(1-Math.exp(-dt/90));
+    if(Math.abs(target-current)<.2){current=target;lastTime=0;paint();return;}
+    paint();
+    frame=requestAnimationFrame(animate);
+  }
+  function follow(){
+    target=desiredY();
+    if(current===null || !visible || reducedMotion.matches){
+      if(frame) cancelAnimationFrame(frame);
+      frame=0;lastTime=0;current=target;paint();return;
+    }
+    if(!frame && Math.abs(target-current)>=.2) frame=requestAnimationFrame(animate);
+  }
+  function measure(){
     const rect=timeline.getBoundingClientRect();
     const first=nodes[0].getBoundingClientRect();
     const last=nodes[nodes.length-1].getBoundingClientRect();
-    const from=first.top+first.height/2-rect.top;
-    const to=last.top+last.height/2-rect.top;
-    const y=Math.max(from,Math.min(to,window.innerHeight*.55-rect.top));
-    heart.style.top=y+'px';
-    timeline.querySelector('.story-line').style.top=from+'px';
-    timeline.querySelector('.story-line').style.bottom=Math.max(0,rect.height-to)+'px';
+    timelineTop=rect.top+window.scrollY;
+    from=first.top+first.height/2-rect.top;
+    to=last.top+last.height/2-rect.top;
+    const middle=familyNode ? familyNode.getBoundingClientRect() : first;
+    familyY=middle.top+middle.height/2-rect.top;
+    line.style.top=from+'px';line.style.bottom='auto';line.style.height=(to-from)+'px';
+    follow();
   }
-  function queue(){if(!pending){pending=true;requestAnimationFrame(update);}}
-  document.addEventListener('scroll',queue,{passive:true});
-  window.addEventListener('resize',queue);
-  if('ResizeObserver' in window) new ResizeObserver(queue).observe(timeline);
-  update();
+  document.addEventListener('scroll',follow,{passive:true});
+  document.addEventListener('invitationlayoutchange',measure);
+  document.addEventListener('transitionend',event=>{
+    if(event.target===document.documentElement && event.propertyName==='font-size') measure();
+  });
+  window.addEventListener('resize',measure);
+  if('ResizeObserver' in window) new ResizeObserver(measure).observe(timeline);
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(entries=>{
+      visible=entries[0].isIntersecting;follow();
+    },{rootMargin:'200px'}).observe(timeline);
+  } else visible=true;
+  if(document.fonts) document.fonts.ready.then(measure);
+  measure();
 })();
 
 /* ---------------- 갤러리 ---------------- */
