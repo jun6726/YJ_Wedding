@@ -1,0 +1,203 @@
+{
+  "photos": {
+    "gallery01.jpg": {
+      "previousFilename": "gallery51.jpg",
+      "sourceFilename": "15_IMG_9229.JPG",
+      "storageKey": "gallery51.jpg",
+      "sha256": "66c165ee212f10dfcae86efcb37af2153a97d65f92a7601bce8a326a3c362413",
+      "sourceFile": "gallery01.jpg"
+    },
+    "gallery02.jpg": {
+      "previousFilename": "gallery39.jpg",
+      "sourceFilename": "16_IMG_9249.JPG",
+      "storageKey": "gallery39.jpg",
+      "sha256": "ee0e70aedb8131637d58e96f2de8a2d9fcf9c1dfc3222940ccaf216f3587fc9c",
+      "sourceFile": "gallery02.jpg"
+    },
+    "gallery03.jpg": {
+      "previousFilename": "gallery52.jpg",
+      "sourceFilename": "18_IMG_9258.JPG",
+      "storageKey": "gallery52.jpg",
+      "sha256": "73d3f2dd41e033ff8d928fc3b18b61cd1def0b2cde3ff657e267fe78e897a099",
+      "sourceFile": "gallery03.jpg"
+    },
+    "gallery04.jpg": {
+      "previousFilename": "gallery40.jpg",
+      "sourceFilename": "17_IMG_9746.JPG",
+      "storageKey": "gallery40.jpg",
+      "sha256": "b4499f799d450dafd8c5fa6cb6a41268de7630576d1258373643a2f2b57ae6e3",
+      "sourceFile": "gallery04.jpg"
+    },
+    "gallery05.jpg": {
+      "previousFilename": "gallery42.jpg",
+      "sourceFilename": "20_IMG_9256.JPG",
+      "storageKey": "gallery42.jpg",
+      "sha256": "53cf639644b65a79cdbb4826256e7ebccdba05a3fe725491ffb99fbc7527dd5a",
+      "sourceFile": "gallery05.jpg"
+    },
+    "gallery06.jpg": {
+      "previousFilename": "gallery43.jpg",
+      "sourceFilename": "21_IMG_9236.JPG",
+      "storageKey": "gallery43.jpg",
+      "sha256": "975e8d1990826d6562780d8f2dceb4d20829d8b67711e2fe904e952b6df8da80",
+      "sourceFile": "gallery06.jpg"
+    },
+    "gallery07.jpg": {
+      "previousFilename": "gallery49.jpg",
+      "sourceFilename": "11_IMG_9242.JPG",
+      "storageKey": "gallery49.jpg",
+      "sha256": "bc76a0d30158c4ce9d2dd35880a21638ce48289747bc34c22acbf4d6fa0b473c",
+      "sourceFile": "gallery07.jpg"
+    },
+    "gallery08.jpg": {
+      "previousFilename": "gallery50.jpg",
+      "sourceFilename": "12_IMG_9331.JPG",
+      "storageKey": "gallery50.jpg",
+      "sha256": "e8fc35a3d09805d044a13fef33c81f6dfeba36b0a9aed643f198c524093ecf2f",
+      "sourceFile": "gallery08.jpg"
+    },
+    "gallery09.jpg": {
+      "previousFilename": "gallery38.jpg",
+      "sourceFilename": "14_IMG_9224.JPG",
+      "storageKey": "gallery38.jpg",
+      "sha256": "d86654f7422bb7da5036e2bc65ec181abcef2a68adc98758048d5ac5dadb0f7b",
+      "sourceFile": "gallery09.jpg"
+    },
+    "gallery10.jpg": {
+      "previousFilename": "gallery37.jpg",
+      "sourceFilename": "14_IMG_9214.JPG",
+      "storageKey": "gallery37.jpg",
+      "sha256": "0ca14915800d89e1365202215d219596025ab8cc7ee6efcedc49f918b963652a",
+      "sourceFile": "gallery10.jpg"
+    },
+    "gallery11.jpg": {
+      "previousFilename": "gallery36.jpg",
+      "sourceFilename": "13_IMG_9232.JPG",
+      "storageKey": "gallery36.jpg",
+      "sha256": "0689b02a7ea35ef9595a239f25a555181646716f74fc750b7e77408673337feb",
+      "sourceFile": "gallery11.jpg"
+    },
+    "gallery12.jpg": {
+      "previousFilename": "gallery8.jpg",
+      "sourceFilename": "00_IMG_9275.JPG",
+      "storageKey": "gallery8.jpg",
+      "sha256": "aff25b88c409300976c46633c9235842bfe5bf49ee37406d8358e9fa5063ea11",
+      "sourceFile": "gallery12.JPG"
+    },
+    "gallery13.jpg": {
+      "previousFilename": "gallery31.jpg",
+      "sourceFilename": "05_IMG_9338.JPG",
+      "storageKey": "gallery31.jpg",
+      "sha256": "14ed3a1e163fef954b0968b7fed79c468ab91e8dda10cce0955503aef53d7eae",
+      "sourceFile": "gallery13.jpg"
+    },
+    "gallery14.jpg": {
+      "previousFilename": "gallery34.jpg",
+      "sourceFilename": "09_IMG_9337.JPG",
+      "storageKey": "gallery34.jpg",
+      "sha256": "473fa9d601bb12798b24904b2a60bebf021520f1758d7b8309032bebf9c33330",
+      "sourceFile": "gallery14.jpg"
+    },
+    "gallery15.jpg": {
+      "previousFilename": "gallery35.jpg",
+      "sourceFilename": "10_IMG_9251.JPG",
+      "storageKey": "gallery35.jpg",
+      "sha256": "8c0c4d3815a56386bd744a8478517c8b038a2c56cc6ed65303b8d46d122d6063",
+      "sourceFile": "gallery15.jpg"
+    },
+    "gallery16.jpg": {
+      "previousFilename": "gallery29.jpg",
+      "sourceFilename": "01_IMG_9230.JPG",
+      "storageKey": "gallery29.jpg",
+      "sha256": "7be8b6e9fa33ddf9c8db2115cc7db7389ed1e6f1de78bf7d079c66a4adff1822",
+      "sourceFile": "gallery16.jpg"
+    },
+    "gallery17.jpg": {
+      "previousFilename": "gallery30.jpg",
+      "sourceFilename": "02_IMG_9332.jpg",
+      "storageKey": "gallery30.jpg",
+      "sha256": "6f270fdc3cd1a20b976415d936f613aa7d27ebb47de018bf7c9405d0fc39a09b",
+      "sourceFile": "gallery17.jpg"
+    },
+    "gallery18.jpg": {
+      "previousFilename": "gallery48.jpg",
+      "sourceFilename": "03_IMG_9282.JPG",
+      "storageKey": "gallery48.jpg",
+      "sha256": "4631c81812e1e61028fa45d730c94d60318b81eb1b68eed55de1d78eae4c61fc",
+      "sourceFile": "gallery18.jpg"
+    },
+    "gallery19.jpg": {
+      "previousFilename": "gallery47.jpg",
+      "sourceFilename": "24_IMG_9343.JPG",
+      "storageKey": "gallery47.jpg",
+      "sha256": "3054ea995fb214ec98fffad6c995bc33af734c5ea902401b41a0b1faa400e201",
+      "sourceFile": "gallery19.jpg"
+    },
+    "gallery20.jpg": {
+      "previousFilename": "gallery45.jpg",
+      "sourceFilename": "22_IMG_9226.JPG",
+      "storageKey": "gallery45.jpg",
+      "sha256": "4e12e6d91b2c511470a37161ee4719c9e300b499bc9f67eecd9451f1f7e03e7c",
+      "sourceFile": "gallery20.jpg"
+    },
+    "gallery21.jpg": {
+      "sourceFile": "gallery21.JPG",
+      "sha256": "0f9b9f31fa366d0a4b97d6edfc7b1e8ca291ed8b7bae943944e836232d0363e1",
+      "storageKey": "photo_0f9b9f31fa366d0a4b97d6ed"
+    },
+    "gallery22.jpg": {
+      "previousFilename": "gallery44.jpg",
+      "sourceFilename": "22_IMG_9134.JPG",
+      "storageKey": "gallery44.jpg",
+      "sha256": "8839c6a21ad7c4e3c5ad768b1827147b718fb9946a56c4df23e70f81ec87206c",
+      "sourceFile": "gallery22.jpg"
+    },
+    "gallery23.jpg": {
+      "sourceFile": "gallery23.JPG",
+      "sha256": "d5686863a140dacd6d9123030cbd7f38f4c047110f4a677351d4306c21e0f608",
+      "storageKey": "photo_d5686863a140dacd6d912303"
+    },
+    "gallery24.jpg": {
+      "previousFilename": "gallery46.jpg",
+      "sourceFilename": "23_IMG_9225.JPG",
+      "storageKey": "gallery46.jpg",
+      "sha256": "af18215abbfec311e8114b003a584f748694979a80ba4026c8e120a6ae622e97",
+      "sourceFile": "gallery24.jpg"
+    }
+  },
+  "endingSource": "images/original/gallery20.jpg",
+  "heroSource": "images/original/gallery12.JPG",
+  "sectionSources": {
+    "images/intro/gallery03.webp": "gallery03.jpg",
+    "images/intro/gallery01.webp": "gallery01.jpg",
+    "images/content/greeting": "gallery07.jpg",
+    "images/content/gallery18.webp": "gallery18.jpg",
+    "images/content/gallery08.webp": "gallery08.jpg",
+    "images/content/gallery01.webp": "gallery01.jpg",
+    "images/content/ending": "gallery20.jpg",
+    "images/hero/gallery12.webp": "gallery12.jpg"
+  },
+  "sectionRenaming": {
+    "images/intro/gallery13.webp": "images/intro/gallery01.webp",
+    "images/intro/gallery16.webp": "images/intro/gallery03.webp",
+    "images/hero/gallery01.jpg": "images/hero/gallery12.jpg",
+    "images/content/ending/1200/gallery21.webp": "images/content/ending/1200/gallery20.webp",
+    "images/content/ending/1440/gallery21.webp": "images/content/ending/1440/gallery20.webp",
+    "images/content/ending/600/gallery21.webp": "images/content/ending/600/gallery20.webp",
+    "images/content/gallery04.webp": "images/content/gallery18.webp",
+    "images/content/gallery09.webp": "images/content/gallery08.webp",
+    "images/content/gallery13.webp": "images/content/gallery01.webp",
+    "images/content/greeting/1200/gallery08.webp": "images/content/greeting/1200/gallery07.webp",
+    "images/content/greeting/1440/gallery08.webp": "images/content/greeting/1440/gallery07.webp",
+    "images/content/greeting/600/gallery08.webp": "images/content/greeting/600/gallery07.webp"
+  },
+  "retiredPhotos": [
+    {
+      "filename": "gallery17.jpg",
+      "previousFilename": "gallery41.jpg",
+      "sourceFilename": "19_IMG_9262.JPG",
+      "storageKey": "gallery41.jpg",
+      "sha256": "retired-gallery17.jpg"
+    }
+  ]
+}

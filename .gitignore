@@ -1,3 +1,9 @@
 _local_only_w_backup/
 _local_only_admin/
 .DS_Store
+/deploy/
+/deploy.zip
+
+/backups/
+
+/deploy*.zip
