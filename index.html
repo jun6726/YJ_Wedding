@@ -44,8 +44,24 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap" rel="stylesheet">
-<link rel="preload" href="font/Cafe24Oneprettynight-v2.0/webfont/Cafe24Oneprettynight-v2.0.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="font/GowunBatang-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="font/GowunBatang-Bold.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face {
+    font-family: 'GowunBatang';
+    src: url('font/GowunBatang-Regular.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'GowunBatang';
+    src: url('font/GowunBatang-Bold.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+  }
+  /* 이전 폰트는 시안 복원용으로 유지. */
   @font-face {
     font-family: 'Cafe24Oneprettynight';
     src: url('font/Cafe24Oneprettynight-v2.0/webfont/Cafe24Oneprettynight-v2.0.woff2') format('woff2'),
@@ -62,6 +78,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     --celadon:#E7B9B7;
     --celadon-deep:#BC828B;
     --blush:#E7B9B7;
+    --paper-heart-shape:polygon(50% 18%,62% 3%,78% 0,94% 14%,100% 34%,88% 57%,50% 100%,12% 57%,0 34%,6% 14%,22% 0,38% 3%);
     --gold:#D8B9BF;
     --white:#FCFCFC;
     --shadow: none;
@@ -77,7 +94,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   html{ font-size: calc(16px * var(--font-scale)); transition: font-size .2s ease; }
   html,body{
     background:#F7F5F5;
-    font-family:'Cafe24Oneprettynight', serif;
+    font-family:'GowunBatang', serif;
     color:var(--ink);
     -webkit-font-smoothing:antialiased;
     -webkit-text-size-adjust:100%;text-size-adjust:100%;
@@ -110,18 +127,18 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .intro-active .paper-intro{display:flex;align-items:center;justify-content:center;}
   .intro-active{overflow:hidden;}
   .intro-composition{width:100%;display:flex;flex-direction:column;align-items:center;gap:28px;padding:24px 0;}
-  .intro-stack{width:69%;max-width:calc((100svh - 150px)/2);display:grid;gap:18px;}
-  .paper-portrait{position:relative;aspect-ratio:1;opacity:0;isolation:isolate;
-    transform:translateY(-42px) rotate(var(--turn)) scale(.96);filter:drop-shadow(0 2px 3px rgba(96,79,82,.1));}
-  .paper-portrait:first-child{--turn:9deg;--settle:2deg;}
-  .paper-portrait:nth-child(2){--turn:-9deg;--settle:-3deg;}
+  .intro-stack{width:69%;max-width:calc((100svh - 150px)/2);display:flex;flex-direction:column;}
+  .paper-portrait{position:relative;width:100%;flex-shrink:0;aspect-ratio:1;opacity:0;isolation:isolate;
+    transform:translate(var(--offset-x),-42px) rotate(var(--turn)) scale(.96);filter:drop-shadow(0 2px 3px rgba(96,79,82,.1));}
+  .paper-portrait:first-child{--offset-x:-15%;--turn:9deg;--settle:2deg;z-index:1;}
+  .paper-portrait:nth-child(2){--offset-x:15%;--turn:-9deg;--settle:-3deg;margin-top:-20%;z-index:2;}
   .paper-portrait .portrait-photo{position:absolute;left:8%;top:12%;width:84%;height:80%;object-fit:cover;}
   .paper-portrait .portrait-groom{object-position:50% 0%;}
   .paper-portrait .portrait-bride{object-position:50% 45%;}
   .paper-portrait .paper-frame{position:relative;width:100%;height:100%;display:block;clip-path:inset(3.7%);}
   .intro-copy{text-align:center;opacity:0;
     font-size:1.0625rem;font-weight:400;line-height:1.35;color:#554B4F;}
-  .paper-confetti{position:absolute;width:32px;height:30px;opacity:0;background:#F1F0ED;
+  .paper-confetti{position:absolute;z-index:3;width:32px;height:30px;opacity:0;background:#F1F0ED;
     background-image:linear-gradient(128deg,transparent 28%,rgba(166,162,158,.25) 31%,rgba(255,255,255,.9) 34%,transparent 38%),
     linear-gradient(43deg,transparent 53%,rgba(155,151,147,.2) 56%,rgba(255,255,255,.8) 59%,transparent 63%);
     clip-path:polygon(50% 18%,62% 3%,78% 0,94% 14%,100% 34%,88% 57%,50% 100%,12% 57%,0 34%,6% 14%,22% 0,38% 3%);
@@ -137,16 +154,16 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-intro.is-entering .paper-confetti.heart-bride{animation-delay:var(--bride-delay);}
   .paper-intro.is-leaving{opacity:0;transition:opacity .5s linear;pointer-events:none;}
   @keyframes paperPortraitEnter{
-    0%{opacity:0;transform:translateY(-42px) rotate(var(--turn)) scale(.96);}
+    0%{opacity:0;transform:translate(var(--offset-x),-42px) rotate(var(--turn)) scale(.96);}
     28%{opacity:1;}
-    70%{opacity:1;transform:translateY(0) rotate(0) scale(1);}
-    100%{opacity:1;transform:translateY(0) rotate(var(--settle)) scale(1);}
+    70%{opacity:1;transform:translate(var(--offset-x),0) rotate(0) scale(1);}
+    100%{opacity:1;transform:translate(var(--offset-x),0) rotate(var(--settle)) scale(1);}
   }
   @keyframes paperCopyEnter{from{opacity:0;}to{opacity:1;}}
   @keyframes paperHeartEnter{from{opacity:0;transform:scale(.6) rotate(var(--rotation));}to{opacity:1;transform:scale(1) rotate(var(--rotation));}}
   @media(max-height:650px){
     .intro-composition{gap:18px;padding:8px 0;}
-    .intro-stack{width:60%;max-width:calc((100svh - 120px)/2);gap:12px;}
+    .intro-stack{width:60%;max-width:calc((100svh - 120px)/2);}
     .intro-copy{font-size:.9375rem;}
   }
   @media(prefers-reduced-motion:reduce){.paper-intro{display:none !important;}.intro-active{overflow:auto;}}
@@ -165,7 +182,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .hero-quote span{display:block;}
   .hero-info{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45);flex-shrink:0;}
   .hero-info .hero-names{display:flex;justify-content:center;align-items:center;gap:14px;font-size:1.375rem;font-weight:700;line-height:1.5;}
-  .hero-info .amp{color:#fff;opacity:.8;margin:0;font-size:1rem;font-weight:400;}
+  .hero-info .hero-name-heart{display:block;flex:0 0 22px;width:22px;aspect-ratio:29/27;
+    background:var(--blush);clip-path:var(--paper-heart-shape);}
   .hero-schedule{display:flex;flex-wrap:wrap;justify-content:center;column-gap:14px;row-gap:2px;margin-top:10px;
     font-size:.875rem;line-height:1.75;letter-spacing:.025em;}
   .hero-schedule time,.hero-schedule span{white-space:nowrap;}
@@ -198,7 +216,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .cal-grid .day{font-size:.75rem;text-align:center;position:relative;min-height:28px;display:grid;place-items:center;}
   .cal-grid .day.mark{color:#fff;font-weight:400;isolation:isolate;}
   .cal-grid .day.mark::before{content:'';position:absolute;inset:0;z-index:-1;margin:auto;width:29px;height:27px;
-    background:var(--blush);clip-path:polygon(50% 18%,62% 3%,78% 0,94% 14%,100% 34%,88% 57%,50% 100%,12% 57%,0 34%,6% 14%,22% 0,38% 3%);}
+    background:var(--blush);clip-path:var(--paper-heart-shape);}
   .cal-grid .blank{visibility:hidden;}
   .countdown-caption{margin-top:24px;font-size:.75rem;color:var(--ink-soft);line-height:1.8;}
   .countdown-caption b{font-weight:400;color:var(--ink);}
@@ -228,11 +246,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     fill:none;stroke:var(--celadon-deep);stroke-width:1.5;stroke-linecap:round;opacity:.75;}
   .family-circle path{vector-effect:non-scaling-stroke;}
 
-  /* 사진 공유 대표 사진과 선으로 그린 하트. */
-  .snap-visual{position:relative;margin-bottom:28px;}
-  .snap-visual img{display:block;width:100%;height:auto;aspect-ratio:1.45;object-fit:cover;object-position:center 38%;border-radius:6px;}
-  .snap-visual svg{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#D49DA7;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;}
-  .snap-visual svg path{vector-effect:non-scaling-stroke;}
+  /* 사진 공유 안내. */
   #guestSnapSection .section-title{margin-bottom:22px;}
 
   /* ---------- GALLERY ---------- */
@@ -617,7 +631,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       <div class="hero-content">
         <div class="hero-quote" id="heroQuote"><span>Happy</span><span>Wedding</span><span>Day</span></div>
         <div class="hero-info">
-          <div class="hero-names"><span>최연준</span><span class="amp">&amp;</span><span>김유진</span></div>
+          <div class="hero-names"><span>최연준</span><span class="hero-name-heart" aria-hidden="true"></span><span>김유진</span></div>
           <p class="hero-schedule"><time datetime="2027-03-13T12:00:00+09:00">2027.03.13 토요일</time><span>낮 12시</span></p>
         </div>
       </div>
@@ -685,10 +699,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 
   <!-- GUEST SNAP -->
   <section id="guestSnapSection">
-    <div class="snap-visual">
-      <img data-src="images/optimized/body/gallery7.webp" width="1066" height="1600" data-srcset="images/optimized/small/gallery7.webp 600w, images/optimized/body/gallery7.webp 1066w" sizes="(max-width: 430px) calc(100vw - 64px), 366px" alt="하트를 만드는 연준과 유진" loading="lazy" decoding="async">
-      <svg viewBox="0 0 330 228" aria-hidden="true"><path d="M26 58c-11-16-23 1 3 18 18-21 2-30-3-18Z M282 35c-8-12-19 0 2 14 13-17 1-24-2-14Z M300 143c-10-15-22 1 3 18 17-21 1-30-3-18Z M42 184c-8-12-18 1 3 15 14-17 0-24-3-15Z"/></svg>
-    </div>
     <div class="section-title">게스트 스냅</div>
     <div class="section-sub">GUEST SNAP</div>
     <p class="section-copy">
@@ -946,7 +956,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   const hero = new Image();hero.src = 'images/original/gallery8.jpg';images.push(hero);
   const ready = images.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
   if(document.fonts){
-    ready.push(document.fonts.load('400 17px Cafe24Oneprettynight','We are getting Married! 연준 유진').catch(()=>[]));
+    ready.push(document.fonts.load('400 17px GowunBatang','We are getting Married! 연준 유진').catch(()=>[]));
+    ready.push(document.fonts.load('700 22px GowunBatang','최연준 김유진').catch(()=>[]));
     ready.push(document.fonts.load('500 40px Caveat','Happy Wedding Day').catch(()=>[]));
   }
   Promise.all(ready).then(()=>{
@@ -982,11 +993,9 @@ if(urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents'){
   audienceMode = (audienceOverride === '1') ? 'parent' : (audienceOverride === '0') ? 'guest' : getDefaultAudienceMode();
 }
 
-/* 혼주용 모드에서만 숨기는 컨텐츠: 인사말, 마음 전하실 곳, 게스트 스냅
+/* 혼주용 모드에서만 숨기는 컨텐츠: 마음 전하실 곳, 게스트 스냅, 참석 의사 전달
    (각 섹션 바로 앞 구분선도 함께 숨겨 빈 구분선이 남지 않도록 한다) */
 const AUDIENCE_HIDE_IDS = [
-  'greetingDivider',
-  'greetingSection',
   'accountsDivider',
   'accountsSection',
   'snapDivider',
@@ -1231,7 +1240,7 @@ setInterval(updateWeddingCaption,60000);
 })();
 
 /* ---------------- 갤러리 ---------------- */
-const galleryPhotos = Array.from({ length: 28 }, (_, i) => `gallery${i + 1}.jpg`);
+const galleryPhotos = Array.from({ length: 19 }, (_, i) => `gallery${i + 29}.jpg`);
 let galleryVisibleCount = 0;
 let galleryMainLayout = null;
 let galleryExtraLayout = null;
