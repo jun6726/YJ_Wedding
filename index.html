@@ -7,7 +7,7 @@
 /* 새로고침 시 브라우저가 이전 스크롤 위치를 자동 복원하면서 페이지 중간부터 보이는 현상 방지 */
 if('scrollRestoration' in history){ history.scrollRestoration = 'manual'; }
 window.scrollTo(0, 0);
-if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.documentElement.classList.add('intro-active'); }
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.documentElement.classList.add('intro-active','hero-title-typing'); }
 </script>
 <script>
 (function(){
@@ -19,7 +19,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   try{
     var link = document.createElement('link');
     link.rel = 'preload'; link.as = 'image';
-    link.href = 'images/original/gallery8.jpg';
+    link.href = 'images/hero/gallery01.jpg';
     link.setAttribute('fetchpriority', 'high');
     document.head.appendChild(link);
   }catch(e){}
@@ -28,14 +28,14 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
 <meta property="og:type" content="website">
 <meta property="og:title" content="최연준 ♥ 김유진 결혼합니다">
 <meta property="og:description" content="2027년 03월 13일 토요일 낮 12시 · L65호텔 웨딩컨벤션 가든홀. 두 사람의 새로운 시작을 축복해 주세요.">
-<meta property="og:image" content="https://jun6726.github.io/YJ_Wedding/images/web/thumb.jpg">
+<meta property="og:image" content="https://jun6726.github.io/YJ_Wedding/images/common/share.jpg">
 <meta property="og:url" content="https://jun6726.github.io/YJ_Wedding/">
 <meta property="og:image:width" content="800">
 <meta property="og:image:height" content="800">
 <meta property="og:locale" content="ko_KR">
 <title>연준 ♥ 유진 결혼합니다</title>
-<link rel="icon" type="image/jpeg" href="images/optimized/icon.jpg">
-<link rel="apple-touch-icon" href="images/optimized/icon.jpg">
+<link rel="icon" type="image/jpeg" href="images/common/icon.jpg">
+<link rel="apple-touch-icon" href="images/common/icon.jpg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js" integrity="sha384-DKYJZ8NLiK8MN4/C5P2dtSmLQ4KwPaoqAfyA/DfmEc1VDxu4yyC7wy6K1Hs90nka" crossorigin="anonymous"></script>
@@ -59,15 +59,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     src: url('font/GowunBatang-Bold.woff2') format('woff2');
     font-style: normal;
     font-weight: 700;
-    font-display: swap;
-  }
-  /* 이전 폰트는 시안 복원용으로 유지. */
-  @font-face {
-    font-family: 'Cafe24Oneprettynight';
-    src: url('font/Cafe24Oneprettynight-v2.0/webfont/Cafe24Oneprettynight-v2.0.woff2') format('woff2'),
-         url('font/Cafe24Oneprettynight-v2.0/webfont/Cafe24Oneprettynight-v2.0.woff') format('woff');
-    font-style: normal;
-    font-weight: 400;
     font-display: swap;
   }
   :root{
@@ -123,7 +114,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-intro{display:none;position:fixed;inset:0;margin:0 auto;max-width:430px;height:100vh;height:100svh;
     --portrait-duration:1.725s;--groom-delay:.18s;--bride-delay:.3s;
     z-index:180;overflow:hidden;background-color:#F1DAD9;
-    background-image:linear-gradient(rgba(241,218,217,.35),rgba(241,218,217,.35)),url('images/optimized/pink-paper.webp');background-position:center;background-size:cover;}
+    background-image:linear-gradient(rgba(241,218,217,.35),rgba(241,218,217,.35)),url('images/intro/pink-paper.webp');background-position:center;background-size:cover;}
   .intro-active .paper-intro{display:flex;align-items:center;justify-content:center;}
   .intro-active{overflow:hidden;}
   .intro-composition{width:100%;display:flex;flex-direction:column;align-items:center;gap:28px;padding:24px 0;}
@@ -171,7 +162,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   /* 히어로 영문 제목은 이전 Caveat 폰트로 표시. */
   .hero{padding:0;text-align:center;}
   .hero-photo{width:100%;height:100vh;height:100svh;min-height:max(540px,36rem);position:relative;overflow:hidden;
-    background:#EAE5E4 url('images/original/gallery8.jpg') center 40%/cover no-repeat;}
+    background:#EAE5E4 url('images/hero/gallery01.jpg') center 40%/cover no-repeat;}
   .hero-photo::after{content:'';position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(28,23,26,.13),transparent 18%,transparent 48%,rgba(28,23,26,.18)72%,rgba(28,23,26,.7));}
   .hero-content{position:absolute;z-index:1;left:24px;right:24px;top:48%;bottom:calc(36px + env(safe-area-inset-bottom));
@@ -179,7 +170,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .hero-quote{position:absolute;top:0;left:0;right:0;color:#fff;text-align:center;
     font-family:'Caveat',cursive;font-weight:500;font-size:calc(min(clamp(4.1rem,18vw,5.4rem),calc((min(100vw,430px) - 48px)*.26)) - 10px);line-height:.93;letter-spacing:-.055em;
     transform:translateY(50px) rotate(-7deg);text-shadow:0 1px 5px rgba(0,0,0,.08);pointer-events:none;}
-  .hero-quote span{display:block;}
+  .hero-quote > span{display:block;}
+  .hero-quote .hero-title-word{display:inline-block;}
+  .hero-title-typing .hero-title-word{clip-path:inset(-50% 100% -50% -20px);}
+  @media(prefers-reduced-motion:reduce){.hero-title-typing .hero-title-word{clip-path:none !important;}}
   .hero-info{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45);flex-shrink:0;}
   .hero-info .hero-names{display:flex;justify-content:center;align-items:center;gap:14px;font-size:1.375rem;font-weight:700;line-height:1.5;}
   .hero-info .hero-name-heart{display:block;flex:0 0 22px;width:22px;aspect-ratio:29/27;
@@ -265,7 +259,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .gallery-more-btn{display:block;margin:18px auto 0;width:100%;padding:12px 18px;min-height:44px;border-radius:5px;
     border:1px solid #EFEAEC;background:var(--paper);color:var(--ink-soft);font-size:.75rem;}
   .g-slide{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;}
-  .g-slide .ph{min-width:86%;aspect-ratio:4/5;border-radius:6px;overflow:hidden;scroll-snap-align:center;}
+  .g-slide .ph{position:relative;flex:0 0 86%;min-width:0;aspect-ratio:4/5;border-radius:6px;overflow:hidden;scroll-snap-align:center;}
+  .g-slide .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  .g-slide .gallery-full{opacity:0;transition:opacity .2s ease;}
+  .g-slide .is-ready .gallery-full{opacity:1;}
   .hidden{display:none !important;}
   .lightbox{
     position:fixed; inset:0; background:rgba(20,17,14,.92); z-index:200;
@@ -380,6 +377,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .acc-card{ background:var(--white); border-radius:5px; margin-bottom:12px; overflow:hidden; border:1px solid var(--paper-deep); }
   .acc-card-head{ width:100%; display:flex; justify-content:space-between; align-items:center; padding:12px 14px; font-size:0.78125rem; font-weight:400; color:var(--ink); background:var(--paper); }
   .acc-body{ background:#fff; }
+  #mapSection .acc-body{background:var(--paper);}
   .acc-rows{ padding:0 18px 6px; }
   .acc-row{ display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-top:1px solid var(--paper); }
   .acc-row .who{ font-size:0.75rem; color:var(--ink-soft); }
@@ -594,12 +592,12 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   <div class="intro-composition">
   <div class="intro-stack">
     <div class="paper-portrait">
-      <img class="portrait-photo portrait-groom" src="images/optimized/small/gallery26.webp" width="600" height="900" alt="" fetchpriority="high" decoding="async">
-      <img class="paper-frame" src="images/optimized/heart-paper-frame.webp" width="600" height="600" alt="" fetchpriority="high" decoding="async">
+      <img class="portrait-photo portrait-groom" src="images/intro/gallery16.webp" width="600" height="900" alt="" fetchpriority="high" decoding="async">
+      <img class="paper-frame" src="images/intro/heart-paper-frame.webp" width="600" height="600" alt="" fetchpriority="high" decoding="async">
     </div>
     <div class="paper-portrait">
-      <img class="portrait-photo portrait-bride" src="images/optimized/small/gallery4.webp" width="600" height="901" alt="" fetchpriority="high" decoding="async">
-      <img class="paper-frame" src="images/optimized/heart-paper-frame.webp" width="600" height="600" alt="" decoding="async">
+      <img class="portrait-photo portrait-bride" src="images/intro/gallery13.webp" width="600" height="901" alt="" fetchpriority="high" decoding="async">
+      <img class="paper-frame" src="images/intro/heart-paper-frame.webp" width="600" height="600" alt="" decoding="async">
     </div>
   </div>
   <div class="intro-copy">We are getting<br>Married!</div>
@@ -629,7 +627,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   <section class="hero" aria-label="최연준과 김유진의 결혼식">
     <div class="hero-photo">
       <div class="hero-content">
-        <div class="hero-quote" id="heroQuote"><span>Happy</span><span>Wedding</span><span>Day</span></div>
+        <div class="hero-quote" id="heroQuote" aria-label="Happy Wedding Day"><span aria-hidden="true"><span class="hero-title-word">Happy</span></span><span aria-hidden="true"><span class="hero-title-word">Wedding</span></span><span aria-hidden="true"><span class="hero-title-word">Day</span></span></div>
         <div class="hero-info">
           <div class="hero-names"><span>최연준</span><span class="hero-name-heart" aria-hidden="true"></span><span>김유진</span></div>
           <p class="hero-schedule"><time datetime="2027-03-13T12:00:00+09:00">2027.03.13 토요일</time><span>낮 12시</span></p>
@@ -655,7 +653,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       큰 힘이 되겠습니다.
     </p>
     <div class="greeting-signature">신랑 최연준 · 신부 김유진</div>
-    <img class="greeting-photo" data-src="images/optimized/body/gallery27.webp" width="1200" height="1800" data-srcset="images/optimized/small/gallery27.webp 600w, images/optimized/body/gallery27.webp 1200w, images/optimized/body2x/gallery27.webp 1440w" sizes="(max-width: 430px) calc(100vw - 64px), 366px" alt="함께한 연준과 유진" loading="lazy" decoding="async">
+    <img class="greeting-photo" data-src="images/content/greeting/1200/gallery08.webp" width="1200" height="1800" data-srcset="images/content/greeting/600/gallery08.webp 600w, images/content/greeting/1200/gallery08.webp 1200w, images/content/greeting/1440/gallery08.webp 1440w" sizes="(max-width: 430px) calc(100vw - 64px), 366px" alt="함께한 연준과 유진" loading="lazy" decoding="async">
     <div class="section-title">소중한 분들을 초대합니다.</div>
     <div class="names-row">
       <div>신랑측<br><b>최연준</b><br>최일림 · 고경애의 아들</div>
@@ -675,12 +673,12 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       <div class="story-line" aria-hidden="true"></div>
       <div class="story-progress-heart" id="storyProgressHeart" aria-hidden="true"><svg viewBox="0 0 32 29"><path d="M16 29S0 18.5 0 9.5C0 4.25 4.02 0 9 0c3.1 0 5.8 1.7 7 4.3C17.2 1.7 19.9 0 23 0c4.98 0 9 4.25 9 9.5S16 29 16 29Z"/></svg></div>
       <article class="story-moment">
-        <img class="story-photo" data-src="images/optimized/small/gallery12.webp" width="600" height="900" alt="함께 걸어가는 두 사람" loading="lazy" decoding="async">
+        <img class="story-photo" data-src="images/content/gallery04.webp" width="600" height="900" alt="함께 걸어가는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy"><div class="story-date">2023.07.07</div><div class="story-text">유나♡성준의 소개로 만남을 시작했어요</div></div>
       </article>
       <article class="story-moment family-moment" id="familyMoment">
-        <img class="story-photo" data-src="images/optimized/small/gallery15.webp" width="600" height="900" alt="함께 웃는 두 사람" loading="lazy" decoding="async">
+        <img class="story-photo" data-src="images/content/gallery09.webp" width="600" height="900" alt="함께 웃는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy">
           <svg class="family-circle" viewBox="0 0 170 90" preserveAspectRatio="none" aria-hidden="true"><path d="M157 36C150 13 117 5 77 8C37 10 9 21 8 44C7 69 39 82 84 81C128 80 158 67 161 45C163 35 156 20 139 14"/></svg>
@@ -688,7 +686,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
         </div>
       </article>
       <article class="story-moment">
-        <img class="story-photo" data-src="images/optimized/small/gallery20.webp" width="600" height="900" alt="새로운 시작을 함께하는 두 사람" loading="lazy" decoding="async">
+        <img class="story-photo" data-src="images/content/gallery13.webp" width="600" height="900" alt="새로운 시작을 함께하는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy"><div class="story-date">2027.03.13</div><div class="story-text">드디어 결혼해요!</div></div>
       </article>
@@ -768,7 +766,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
         네이버지도
       </a>
       <a href="tmap://search?name=서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
-        <img src="images/optimized/tmap-icon.webp" width="48" height="48" alt="티맵" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;">
+        <img src="images/common/tmap-icon.webp" width="48" height="48" alt="티맵" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;">
         티맵
       </a>
     </div>
@@ -901,7 +899,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   </section>
 
   <section class="ending-photo" aria-label="감사 인사">
-    <img data-src="images/optimized/body/gallery15.webp" width="1200" height="1800" data-srcset="images/optimized/small/gallery15.webp 600w, images/optimized/body/gallery15.webp 1200w, images/optimized/body2x/gallery15.webp 1440w" sizes="(max-width: 430px) 100vw, 430px" alt="미소 짓는 연준과 유진" loading="lazy" decoding="async">
+    <img data-src="images/content/ending/1200/gallery21.webp" width="1200" height="1800" data-srcset="images/content/ending/600/gallery21.webp 600w, images/content/ending/1200/gallery21.webp 1200w, images/content/ending/1440/gallery21.webp 1440w" sizes="(max-width: 430px) 100vw, 430px" alt="미소 짓는 연준과 유진" loading="lazy" decoding="async">
     <div class="ending-message">행복하게 잘 살겠습니다.</div>
     <div class="ending-names">최연준 · 김유진</div>
   </section>
@@ -950,10 +948,11 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     intro.hidden = true;
     intro.setAttribute('aria-hidden','true');
     if(app) app.inert = false;
+    document.dispatchEvent(new Event('paperintrocomplete'));
   }
   const images = Array.from(intro.querySelectorAll('img'));
-  const paper = new Image();paper.src = 'images/optimized/pink-paper.webp';images.push(paper);
-  const hero = new Image();hero.src = 'images/original/gallery8.jpg';images.push(hero);
+  const paper = new Image();paper.src = 'images/intro/pink-paper.webp';images.push(paper);
+  const hero = new Image();hero.src = 'images/hero/gallery01.jpg';images.push(hero);
   const ready = images.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
   if(document.fonts){
     ready.push(document.fonts.load('400 17px GowunBatang','We are getting Married! 연준 유진').catch(()=>[]));
@@ -966,12 +965,70 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       intro.classList.add('is-entering');
       const brideStyle = getComputedStyle(intro.querySelector('.paper-portrait:nth-child(2)'));
       const brideFinishedAt = (parseFloat(brideStyle.animationDelay) + parseFloat(brideStyle.animationDuration)) * 1000;
-      setTimeout(()=>intro.classList.add('is-leaving'),brideFinishedAt + 500);
-      setTimeout(finish,brideFinishedAt + 1000);
+      setTimeout(()=>{
+        intro.addEventListener('transitionend',event=>{
+          if(event.target===intro && event.propertyName==='opacity') finish();
+        });
+        intro.classList.add('is-leaving');
+        // Fallback if the browser does not emit transitionend.
+        setTimeout(finish,600);
+      },brideFinishedAt + 500);
     });
   });
   // Broken image decoding must never leave the invitation locked.
   setTimeout(finish,20000);
+  window.addEventListener('pagehide',finish,{once:true});
+})();
+
+/* 히어로 제목: 인트로 종료 후 글자당 75ms, 단어 사이 180ms. 방문당 한 번 재생.
+   전체 글자의 배치를 유지하고 표시 영역만 넓혀 폰트와 줄 중앙이 움직이지 않음. */
+(function typeHeroTitle(){
+  const root=document.documentElement;
+  const quote=document.getElementById('heroQuote');
+  if(!quote || !root.classList.contains('hero-title-typing')) return;
+  const words=Array.from(quote.querySelectorAll('.hero-title-word'));
+  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  let started=false, timer;
+  function finish(){
+    clearTimeout(timer);
+    root.classList.remove('hero-title-typing');
+    words.forEach(word=>word.style.removeProperty('clip-path'));
+  }
+  function start(){
+    if(started) return;
+    started=true;
+    if(reducedMotion.matches){finish();return;}
+    let wordIndex=0, character=0;
+    function reveal(){
+      const word=words[wordIndex];
+      const text=word.firstChild;
+      character++;
+      if(character>=text.length){
+        word.style.clipPath='none';
+        wordIndex++;character=0;
+        if(wordIndex===words.length){finish();return;}
+        timer=setTimeout(reveal,255);
+      }else{
+        const range=document.createRange();
+        range.setStart(text,0);range.setEnd(text,character);
+        // Measure before the parent's rotation, retaining Caveat's original shaping.
+        const fullRange=document.createRange();fullRange.selectNodeContents(word);
+        const previousTransform=quote.style.transform;
+        quote.style.transform='none';
+        const progress=range.getBoundingClientRect().width/fullRange.getBoundingClientRect().width;
+        quote.style.transform=previousTransform;
+        word.style.clipPath=`inset(-50% ${Math.max(0,100-progress*100)}% -50% -20px)`;
+        timer=setTimeout(reveal,75);
+      }
+    }
+    // Start after the hidden intro has been painted out of the viewport.
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(root.classList.contains('hero-title-typing')) timer=setTimeout(reveal,75);
+    }));
+  }
+  document.addEventListener('paperintrocomplete',start,{once:true});
+  if(!root.classList.contains('intro-active')) start();
+  reducedMotion.addEventListener('change',event=>{if(event.matches) finish();});
   window.addEventListener('pagehide',finish,{once:true});
 })();
 
@@ -1240,22 +1297,25 @@ setInterval(updateWeddingCaption,60000);
 })();
 
 /* ---------------- 갤러리 ---------------- */
-const galleryPhotos = Array.from({ length: 19 }, (_, i) => `gallery${i + 29}.jpg`);
+const galleryPhotos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map(number => `gallery${String(number).padStart(2,'0')}.jpg`);
+// Keep stored likes/comments associated with the same photos after file renaming.
+const galleryStorageKeys = ["gallery8.jpg", "gallery29.jpg", "gallery30.jpg", "gallery48.jpg", "gallery31.jpg", "gallery34.jpg", "gallery35.jpg", "gallery49.jpg", "gallery50.jpg", "gallery36.jpg", "gallery37.jpg", "gallery38.jpg", "gallery51.jpg", "gallery39.jpg", "gallery40.jpg", "gallery52.jpg", "gallery41.jpg", "gallery42.jpg", "gallery43.jpg", "gallery44.jpg", "gallery45.jpg", "gallery46.jpg", "gallery47.jpg"];
+function galleryStorageKey(index){ return galleryStorageKeys[index]; }
 let galleryVisibleCount = 0;
 let galleryMainLayout = null;
 let galleryExtraLayout = null;
 function photoSrc(filename, size = 'web'){
-  const folder = size === 'web' ? 'body' : size;
-  return `images/optimized/${folder}/${filename.replace(/\.jpg$/,'.webp')}`;
+  const folders = { web:'view/1200', thumbs:'thumbs', small:'view/600', medium:'view/900', body:'view/1200', body2x:'view/1440', large:'large' };
+  return `images/gallery/${folders[size]}/${filename.replace(/\.jpg$/,'.webp')}`;
 }
 function photoWidth(filename, requested){
   const number = Number(filename.match(/gallery(\d+)/)[1]);
-  const originalWidth = number <= 8 ? (number === 5 ? 1065 : 1066) : 4672;
+  const originalWidth = number === 1 ? 1066 : 4672;
   return Math.min(requested, originalWidth);
 }
 function photoSrcset(filename){
   const seen = new Set();
-  return [['small',600],['body',1200],['body2x',1440]].flatMap(([folder,requested])=>{
+  return [['small',600],['medium',900],['body',1200],['body2x',1440]].flatMap(([folder,requested])=>{
     const width = photoWidth(filename,requested);
     if(seen.has(width)) return [];
     seen.add(width);
@@ -1347,17 +1407,58 @@ function buildGallerySlides(){
     const s = document.createElement('div');
     s.className='ph';
     s.onclick = ()=> openLightbox(i);
+    const preview = document.createElement('img');
+    preview.className='gallery-preview';
+    preview.alt=''; preview.setAttribute('aria-hidden','true'); preview.decoding='async';
+    preview.width=400; preview.height=600;
     const sImg = document.createElement('img');
-    sImg.loading = 'lazy'; sImg.decoding = 'async';
+    sImg.className='gallery-full';
+    sImg.decoding = 'async';
     sImg.alt = '갤러리 사진 ' + (i+1);
     sImg.width = photoWidth(src,1200); sImg.height = 1800;
-    sImg.sizes = '(max-width: 430px) 86vw, 370px';
-    sImg.dataset.src = photoSrc(src, 'web');
-    sImg.dataset.srcset = photoSrcset(src);
-    sImg.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit;';
+    sImg.onload = ()=>{
+      const source=sImg.currentSrc;
+      const decoded=sImg.decode ? sImg.decode() : Promise.resolve();
+      decoded.catch(()=>{}).then(()=>{
+        if(sImg.isConnected && sImg.currentSrc===source) s.classList.add('is-ready');
+      });
+    };
+    s.appendChild(preview);
     s.appendChild(sImg);
     slide.appendChild(s);
-    observeDeferredPhoto(sImg);
+  });
+  slide.addEventListener('scroll',scheduleGallerySlideWarmup,{passive:true});
+}
+function loadGallerySlide(index, active){
+  const slide=document.getElementById('gallerySlide');
+  const tile=slide.children[index];
+  if(!tile) return;
+  const filename=galleryPhotos[index];
+  const preview=tile.querySelector('.gallery-preview');
+  const img=tile.querySelector('.gallery-full');
+  if(!preview.getAttribute('src')) preview.src=photoSrc(filename,'thumbs');
+  // Tell the browser the actual card width rather than the whole viewport width.
+  img.sizes=Math.ceil(tile.getBoundingClientRect().width)+'px';
+  img.fetchPriority=index===active ? 'high' : 'low';
+  if(!img.getAttribute('src')){
+    img.srcset=photoSrcset(filename);
+    img.src=photoSrc(filename,'web');
+  }
+}
+function warmGallerySlides(){
+  const slide=document.getElementById('gallerySlide');
+  if(slide.classList.contains('hidden') || !slide.firstElementChild) return;
+  const step=slide.firstElementChild.getBoundingClientRect().width+10;
+  const active=Math.max(0,Math.min(galleryPhotos.length-1,Math.round(slide.scrollLeft/step)));
+  // Only the current photo, previous photo and next two photos get display-size requests.
+  [active,active+1,active+2,active-1].forEach(index=>loadGallerySlide(index,active));
+}
+let gallerySlideWarmupFrame=0;
+function scheduleGallerySlideWarmup(){
+  if(gallerySlideWarmupFrame) return;
+  gallerySlideWarmupFrame=requestAnimationFrame(()=>{
+    gallerySlideWarmupFrame=0;
+    warmGallerySlides();
   });
 }
 buildGallery();
@@ -1367,7 +1468,9 @@ window.addEventListener('resize', ()=>{
   if(!grid || !extra) return;
   if(galleryMainLayout) renderGalleryLayout(grid, galleryMainLayout, galleryMainLayout.tiles);
   if(galleryExtraLayout && extra.classList.contains('expanded')) renderGalleryLayout(extra, galleryExtraLayout, galleryExtraLayout.tiles);
+  scheduleGallerySlideWarmup();
 });
+document.addEventListener('invitationlayoutchange',scheduleGallerySlideWarmup);
 
 function toggleGalleryMore(){
   const extra = document.getElementById('galleryExtra');
@@ -1385,13 +1488,51 @@ function setGalleryView(view){
   document.getElementById('galleryGrid').classList.toggle('hidden', view!=='grid');
   document.getElementById('galleryExtra').classList.toggle('hidden', view!=='grid');
   document.getElementById('gallerySlide').classList.toggle('hidden', view!=='slide');
-  if(view==='slide') buildGallerySlides();
+  if(view==='slide'){
+    buildGallerySlides();
+    warmGallerySlides();
+  }
   const moreBtn = document.getElementById('galleryMoreBtn');
   moreBtn.style.display = (view==='grid' && galleryPhotos.length > galleryVisibleCount) ? '' : 'none';
   document.querySelector('.gallery-bleed').classList.toggle('is-sliding',view==='slide');
 
 }
 let lbIndex = 0;
+let lightboxImageVersion=0;
+const galleryLargeRequests=new Map();
+function prepareGalleryLarge(index, priority='low'){
+  const filename=galleryPhotos[index];
+  if(!filename) return null;
+  let entry=galleryLargeRequests.get(filename);
+  if(entry){
+    if(priority==='high' && entry.image) entry.image.fetchPriority='high';
+    galleryLargeRequests.delete(filename);
+    galleryLargeRequests.set(filename,entry);
+    return entry;
+  }
+  const image=new Image();
+  entry={ready:false,image,src:photoSrc(filename,'large'),promise:null};
+  entry.promise=new Promise(resolve=>{
+    image.onload=()=>{
+      const decoded=image.decode ? image.decode() : Promise.resolve();
+      decoded.catch(()=>{}).then(()=>{
+        entry.ready=true;entry.image=null;resolve(entry.src);
+      });
+    };
+    image.onerror=()=>{
+      galleryLargeRequests.delete(filename);entry.image=null;resolve(null);
+    };
+  });
+  galleryLargeRequests.set(filename,entry);
+  image.decoding='async';image.fetchPriority=priority;image.src=entry.src;
+  // Keep bookkeeping bounded; decoded Image objects are released after each load.
+  while(galleryLargeRequests.size>6) galleryLargeRequests.delete(galleryLargeRequests.keys().next().value);
+  return entry;
+}
+function warmGalleryLargeNeighbors(index){
+  const count=galleryPhotos.length;
+  [index+1,index+2,index-1].forEach(i=>prepareGalleryLarge((i+count)%count));
+}
 function openLightbox(i){
   lbIndex = i;
   const root = document.getElementById('lightboxRoot');
@@ -1445,9 +1586,17 @@ function updateLightboxView(){
   const root = document.getElementById('lightboxRoot');
   const mainImg = document.getElementById('lightboxMainImg');
   if(mainImg){
+    const version=++lightboxImageVersion;
+    const index=lbIndex;
+    const prepared=prepareGalleryLarge(index,'high');
     mainImg.fetchPriority = 'high';
-    mainImg.src = photoSrc(galleryPhotos[lbIndex], 'large');
+    mainImg.src = prepared.ready ? prepared.src : photoSrc(galleryPhotos[index],'thumbs');
     mainImg.alt = '갤러리 사진 ' + (lbIndex+1);
+    prepared.promise.then(source=>{
+      if(version!==lightboxImageVersion || mainImg!==document.getElementById('lightboxMainImg')) return;
+      if(source) mainImg.src=source;
+      warmGalleryLargeNeighbors(index);
+    });
   }
   const thumbEls = root.querySelectorAll('.lightbox-thumbs .thumb');
   thumbEls.forEach((el, i)=> el.classList.toggle('active', i === lbIndex));
@@ -1462,6 +1611,7 @@ function navLightbox(dir){
   updateLightboxView();
 }
 function closeLightbox(){
+  lightboxImageVersion++;
   document.getElementById('lightboxRoot').innerHTML='';
   document.body.style.overflow = ''; // 본문 스크롤 잠금 해제
 }
@@ -1802,7 +1952,7 @@ async function loadGalleryLikes(){
 function updateGalleryLikeView(){
   const btn = document.getElementById('lbLikeBtn');
   if(!btn) return;
-  const photo = galleryPhotos[lbIndex];
+  const photo = galleryStorageKey(lbIndex);
   const liked = galleryLikedByMe.has(photo);
   btn.classList.toggle('liked', liked);
   btn.querySelector('.ic').textContent = liked ? '♥' : '♡';
@@ -1810,7 +1960,7 @@ function updateGalleryLikeView(){
 }
 async function toggleGalleryLike(){
   if(!sb){ showToast('저장소가 연결되지 않았어요 (관리자 설정 필요)'); return; }
-  const photo = galleryPhotos[lbIndex];
+  const photo = galleryStorageKey(lbIndex);
   const liked = galleryLikedByMe.has(photo);
   if(liked){
     const { error } = await sb.from('gallery_likes').delete().eq('photo', photo).eq('device_id', myDeviceId);
@@ -1841,7 +1991,7 @@ async function loadGalleryCommentCounts(){
 function updateGalleryCommentCountView(){
   const el = document.getElementById('lbCommentCount');
   if(!el) return;
-  el.textContent = galleryCommentCounts[galleryPhotos[lbIndex]] || 0;
+  el.textContent = galleryCommentCounts[galleryStorageKey(lbIndex)] || 0;
 }
 loadGalleryCommentCounts();
 
@@ -1876,7 +2026,7 @@ async function loadGalleryComments(photo){
 }
 function openGalleryComments(){
   document.getElementById('lbCommentPanel').classList.add('open');
-  loadGalleryComments(galleryPhotos[lbIndex]);
+  loadGalleryComments(galleryStorageKey(lbIndex));
 }
 function closeGalleryComments(){
   document.getElementById('lbCommentPanel').classList.remove('open');
@@ -1887,7 +2037,7 @@ async function submitGalleryComment(){
   const priv = document.getElementById('lbcPrivate').checked;
   if(!name || !msg){ showToast('이름과 댓글을 모두 입력해 주세요'); return; }
   if(!sb){ showToast('저장소가 연결되지 않았어요 (관리자 설정 필요)'); return; }
-  const photo = galleryPhotos[lbIndex];
+  const photo = galleryStorageKey(lbIndex);
   const { error } = await sb.from('gallery_comments').insert({ photo, name, message: msg, is_private: priv });
   if(error){ showToast('등록에 실패했어요. 다시 시도해 주세요'); return; }
   document.getElementById('lbcName').value = '';
@@ -1944,7 +2094,7 @@ function shareKakao(){
     content: {
       title: '최연준 ♥ 김유진 결혼합니다',
       description: '2027년 03월 13일 토요일 낮 12시 · L65호텔 웨딩컨벤션 가든홀',
-      imageUrl: SHARE_URL + 'images/web/thumb.jpg',
+      imageUrl: SHARE_URL + 'images/common/share.jpg',
       link: { mobileWebUrl: SHARE_URL, webUrl: SHARE_URL }
     },
     buttons: [{
