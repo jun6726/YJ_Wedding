@@ -378,7 +378,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   }
   .acc-head .arrow{ transition: transform .25s ease; font-size:.75rem; color:var(--ink-soft); }
   .acc-head.open .arrow{ transform: rotate(180deg); }
-  .acc-body{ max-height:0; overflow:hidden; transition: max-height .3s ease; font-size:.9375rem; color:var(--ink-soft); line-height:1.8; }
+  .acc-body{ max-height:0; overflow:hidden; transition: max-height .3s ease; font-size:.75rem; color:var(--ink-soft); line-height:1.8; }
   .acc-body .inner{ padding:12px 2px 16px; }
 
   /* ---------- ACCOUNTS ---------- */
@@ -388,8 +388,8 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   #mapSection .acc-body{background:var(--paper);}
   .acc-rows{ padding:0 18px 6px; }
   .acc-row{ display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-top:1px solid var(--paper); }
-  .acc-row .who{ font-size:.875rem; color:var(--ink-soft); }
-  .acc-row .num{ font-size:.875rem; font-weight:400; color:var(--ink-soft); }
+  .acc-row .who{ font-size:.75rem; color:var(--ink-soft); }
+  .acc-row .num{ font-size:.75rem; font-weight:400; color:var(--ink-soft); }
   .copy-btn{ font-size:.75rem; color:var(--ink); border:1px solid var(--paper-deep); padding:5px 10px; border-radius:8px; background:var(--paper); }
   .acc-btns{ display:flex; gap:6px; flex-shrink:0; }
   .toss-btn{
@@ -585,7 +585,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   .accordion .acc-head{font-size:.9375rem;padding:18px 0;}
   .accordion .acc-head .transport-label{display:flex;align-items:center;gap:9px;}
   .accordion .acc-head .transport-label svg{width:15px;height:15px;fill:none;stroke:#93A0AC;stroke-width:1.5;}
-  .accordion .acc-body{font-size:.9375rem;line-height:1.95;}
+  .accordion .acc-body{font-size:.75rem;line-height:1.95;}
   .acc-card .acc-body{text-align:left;}
   #accountsSection .section-copy{margin-top:-12px;}
   @media(max-width:360px){section{padding-left:24px;padding-right:24px;}.our-story{padding-left:24px;padding-right:24px;}
@@ -776,7 +776,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
       <button class="acc-head content-ink" onclick="toggleAcc(this)"><span class="transport-label"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="15" rx="3"/><path d="M4 11h16M8 4v7m8-7v7M7 19v2m10-2v2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></svg>버스로 오시는 길</span> <span class="arrow content-ink">▾</span></button>
       <div class="acc-body content-ink"><div class="inner">청량리역환승센터 하차. 간선버스 105, 120, 121, 147, 202, 241, 260, 261, 270, 271, 272, 420, 720 · 지선버스 1213, 1222, 1224, 1227, 2115, 2230, 3216, 3220 · 공항버스 6002 등.</div></div>
       <button class="acc-head content-ink" onclick="toggleAcc(this)"><span class="transport-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l3-6h10l3 6v7H4ZM4 11h16M7 18v3m10-3v3"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>자가용 · 주차 안내</span> <span class="arrow content-ink">▾</span></button>
-      <div class="acc-body content-ink"><div class="inner">네비게이션 "L65호텔웨딩컨벤션" 또는 "청량리L65" 검색. 주차는 지하 3층·4층만 가능합니다(지하 2층 주차 불가). 하객분들은 1시간 30분 무료 주차가 제공되며, 주차장이 혼잡할 수 있어 대중교통 이용을 권장드립니다.</div></div>
+      <div class="acc-body content-ink"><div class="inner">네비게이션 <b>"L65호텔웨딩컨벤션"</b> 또는 <b>"청량리L65"</b> 검색. 주차는 지하 3층·4층만 가능합니다(<b>지하 2층 주차 불가</b>). 하객분들은 <b>1시간 30분 무료</b> 주차가 제공되며, 주차장이 혼잡할 수 있어 대중교통 이용을 권장드립니다.</div></div>
     </div>
   </section>
 
@@ -1139,19 +1139,24 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
 
 /* ---------------- 혼주용/지인용 모드 구분 ----------------
    우선순위: URL 쿼리(?for=parent, 테스트용) > 기기별 수동 토글 저장값 > 날짜 범위 기본값
-   날짜 범위: 2026-10-01 ~ 2026-10-07 은 기본 혼주용, 그 외 기간은 기본 일반(guest) */
+   날짜 범위: 2026-10-01 ~ 2026-10-05 은 기본 혼주용, 그 외 기간은 기본 일반(guest)
+   2026-10-06 00:00(서울)부터는 쿼리·저장값과 무관하게 일반모드로만 열고 모드 버튼도 숨김. */
 const urlParams = new URLSearchParams(window.location.search);
 const PARENT_DEFAULT_START = new Date('2026-10-01T00:00:00+09:00');
-const PARENT_DEFAULT_END = new Date('2026-10-07T23:59:59+09:00');
+const PARENT_MODE_END = new Date('2026-10-06T00:00:00+09:00');
+const parentModeAvailable = Date.now() < PARENT_MODE_END.getTime();
 function getDefaultAudienceMode(){
   const now = new Date();
-  return (now >= PARENT_DEFAULT_START && now <= PARENT_DEFAULT_END) ? 'parent' : 'guest';
+  return (now >= PARENT_DEFAULT_START && now < PARENT_MODE_END) ? 'parent' : 'guest';
 }
 let audienceMode;
-if(urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents'){
+if(!parentModeAvailable){
+  audienceMode = 'guest';
+} else if(urlParams.get('for') === 'parent' || urlParams.get('view') === 'parents'){
   audienceMode = 'parent';
 } else {
-  const audienceOverride = localStorage.getItem('wedding_audience_override');
+  let audienceOverride = null;
+  try{ audienceOverride = localStorage.getItem('wedding_audience_override'); }catch(e){}
   audienceMode = (audienceOverride === '1') ? 'parent' : (audienceOverride === '0') ? 'guest' : getDefaultAudienceMode();
 }
 
@@ -1191,12 +1196,17 @@ function setAudienceMode(isParent){
 }
 
 function toggleAudienceMode(){
+  if(!parentModeAvailable) return;
   const willBeParent = audienceMode !== 'parent';
   try{ localStorage.setItem('wedding_audience_override', willBeParent ? '1' : '0'); }catch(e){}
   setAudienceMode(willBeParent);
 }
 
 setAudienceMode(audienceMode === 'parent');
+if(!parentModeAvailable){
+  const controlsLeft = document.querySelector('.float-controls-left');
+  if(controlsLeft) controlsLeft.hidden = true;
+}
 
 /* ---------------- 공통 유틸 ---------------- */
 /* ---------------- 폰트 배율 조정 ---------------- */
@@ -1765,18 +1775,28 @@ function attachLightboxSwipe(){
 
 
 /* ---------------- 아코디언 ---------------- */
+/* 펼친 뒤에는 높이 제한을 풀어 폰트 크기 변경 시 내용이 잘리지 않게 함. */
 function toggleAcc(btn){
   const body = btn.nextElementSibling;
-  const isOpen = btn.classList.contains('open');
-  btn.classList.toggle('open', !isOpen);
-  body.style.maxHeight = isOpen ? '0px' : body.scrollHeight + 'px';
+  const willOpen = !btn.classList.contains('open');
+  btn.classList.toggle('open', willOpen);
+  body.style.maxHeight = body.scrollHeight + 'px';
+  if(willOpen){
+    const release = event => {
+      if(event && event.propertyName !== 'max-height') return;
+      body.removeEventListener('transitionend', release);
+      clearTimeout(timer);
+      if(btn.classList.contains('open')) body.style.maxHeight = 'none';
+    };
+    // Fallback when the transition is skipped and transitionend never fires.
+    const timer = setTimeout(release, 400);
+    body.addEventListener('transitionend', release);
+  } else {
+    body.offsetHeight; // Start the closing transition from the current height.
+    body.style.maxHeight = '0px';
+  }
 }
-function toggleAccCard(btn){
-  const body = btn.nextElementSibling;
-  const isOpen = btn.classList.contains('open');
-  btn.classList.toggle('open', !isOpen);
-  body.style.maxHeight = isOpen ? '0px' : body.scrollHeight + 'px';
-}
+const toggleAccCard = toggleAcc;
 
 /* ---------------- Supabase 연결 ---------------- */
 /* TODO: 아래 두 값을 본인 Supabase 프로젝트 값으로 바꿔주세요 (Project Settings > API) */
