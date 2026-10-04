@@ -592,6 +592,10 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
     .story-moment{grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);}.story-text{font-size:.875rem;}
     .names-row{gap:18px;}.map-box{margin-left:-24px;margin-right:-24px;}}
 
+  /* 마음 전하실 곳·참석 의사 전달·공유하기는 연속된 짧은 안내라 간격을 좁힘. */
+  #accountsSection,#rsvpRequestSection,#shareSection{padding-top:36px;padding-bottom:36px;}
+  #accountsSection .acc-card:last-of-type{margin-bottom:0;}
+
   /* 지정한 본문 문구는 공통 선택자로 색상을 관리. */
   .invitation-page .content-ink{color:#554B4F;}
 
@@ -753,15 +757,15 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
       <div class="map-facade" id="mapFacade"><span class="icon">📍</span>지도 불러오는 중...</div>
     </div>
     <div class="map-links">
-      <a class="content-ink" href="https://map.kakao.com/?q=서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
+      <a class="content-ink" data-map-provider="kakao" href="https://map.kakao.com/?q=서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><rect width="24" height="24" rx="7" fill="#FEE500"/><path d="M12 6.2c-3.6 0-6.5 2.3-6.5 5.1 0 1.8 1.2 3.4 3 4.3-.13.5-.5 1.8-.57 2.1-.1.35.13.35.27.25.1-.07 1.7-1.15 2.4-1.62.45.07.92.1 1.4.1 3.6 0 6.5-2.3 6.5-5.1s-2.9-5.13-6.5-5.13z" fill="#3C1E1E"/></svg>
         카카오맵
       </a>
-      <a class="content-ink" href="https://map.naver.com/v5/search/서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
+      <a class="content-ink" data-map-provider="naver" href="https://map.naver.com/v5/search/서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24"><rect width="24" height="24" rx="7" fill="#03C75A"/><path d="M14 6.5v6.1L9.6 6.5H6.5v11h3.1V11.4l4.4 6.1H17v-11h-3z" fill="#fff"/></svg>
         네이버지도
       </a>
-      <a class="content-ink" href="tmap://search?name=서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
+      <a class="content-ink" data-map-provider="tmap" href="https://map.naver.com/v5/search/서울%20동대문구%20왕산로%20200%20SKY-L65" target="_blank" rel="noopener">
         <img src="images/common/tmap-icon.webp" width="48" height="48" alt="티맵" style="width:16px;height:16px;border-radius:4px;flex-shrink:0;">
         티맵
       </a>
@@ -773,24 +777,6 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
       <div class="acc-body content-ink"><div class="inner">청량리역환승센터 하차. 간선버스 105, 120, 121, 147, 202, 241, 260, 261, 270, 271, 272, 420, 720 · 지선버스 1213, 1222, 1224, 1227, 2115, 2230, 3216, 3220 · 공항버스 6002 등.</div></div>
       <button class="acc-head content-ink" onclick="toggleAcc(this)"><span class="transport-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l3-6h10l3 6v7H4ZM4 11h16M7 18v3m10-3v3"/><circle cx="8" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>자가용 · 주차 안내</span> <span class="arrow content-ink">▾</span></button>
       <div class="acc-body content-ink"><div class="inner">네비게이션 "L65호텔웨딩컨벤션" 또는 "청량리L65" 검색. 주차는 지하 3층·4층만 가능합니다(지하 2층 주차 불가). 하객분들은 1시간 30분 무료 주차가 제공되며, 주차장이 혼잡할 수 있어 대중교통 이용을 권장드립니다.</div></div>
-    </div>
-  </section>
-
-  <div class="divider" id="shareDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
-
-  <!-- SHARE -->
-  <section>
-    <div class="section-title">공유하기</div>
-    <div class="section-sub">SHARE</div>
-    <div class="share-row">
-      <button class="share-btn kakao content-ink" onclick="shareKakao()">
-        <svg viewBox="0 0 24 24"><path d="M12 6.2c-3.6 0-6.5 2.3-6.5 5.1 0 1.8 1.2 3.4 3 4.3-.13.5-.5 1.8-.57 2.1-.1.35.13.35.27.25.1-.07 1.7-1.15 2.4-1.62.45.07.92.1 1.4.1 3.6 0 6.5-2.3 6.5-5.1s-2.9-5.13-6.5-5.13z" fill="#3C1E1E"/></svg>
-        카카오톡 공유
-      </button>
-      <button class="share-btn link content-ink" onclick="copyText(window.location.href,'링크가 복사되었습니다')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.17 1.17"/><path d="M14 11a5 5 0 0 0-7.07 0l-2.83 2.83a5 5 0 0 0 7.07 7.07l1.17-1.17"/></svg>
-        링크 복사
-      </button>
     </div>
   </section>
 
@@ -844,6 +830,24 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
       <input type="file" id="snapInput" accept="image/*" multiple style="display:none;">
     </label>
     <div id="snapStatus" style="text-align:center; font-size:.875rem; font-weight:600; color:var(--celadon-deep); margin-top:10px; min-height:16px;"></div>
+  </section>
+
+  <div class="divider" id="shareDivider"><svg viewBox="0 0 120 14"><path d="M0 7 Q30 0 60 7 T120 7" stroke="#B68A4E" stroke-width="1" fill="none"/></svg></div>
+
+  <!-- SHARE -->
+  <section id="shareSection">
+    <div class="section-title">공유하기</div>
+    <div class="section-sub">SHARE</div>
+    <div class="share-row">
+      <button class="share-btn kakao content-ink" onclick="shareKakao()">
+        <svg viewBox="0 0 24 24"><path d="M12 6.2c-3.6 0-6.5 2.3-6.5 5.1 0 1.8 1.2 3.4 3 4.3-.13.5-.5 1.8-.57 2.1-.1.35.13.35.27.25.1-.07 1.7-1.15 2.4-1.62.45.07.92.1 1.4.1 3.6 0 6.5-2.3 6.5-5.1s-2.9-5.13-6.5-5.13z" fill="#3C1E1E"/></svg>
+        카카오톡 공유
+      </button>
+      <button class="share-btn link content-ink" onclick="copyText(window.location.href,'링크가 복사되었습니다')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.17 1.17"/><path d="M14 11a5 5 0 0 0-7.07 0l-2.83 2.83a5 5 0 0 0 7.07 7.07l1.17-1.17"/></svg>
+        링크 복사
+      </button>
+    </div>
   </section>
 
   <div class="rsvp-sheet-backdrop" id="rsvpSheetBackdrop" onclick="closeRsvpSheet()"></div>
@@ -1196,7 +1200,7 @@ setAudienceMode(audienceMode === 'parent');
 
 /* ---------------- 공통 유틸 ---------------- */
 /* ---------------- 폰트 배율 조정 ---------------- */
-const FONT_SCALES = [1, 1.5];
+const FONT_SCALES = [1, 1.25];
 let fontScaleIdx = 0;
 function cycleFontScale(){
   fontScaleIdx = (fontScaleIdx + 1) % FONT_SCALES.length;
@@ -2197,6 +2201,57 @@ async function submitGalleryComment(){
   } else {
     loadMap();
   }
+})();
+
+/* ---------------- 지도 앱 우선 연결 ----------------
+   Android: Intent의 웹 fallback. iOS: 앱 전환 감지 시 fallback 취소.
+   앱 설치 여부는 웹에서 직접 확인할 수 없으므로 iOS는 최선의 추정 방식. */
+(function configureMapLinks(){
+  const query=encodeURIComponent('서울 동대문구 왕산로 200 SKY-L65');
+  const appname=encodeURIComponent('https://jun6726.github.io/YJ_Wedding/');
+  const providers={
+    kakao:{scheme:`kakaomap://search?q=${query}`,package:'net.daum.android.map'},
+    naver:{scheme:`nmap://search?query=${query}&appname=${appname}`,package:'com.nhn.android.nmap'},
+    tmap:{scheme:`tmap://search?name=${query}`,package:'com.skt.tmap.ku'}
+  };
+  const android=/Android/i.test(navigator.userAgent);
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  let cancelPending=()=>{};
+  function openWeb(url){
+    // Request a new tab when permitted; a blocked popup falls back to normal Back navigation.
+    const tab=window.open('','_blank');
+    if(tab){tab.opener=null;tab.location.replace(url);}
+    else window.location.assign(url);
+  }
+  document.querySelectorAll('[data-map-provider]').forEach(link=>{
+    link.addEventListener('click',event=>{
+      if(event.button!==0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      if(!android && !ios) return; // Desktop keeps the ordinary web link.
+      event.preventDefault();cancelPending();
+      const provider=providers[link.dataset.mapProvider],web=link.href;
+      if(android){
+        const [scheme,path]=provider.scheme.split('://');
+        window.location.assign(`intent://${path}#Intent;scheme=${scheme};package=${provider.package};S.browser_fallback_url=${encodeURIComponent(web)};end`);
+        return;
+      }
+      let timer,active=true;
+      function cancel(){
+        active=false;clearTimeout(timer);
+        document.removeEventListener('visibilitychange',onVisibility);
+        window.removeEventListener('pagehide',cancel);
+      }
+      function onVisibility(){if(document.hidden) cancel();}
+      cancelPending=cancel;
+      document.addEventListener('visibilitychange',onVisibility);
+      window.addEventListener('pagehide',cancel,{once:true});
+      timer=setTimeout(()=>{
+        if(!active || document.hidden) return;
+        cancel();openWeb(web);
+      },2500);
+      // Keep the invitation document; do not create a web-map tab before opening the app.
+      try{window.location.assign(provider.scheme);}catch(error){cancel();openWeb(web);}
+    });
+  });
 })();
 
 /* ---------------- 공유 ---------------- */
