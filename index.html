@@ -19,7 +19,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   try{
     var link = document.createElement('link');
     link.rel = 'preload'; link.as = 'image';
-    link.href = 'images/hero/gallery01.jpg';
+    link.href = 'images/hero/gallery12.webp';
     link.setAttribute('fetchpriority', 'high');
     document.head.appendChild(link);
   }catch(e){}
@@ -125,7 +125,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .paper-portrait:nth-child(2){--offset-x:15%;--turn:-9deg;--settle:-3deg;margin-top:-20%;z-index:2;}
   .paper-portrait .portrait-photo{position:absolute;left:8%;top:12%;width:84%;height:80%;object-fit:cover;}
   .paper-portrait .portrait-groom{object-position:50% 0%;}
-  .paper-portrait .portrait-bride{object-position:50% 45%;}
+  /* 사진 위치를 유지하면서 종이 프레임의 오른쪽 끝(96.3%) 밖으로 나온 부분만 자름. */
+  .paper-portrait .portrait-bride{left:14%;object-position:50% 40%;clip-path:inset(0 2.1% 0 0);}
   .paper-portrait .paper-frame{position:relative;width:100%;height:100%;display:block;clip-path:inset(3.7%);}
   .intro-copy{text-align:center;opacity:0;
     font-size:1.0625rem;font-weight:400;line-height:1.35;color:#554B4F;}
@@ -159,10 +160,16 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   }
   @media(prefers-reduced-motion:reduce){.paper-intro{display:none !important;}.intro-active{overflow:auto;}}
 
+  /* 중앙 청첩장에만 표시하는 터치 비간섭 벚꽃 레이어. */
+  .sakura-layer{position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(100%,430px);
+    height:100vh;height:100dvh;z-index:40;pointer-events:none;opacity:0;transition:opacity .8s ease;}
+  .sakura-layer.is-running{opacity:1;}
+  @media(prefers-reduced-motion:reduce){.sakura-layer{display:none !important;}}
+
   /* 히어로 영문 제목은 이전 Caveat 폰트로 표시. */
   .hero{padding:0;text-align:center;}
   .hero-photo{width:100%;height:100vh;height:100svh;min-height:max(540px,36rem);position:relative;overflow:hidden;
-    background:#EAE5E4 url('images/hero/gallery01.jpg') center 40%/cover no-repeat;}
+    background:#EAE5E4 url('images/hero/gallery12.webp') center 40%/cover no-repeat;}
   .hero-photo::after{content:'';position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(28,23,26,.13),transparent 18%,transparent 48%,rgba(28,23,26,.18)72%,rgba(28,23,26,.7));}
   .hero-content{position:absolute;z-index:1;left:24px;right:24px;top:48%;bottom:calc(36px + env(safe-area-inset-bottom));
@@ -261,6 +268,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .g-slide{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity;}
   .g-slide .ph{position:relative;flex:0 0 86%;min-width:0;aspect-ratio:4/5;border-radius:6px;overflow:hidden;scroll-snap-align:center;}
   .g-slide .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+  /* 첫 사진 미리보기: 얼굴과 뒤로 든 꽃다발이 함께 보이도록 위쪽을 기준으로 자름. */
+  .g-grid > .ph:first-child img,.g-slide > .ph:first-child img{object-position:50% 0%;}
   .g-slide .gallery-full{opacity:0;transition:opacity .2s ease;}
   .g-slide .is-ready .gallery-full{opacity:1;}
   .hidden{display:none !important;}
@@ -592,11 +601,11 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   <div class="intro-composition">
   <div class="intro-stack">
     <div class="paper-portrait">
-      <img class="portrait-photo portrait-groom" src="images/intro/gallery16.webp" width="600" height="900" alt="" fetchpriority="high" decoding="async">
+      <img class="portrait-photo portrait-groom" src="images/intro/gallery03.webp" width="600" height="900" alt="" fetchpriority="high" decoding="async">
       <img class="paper-frame" src="images/intro/heart-paper-frame.webp" width="600" height="600" alt="" fetchpriority="high" decoding="async">
     </div>
     <div class="paper-portrait">
-      <img class="portrait-photo portrait-bride" src="images/intro/gallery13.webp" width="600" height="901" alt="" fetchpriority="high" decoding="async">
+      <img class="portrait-photo portrait-bride" src="images/intro/gallery01.webp" width="600" height="901" alt="" fetchpriority="high" decoding="async">
       <img class="paper-frame" src="images/intro/heart-paper-frame.webp" width="600" height="600" alt="" decoding="async">
     </div>
   </div>
@@ -607,6 +616,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   <span class="paper-confetti c3" aria-hidden="true"></span>
   <span class="paper-confetti c4 heart-bride" aria-hidden="true"></span>
 </div>
+
+<canvas class="sakura-layer" id="sakuraCanvas" aria-hidden="true"></canvas>
 
 <div class="app invitation-page">
 
@@ -653,7 +664,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       큰 힘이 되겠습니다.
     </p>
     <div class="greeting-signature">신랑 최연준 · 신부 김유진</div>
-    <img class="greeting-photo" data-src="images/content/greeting/1200/gallery08.webp" width="1200" height="1800" data-srcset="images/content/greeting/600/gallery08.webp 600w, images/content/greeting/1200/gallery08.webp 1200w, images/content/greeting/1440/gallery08.webp 1440w" sizes="(max-width: 430px) calc(100vw - 64px), 366px" alt="함께한 연준과 유진" loading="lazy" decoding="async">
+    <img class="greeting-photo" data-src="images/content/greeting/1200/gallery07.webp" width="1200" height="1800" data-srcset="images/content/greeting/600/gallery07.webp 600w, images/content/greeting/1200/gallery07.webp 1200w, images/content/greeting/1440/gallery07.webp 1440w" sizes="(max-width: 430px) calc(100vw - 64px), 366px" alt="함께한 연준과 유진" loading="lazy" decoding="async">
     <div class="section-title">소중한 분들을 초대합니다.</div>
     <div class="names-row">
       <div>신랑측<br><b>최연준</b><br>최일림 · 고경애의 아들</div>
@@ -673,12 +684,12 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       <div class="story-line" aria-hidden="true"></div>
       <div class="story-progress-heart" id="storyProgressHeart" aria-hidden="true"><svg viewBox="0 0 32 29"><path d="M16 29S0 18.5 0 9.5C0 4.25 4.02 0 9 0c3.1 0 5.8 1.7 7 4.3C17.2 1.7 19.9 0 23 0c4.98 0 9 4.25 9 9.5S16 29 16 29Z"/></svg></div>
       <article class="story-moment">
-        <img class="story-photo" data-src="images/content/gallery04.webp" width="600" height="900" alt="함께 걸어가는 두 사람" loading="lazy" decoding="async">
+        <img class="story-photo" data-src="images/content/gallery18.webp" width="600" height="900" alt="함께 걸어가는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy"><div class="story-date">2023.07.07</div><div class="story-text">유나♡성준의 소개로 만남을 시작했어요</div></div>
       </article>
       <article class="story-moment family-moment" id="familyMoment">
-        <img class="story-photo" data-src="images/content/gallery09.webp" width="600" height="900" alt="함께 웃는 두 사람" loading="lazy" decoding="async">
+        <img class="story-photo" data-src="images/content/gallery08.webp" width="600" height="900" alt="함께 웃는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy">
           <svg class="family-circle" viewBox="0 0 170 90" preserveAspectRatio="none" aria-hidden="true"><path d="M157 36C150 13 117 5 77 8C37 10 9 21 8 44C7 69 39 82 84 81C128 80 158 67 161 45C163 35 156 20 139 14"/></svg>
@@ -686,7 +697,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
         </div>
       </article>
       <article class="story-moment">
-        <img class="story-photo" data-src="images/content/gallery13.webp" width="600" height="900" alt="새로운 시작을 함께하는 두 사람" loading="lazy" decoding="async">
+        <img class="story-photo" data-src="images/content/gallery01.webp" width="600" height="900" alt="새로운 시작을 함께하는 두 사람" loading="lazy" decoding="async">
         <span class="story-node" aria-hidden="true"></span>
         <div class="story-copy"><div class="story-date">2027.03.13</div><div class="story-text">드디어 결혼해요!</div></div>
       </article>
@@ -899,9 +910,9 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   </section>
 
   <section class="ending-photo" aria-label="감사 인사">
-    <img data-src="images/content/ending/1200/gallery21.webp" width="1200" height="1800" data-srcset="images/content/ending/600/gallery21.webp 600w, images/content/ending/1200/gallery21.webp 1200w, images/content/ending/1440/gallery21.webp 1440w" sizes="(max-width: 430px) 100vw, 430px" alt="미소 짓는 연준과 유진" loading="lazy" decoding="async">
+    <img data-src="images/content/ending/1200/gallery20.webp" width="1200" height="1800" data-srcset="images/content/ending/600/gallery20.webp 600w, images/content/ending/1200/gallery20.webp 1200w, images/content/ending/1440/gallery20.webp 1440w" sizes="(max-width: 430px) 100vw, 430px" alt="미소 짓는 연준과 유진" loading="lazy" decoding="async">
     <div class="ending-message">행복하게 잘 살겠습니다.</div>
-    <div class="ending-names">최연준 · 김유진</div>
+    <div class="ending-names">최연준 · 김유진 올림</div>
   </section>
 
   <footer>
@@ -952,7 +963,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   }
   const images = Array.from(intro.querySelectorAll('img'));
   const paper = new Image();paper.src = 'images/intro/pink-paper.webp';images.push(paper);
-  const hero = new Image();hero.src = 'images/hero/gallery01.jpg';images.push(hero);
+  const hero = new Image();hero.src = 'images/hero/gallery12.webp';images.push(hero);
   const ready = images.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
   if(document.fonts){
     ready.push(document.fonts.load('400 17px GowunBatang','We are getting Married! 연준 유진').catch(()=>[]));
@@ -1030,6 +1041,89 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   if(!root.classList.contains('intro-active')) start();
   reducedMotion.addEventListener('change',event=>{if(event.matches) finish();});
   window.addEventListener('pagehide',finish,{once:true});
+})();
+
+/* ---------------- 벚꽃: 투명 WebP 레이어 8개, 꽃잎 8개, 최대 30fps ----------------
+   화면 크기의 Canvas 한 장만 사용. 인트로/사진 크게보기/참석 폼/백그라운드에서는 정지. */
+(function floatSakura(){
+  const canvas=document.getElementById('sakuraCanvas');
+  const context=canvas && canvas.getContext('2d');
+  if(!context) return;
+  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const random=(min,max)=>min+Math.random()*(max-min);
+  const spriteSources = [
+    'images/effects/sakura/petal-01.webp', 'images/effects/sakura/petal-02.webp',
+    'images/effects/sakura/petal-03.webp', 'images/effects/sakura/petal-04.webp',
+    'images/effects/sakura/petal-05.webp', 'images/effects/sakura/petal-06.webp',
+    'images/effects/sakura/petal-07.webp', 'images/effects/sakura/petal-08.webp'
+  ];
+  const sprites=spriteSources.map(source=>{
+    const image=new Image();image.decoding='async';image.fetchPriority='low';image.src=source;
+    return image;
+  });
+  let assetsReady=false;
+  let width=0,height=0,frame=0,lastTime=0,running=false,departed=false;
+  let introDone=!document.documentElement.classList.contains('intro-active');
+  const petals=[];
+  function petal(initial,spriteIndex){
+    return {x:random(16,Math.max(17,width-16)),y:initial?random(20,Math.max(21,height-20)):-30,size:random(14,23),
+      speed:random(32,52),drift:random(-7,9),sway:random(8,22),phase:random(0,Math.PI*2),
+      turn:random(-.65,.65),angle:random(0,Math.PI*2),age:random(0,20),
+      opacity:random(.48,.72),spriteIndex,sprite:sprites[spriteIndex]};
+  }
+  function resize(){
+    const bounds=canvas.getBoundingClientRect(),oldWidth=width,oldHeight=height;
+    if(!bounds.width || !bounds.height) return;
+    width=bounds.width;height=bounds.height;
+    // Small decorative shapes do not need the device's full retina resolution.
+    const ratio=Math.min(window.devicePixelRatio||1,1.5);
+    canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
+    context.setTransform(ratio,0,0,ratio,0,0);
+    if(!petals.length) for(let i=0;i<8;i++) petals.push(petal(true,i));
+    else petals.forEach(p=>{p.x*=width/oldWidth;p.y*=height/oldHeight;});
+  }
+  function render(now){
+    if(!running) return;
+    frame=requestAnimationFrame(render);
+    if(lastTime && now-lastTime<1000/30) return;
+    const dt=lastTime?Math.min((now-lastTime)/1000,.08):0;lastTime=now;
+    context.clearRect(0,0,width,height);
+    petals.forEach(p=>{
+      p.age+=dt;p.y+=p.speed*dt;p.x+=p.drift*dt;p.angle+=p.turn*dt;
+      if(p.y>height+30 || p.x>width+50 || p.x< -50) Object.assign(p,petal(false,p.spriteIndex));
+      const x=p.x+Math.sin(p.age*.75+p.phase)*p.sway;
+      context.save();context.globalAlpha=p.opacity;
+      context.translate(x,p.y);context.rotate(p.angle);
+      context.scale(.48+Math.abs(Math.cos(p.age*.7+p.phase))*.52,1);
+      context.drawImage(p.sprite,-p.size/2,-p.size/2,p.size,p.size);
+      context.restore();
+    });
+  }
+  function update(){
+    const enabled=assetsReady && introDone && !motion.matches && !document.hidden && !departed
+      && !document.querySelector('#lightboxRoot .lightbox')
+      && !document.getElementById('rsvpSheetBackdrop')?.classList.contains('open');
+    canvas.classList.toggle('is-running',enabled);
+    if(enabled===running) return;
+    running=enabled;
+    if(running){if(!width || !height) resize();lastTime=0;frame=requestAnimationFrame(render);}
+    else{cancelAnimationFrame(frame);context.clearRect(0,0,width,height);}
+  }
+  document.addEventListener('paperintrocomplete',()=>{introDone=true;update();},{once:true});
+  document.addEventListener('visibilitychange',update);
+  motion.addEventListener('change',update);
+  const lightbox=document.getElementById('lightboxRoot');
+  if(lightbox) new MutationObserver(update).observe(lightbox,{childList:true});
+  const backdrop=document.getElementById('rsvpSheetBackdrop');
+  if(backdrop) new MutationObserver(update).observe(backdrop,{attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',()=>{resize();update();},{passive:true});
+  window.addEventListener('pagehide',()=>{departed=true;update();});
+  window.addEventListener('pageshow',()=>{departed=false;update();});
+  Promise.all(sprites.map(image=>image.decode().catch(()=>{}))).then(()=>{
+    assetsReady=sprites.every(image=>image.naturalWidth>0);
+    update();
+  });
+  resize();update();
 })();
 
 /* ---------------- 혼주용/지인용 모드 구분 ----------------
@@ -1297,9 +1391,9 @@ setInterval(updateWeddingCaption,60000);
 })();
 
 /* ---------------- 갤러리 ---------------- */
-const galleryPhotos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23].map(number => `gallery${String(number).padStart(2,'0')}.jpg`);
+const galleryPhotos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(number => `gallery${String(number).padStart(2,'0')}.jpg`);
 // Keep stored likes/comments associated with the same photos after file renaming.
-const galleryStorageKeys = ["gallery8.jpg", "gallery29.jpg", "gallery30.jpg", "gallery48.jpg", "gallery31.jpg", "gallery34.jpg", "gallery35.jpg", "gallery49.jpg", "gallery50.jpg", "gallery36.jpg", "gallery37.jpg", "gallery38.jpg", "gallery51.jpg", "gallery39.jpg", "gallery40.jpg", "gallery52.jpg", "gallery41.jpg", "gallery42.jpg", "gallery43.jpg", "gallery44.jpg", "gallery45.jpg", "gallery46.jpg", "gallery47.jpg"];
+const galleryStorageKeys = ["gallery51.jpg","gallery39.jpg","gallery52.jpg","gallery40.jpg","gallery42.jpg","gallery43.jpg","gallery49.jpg","gallery50.jpg","gallery38.jpg","gallery37.jpg","gallery36.jpg","gallery8.jpg","gallery31.jpg","gallery34.jpg","gallery35.jpg","gallery29.jpg","gallery30.jpg","gallery48.jpg","gallery47.jpg","gallery45.jpg","photo_0f9b9f31fa366d0a4b97d6ed","gallery44.jpg","photo_d5686863a140dacd6d912303","gallery46.jpg"];
 function galleryStorageKey(index){ return galleryStorageKeys[index]; }
 let galleryVisibleCount = 0;
 let galleryMainLayout = null;
@@ -1308,10 +1402,9 @@ function photoSrc(filename, size = 'web'){
   const folders = { web:'view/1200', thumbs:'thumbs', small:'view/600', medium:'view/900', body:'view/1200', body2x:'view/1440', large:'large' };
   return `images/gallery/${folders[size]}/${filename.replace(/\.jpg$/,'.webp')}`;
 }
+const gallerySourceWidths = {"gallery01.jpg":4672,"gallery02.jpg":4672,"gallery03.jpg":4672,"gallery04.jpg":4672,"gallery05.jpg":4672,"gallery06.jpg":4672,"gallery07.jpg":4672,"gallery08.jpg":2730,"gallery09.jpg":4672,"gallery10.jpg":4672,"gallery11.jpg":4672,"gallery12.jpg":2730,"gallery13.jpg":2730,"gallery14.jpg":2730,"gallery15.jpg":2730,"gallery16.jpg":4672,"gallery17.jpg":2625,"gallery18.jpg":2730,"gallery19.jpg":2730,"gallery20.jpg":4672,"gallery21.jpg":4672,"gallery22.jpg":4672,"gallery23.jpg":4672,"gallery24.jpg":4672};
 function photoWidth(filename, requested){
-  const number = Number(filename.match(/gallery(\d+)/)[1]);
-  const originalWidth = number === 1 ? 1066 : 4672;
-  return Math.min(requested, originalWidth);
+  return Math.min(requested, gallerySourceWidths[filename]);
 }
 function photoSrcset(filename){
   const seen = new Set();
