@@ -158,10 +158,10 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .hero-photo::after{content:'';position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(28,23,26,.13),transparent 18%,transparent 48%,rgba(28,23,26,.18)72%,rgba(28,23,26,.7));}
   .hero-content{position:absolute;z-index:1;left:24px;right:24px;top:48%;bottom:calc(36px + env(safe-area-inset-bottom));
-    display:flex;flex-direction:column;justify-content:space-between;gap:24px;}
-  .hero-quote{position:relative;color:#fff;text-align:center;flex-shrink:0;
-    font-family:'Caveat',cursive;font-weight:500;font-size:min(clamp(4.1rem,18vw,5.4rem),calc((min(100vw,430px) - 48px)*.26));line-height:.93;letter-spacing:-.055em;
-    transform:translateY(10px) rotate(-7deg);text-shadow:0 1px 5px rgba(0,0,0,.08);pointer-events:none;}
+    display:flex;flex-direction:column;justify-content:flex-end;gap:24px;}
+  .hero-quote{position:absolute;top:0;left:0;right:0;color:#fff;text-align:center;
+    font-family:'Caveat',cursive;font-weight:500;font-size:calc(min(clamp(4.1rem,18vw,5.4rem),calc((min(100vw,430px) - 48px)*.26)) - 10px);line-height:.93;letter-spacing:-.055em;
+    transform:translateY(50px) rotate(-7deg);text-shadow:0 1px 5px rgba(0,0,0,.08);pointer-events:none;}
   .hero-quote span{display:block;}
   .hero-info{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45);flex-shrink:0;}
   .hero-info .hero-names{display:flex;justify-content:center;align-items:center;gap:14px;font-size:1.375rem;font-weight:700;line-height:1.5;}
@@ -171,7 +171,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .hero-schedule time,.hero-schedule span{white-space:nowrap;}
   @media(max-height:700px){
     .hero-content{top:42%;bottom:calc(28px + env(safe-area-inset-bottom));gap:20px;}
-    .hero-quote{font-size:clamp(3.3rem,15vw,4rem);}
+    .hero-quote{font-size:calc(clamp(3.3rem,15vw,4rem) - 10px);}
   }
   .hero-date{font-size:.8125rem;color:var(--ink-soft);line-height:1.85;}
 
