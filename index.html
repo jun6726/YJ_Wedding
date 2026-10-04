@@ -66,7 +66,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
     --paper:#FCFCFC;
     --paper-deep:#F1EEEE;
     --ink:#676164;
-    --ink-soft:#8D8588;
+    --ink-soft:#746C70;
     --celadon:#E7B9B7;
     --celadon-deep:#BC828B;
     --blush:#E7B9B7;
@@ -327,7 +327,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   .lb-comment-item-name{ font-size:0.75rem; font-weight:700; color:var(--ink); }
   .lb-comment-item-date{ font-size:0.625rem; color:var(--ink-soft); }
   .lb-comment-item-text{ font-size:0.8125rem; color:var(--ink-soft); line-height:1.6; }
-  .lb-comment-item-text.priv{ font-style:italic; color:#b8b2aa; }
+  .lb-comment-item-text.priv{ font-style:italic; color:#746C70; }
   .lb-comment-empty{ font-size:0.75rem; color:var(--ink-soft); text-align:center; padding:18px 0; }
   .lb-comment-form{ flex-shrink:0; display:flex; flex-direction:column; gap:8px; }
   .lb-comment-form input[type="text"], .lb-comment-form textarea{
@@ -566,7 +566,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   .ending-message{position:absolute;top:49%;left:20px;right:20px;z-index:1;font-size:1rem;font-weight:400;line-height:1.8;text-align:center;}
   .ending-names{position:absolute;bottom:15%;left:20px;right:20px;z-index:1;font-size:.8125rem;text-align:center;}
   footer{padding:28px 28px calc(82px + env(safe-area-inset-bottom));}
-  footer .fam{font-size:.6875rem;margin-bottom:0;color:#ADA2A6;}
+  footer .fam{font-size:.6875rem;margin-bottom:0;color:#746C70;}
   .float-controls,.float-controls-left{bottom:calc(18px + env(safe-area-inset-bottom));}
   #bgmBtn,#fontScaleBtn,#audienceToggleBtn{background:rgba(255,255,255,.94);color:var(--ink-soft);border:1px solid #EADDE0;
     box-shadow:0 2px 10px rgba(84,63,71,.06);height:42px;min-width:42px;}
@@ -940,7 +940,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
    신랑 사진과 하트 2개는 0.18초, 신부 사진과 하트 2개는 0.3초에 함께 등장.
    사진/하트 재생 시간은 1.725초. 신부 프레임 완료 후 0.5초 유지,
    2.525초부터 0.5초 페이드아웃하여 3.025초에 종료.
-   방문할 때 한 번 자동 재생하며 클릭/재방문 분기나 반복 재생을 추가하지 않음. */
+   방문할 때 한 번 자동 재생. */
 (function playPaperIntro(){
   const intro = document.getElementById('paperIntro');
   const app = document.querySelector('.invitation-page');
@@ -2213,9 +2213,8 @@ function shareKakao(){
 }
 
 /* ---------------- BGM ----------------
-   페이지 진입 시 자동재생을 시도합니다. 브라우저 정책상 사용자 상호작용 없이는
-   소리 있는 자동재생이 막힐 수 있어서, 자동재생이 실패하면 사용자의 첫 터치/클릭에
-   맞춰 바로 재생을 시작합니다. */
+   페이지 진입(load) 시 자동재생을 시도합니다. 브라우저 정책상 자동재생이 막히면
+   재시도하지 않으며, 음악 버튼으로 직접 재생할 수 있습니다. */
 let bgmAudio = null;
 function getBgmAudio(){
   if(!bgmAudio){
@@ -2234,29 +2233,10 @@ function toggleBgm(){
 }
 
 function tryAutoplayBgm(){
-  const audio = getBgmAudio();
-  audio.play().catch(()=>{
-    const resume = ()=>{
-      audio.play().catch(()=>{});
-      document.removeEventListener('touchstart', resume);
-      document.removeEventListener('click', resume);
-    };
-    document.addEventListener('touchstart', resume, { once:true });
-    document.addEventListener('click', resume, { once:true });
-  });
+  getBgmAudio().play().catch(()=>{});
 }
-// Prepare audio during intro asset loading; request playback on the intro's first animation frame.
-getBgmAudio();
-let bgmIntroPlaybackRequested=false;
-function startBgmWithIntro(){
-  if(bgmIntroPlaybackRequested) return;
-  bgmIntroPlaybackRequested=true;
-  tryAutoplayBgm();
-}
-document.addEventListener('paperintrostart',startBgmWithIntro,{once:true});
-// Also handles an intro skipped by reduced-motion or terminated by the decoding watchdog.
-document.addEventListener('paperintrocomplete',startBgmWithIntro,{once:true});
-if(!document.documentElement.classList.contains('intro-active')) startBgmWithIntro();
+if(document.readyState === 'complete'){ tryAutoplayBgm(); }
+else { window.addEventListener('load', tryAutoplayBgm, { once:true }); }
 
 /* 화면이 백그라운드로 가면(잠금, 앱 전환, 다른 탭 이동 등) 자동으로 멈춤 */
 let bgmWasPlayingBeforeHidden = false;
