@@ -360,13 +360,13 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   .venue-addr{ text-align:center; font-size:.9375rem; color:var(--ink-soft); margin-top:4px; }
   .addr-row{ display:flex; justify-content:center; gap:8px; margin-top:10px; }
   .pill-btn{
-    font-size:.875rem; padding:7px 14px; border-radius:5px; border:1px solid var(--paper-deep); color:var(--ink-soft);
+    font-size:.75rem; padding:7px 14px; border-radius:5px; border:1px solid var(--paper-deep); color:var(--ink-soft);
     background:var(--paper);
   }
   .map-links{ display:flex; gap:8px; margin-top:16px; }
   .map-links a{
     flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
-    text-align:center; font-size:.875rem; padding:11px 0; border-radius:5px;
+    text-align:center; font-size:.75rem; padding:11px 0; border-radius:5px;
     background:var(--paper); color:var(--ink); text-decoration:none; font-weight:500;
     border:1px solid var(--paper-deep); box-sizing:border-box;
   }
@@ -475,14 +475,14 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
 
   /* ---------- SHARE ---------- */
   .share-row{ display:flex; gap:10px; }
-  .share-btn{ flex:1; padding:14px 0; border-radius:5px; font-size:.875rem; font-weight:400; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .share-btn{ flex:1; padding:14px 0; border-radius:5px; font-size:.75rem; font-weight:400; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; }
   .share-btn svg{ width:16px; height:16px; flex-shrink:0; }
   .share-btn.kakao{ background:#FEE500; color:#3C1E1E; }
   .share-btn.link{ background:var(--paper); color:var(--ink); border:1px solid var(--paper-deep); box-shadow:none; }
 
   /* ---------- FOOTER ---------- */
   footer{ padding:36px 28px 60px; text-align:center; }
-  footer .fam{ font-size:.75rem; color:var(--ink-soft); line-height:2; margin-bottom:18px; }
+  footer .fam{ font-size:.9375rem; color:var(--ink-soft); line-height:2; margin-bottom:18px; }
   footer .notice{ font-size:.75rem; color:var(--ink-soft); opacity:.75; line-height:1.9; }
 
   /* ---------- 우측 하단 플로팅 버튼 그룹 (배율 → 노래 → 스케치) ---------- */
@@ -566,7 +566,7 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
   .ending-message{position:absolute;top:49%;left:20px;right:20px;z-index:1;font-size:1rem;font-weight:400;line-height:1.8;text-align:center;}
   .ending-names{position:absolute;bottom:15%;left:20px;right:20px;z-index:1;font-size:.8125rem;text-align:center;}
   footer{padding:28px 28px calc(82px + env(safe-area-inset-bottom));}
-  footer .fam{font-size:.75rem;margin-bottom:0;color:#746C70;}
+  footer .fam{font-size:.9375rem;margin-bottom:0;color:#746C70;}
   .float-controls,.float-controls-left{bottom:calc(18px + env(safe-area-inset-bottom));}
   #bgmBtn,#fontScaleBtn,#audienceToggleBtn{background:rgba(255,255,255,.94);color:var(--ink-soft);border:1px solid #EADDE0;
     box-shadow:0 2px 10px rgba(84,63,71,.06);height:42px;min-width:42px;}
@@ -1175,7 +1175,7 @@ const GUEST_HIDE_IDS = ['storyDivider','storySection'];
 function updateAudienceToggleLabel(){
   const btn = document.getElementById('audienceToggleBtn');
   if(!btn) return;
-  btn.textContent = audienceMode === 'parent' ? '일반모드' : '혼주용';
+  btn.textContent = audienceMode === 'parent' ? '혼주용' : '일반모드';
 }
 
 function setAudienceMode(isParent){
