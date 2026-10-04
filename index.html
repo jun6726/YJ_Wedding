@@ -748,8 +748,8 @@ document.documentElement.classList.add('intro-active','hero-title-typing');
     <div class="section-title">오시는 길</div>
     <div class="section-sub">LOCATION</div>
     <div class="venue-name content-ink">L65호텔 웨딩컨벤션</div>
-    <div class="venue-name content-ink" style="font-size:.875rem; font-weight:400; margin-top:2px;">가든홀</div>
-    <div class="venue-addr content-ink">서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층</div>
+    <div class="venue-name content-ink" style="font-size:.875rem; font-weight:700; margin-top:2px;">가든홀</div>
+    <div class="venue-addr content-ink">서울 동대문구 왕산로 200<br>SKY-L65 랜드마크타워 6층</div>
     <div class="addr-row">
       <button class="pill-btn content-ink" onclick="copyText('서울 동대문구 왕산로 200 SKY-L65 랜드마크타워 6층','주소가 복사되었습니다')">주소 복사</button>
     </div>
@@ -2317,14 +2317,18 @@ function toggleBgm(){
   if(audio.paused){ audio.play().catch(()=>{}); } else { audio.pause(); }
 }
 
-const bgmGestureEvents=['pointerdown','pointerup','touchstart','touchend','click','wheel','scroll'];
+const bgmGestureEvents=['pointerdown','pointerup','touchstart','touchend','click','keydown','wheel','scroll'];
+// 손을 떼는 순간(스크롤 후 포함)·클릭·키 입력은 브라우저가 재생을 허용할 수 있는 동작이라
+// 앞선 재생 요청이 처리 중이어도 건너뛰지 않고 다시 요청한다.
+const bgmReleaseEvents=new Set(['pointerup','touchend','click','keydown']);
 let bgmGestureRetryActive=false,bgmPlaybackPending=false,bgmLastScrollAttempt=0;
 function clearBgmGestureRetry(){
   bgmGestureRetryActive=false;
-  bgmGestureEvents.forEach(type=>document.removeEventListener(type,retryBgmOnGesture));
+  bgmGestureEvents.forEach(type=>document.removeEventListener(type,retryBgmOnGesture,true));
 }
 function retryBgmOnGesture(event){
-  if(!bgmGestureRetryActive || document.hidden || bgmPlaybackPending) return;
+  const isRelease=bgmReleaseEvents.has(event.type);
+  if(!bgmGestureRetryActive || document.hidden || (bgmPlaybackPending && !isRelease)) return;
   // Leave the explicit music button in control of the user's on/off choice.
   if(event.target instanceof Element && event.target.closest('#bgmBtn')) return;
   if(event.type==='scroll' || event.type==='wheel'){
@@ -2332,10 +2336,10 @@ function retryBgmOnGesture(event){
     if(now-bgmLastScrollAttempt<250) return;
     bgmLastScrollAttempt=now;
   }
-  requestBgmPlayback();
+  requestBgmPlayback(isRelease);
 }
-function requestBgmPlayback(){
-  if(bgmPlaybackPending) return;
+function requestBgmPlayback(force){
+  if(bgmPlaybackPending && !force) return;
   bgmPlaybackPending=true;
   // Call play directly in the gesture handler; awaiting first can lose user activation.
   getBgmAudio().play().then(()=>{
@@ -2347,7 +2351,8 @@ function requestBgmPlayback(){
 }
 function tryAutoplayBgm(){
   bgmGestureRetryActive=true;
-  bgmGestureEvents.forEach(type=>document.addEventListener(type,retryBgmOnGesture,{passive:true}));
+  // Capture phase so a component that stops propagation cannot swallow the gesture.
+  bgmGestureEvents.forEach(type=>document.addEventListener(type,retryBgmOnGesture,{passive:true,capture:true}));
   getBgmAudio().addEventListener('playing',clearBgmGestureRetry,{once:true});
   requestBgmPlayback();
 }
