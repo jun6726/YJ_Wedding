@@ -7,7 +7,8 @@
 /* 새로고침 시 브라우저가 이전 스크롤 위치를 자동 복원하면서 페이지 중간부터 보이는 현상 방지 */
 if('scrollRestoration' in history){ history.scrollRestoration = 'manual'; }
 window.scrollTo(0, 0);
-if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.documentElement.classList.add('intro-active','hero-title-typing'); }
+/* 인트로·히어로 타이핑·벚꽃은 기기의 동작 줄이기 설정과 무관하게 재생. */
+document.documentElement.classList.add('intro-active','hero-title-typing');
 </script>
 <script>
 (function(){
@@ -92,7 +93,8 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   }
   body{ position:relative; }
   @media (prefers-reduced-motion: reduce){
-    *{animation-duration:.001s !important; transition-duration:.001s !important;}
+    /* 지정한 세 효과는 원래 속도를 유지하고, 나머지 효과는 설정을 따름. */
+    *:not(.paper-intro):not(.paper-intro *):not(.sakura-layer):not(.hero-quote):not(.hero-quote *){animation-duration:.001s !important; transition-duration:.001s !important;}
   }
   h1,h2,h3,.serif{font-family:inherit;}
   button{font-family:inherit; cursor:pointer; border:none; background:none; color:var(--ink);}
@@ -158,13 +160,11 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     .intro-stack{width:60%;max-width:calc((100svh - 120px)/2);}
     .intro-copy{font-size:.9375rem;}
   }
-  @media(prefers-reduced-motion:reduce){.paper-intro{display:none !important;}.intro-active{overflow:auto;}}
 
   /* 중앙 청첩장에만 표시하는 터치 비간섭 벚꽃 레이어. */
   .sakura-layer{position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(100%,430px);
-    height:100vh;height:100dvh;z-index:40;pointer-events:none;opacity:0;transition:opacity .8s ease;}
+    height:100vh;height:100lvh;z-index:40;pointer-events:none;opacity:0;transition:opacity .8s ease;}
   .sakura-layer.is-running{opacity:1;}
-  @media(prefers-reduced-motion:reduce){.sakura-layer{display:none !important;}}
 
   /* 히어로 영문 제목은 이전 Caveat 폰트로 표시. */
   .hero{padding:0;text-align:center;}
@@ -180,7 +180,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   .hero-quote > span{display:block;}
   .hero-quote .hero-title-word{display:inline-block;}
   .hero-title-typing .hero-title-word{clip-path:inset(-50% 100% -50% -20px);}
-  @media(prefers-reduced-motion:reduce){.hero-title-typing .hero-title-word{clip-path:none !important;}}
   .hero-info{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45);flex-shrink:0;}
   .hero-info .hero-names{display:flex;justify-content:center;align-items:center;gap:14px;font-size:1.375rem;font-weight:700;line-height:1.5;}
   .hero-info .hero-name-heart{display:block;flex:0 0 22px;width:22px;aspect-ratio:29/27;
@@ -974,6 +973,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     if(finished) return;
     requestAnimationFrame(()=>{
       intro.classList.add('is-entering');
+      document.dispatchEvent(new Event('paperintrostart'));
       const brideStyle = getComputedStyle(intro.querySelector('.paper-portrait:nth-child(2)'));
       const brideFinishedAt = (parseFloat(brideStyle.animationDelay) + parseFloat(brideStyle.animationDuration)) * 1000;
       setTimeout(()=>{
@@ -998,7 +998,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   const quote=document.getElementById('heroQuote');
   if(!quote || !root.classList.contains('hero-title-typing')) return;
   const words=Array.from(quote.querySelectorAll('.hero-title-word'));
-  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
   let started=false, timer;
   function finish(){
     clearTimeout(timer);
@@ -1008,7 +1007,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   function start(){
     if(started) return;
     started=true;
-    if(reducedMotion.matches){finish();return;}
     let wordIndex=0, character=0;
     function reveal(){
       const word=words[wordIndex];
@@ -1039,7 +1037,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   }
   document.addEventListener('paperintrocomplete',start,{once:true});
   if(!root.classList.contains('intro-active')) start();
-  reducedMotion.addEventListener('change',event=>{if(event.matches) finish();});
   window.addEventListener('pagehide',finish,{once:true});
 })();
 
@@ -1049,7 +1046,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   const canvas=document.getElementById('sakuraCanvas');
   const context=canvas && canvas.getContext('2d');
   if(!context) return;
-  const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
   const random=(min,max)=>min+Math.random()*(max-min);
   const spriteSources = [
     'images/effects/sakura/petal-01.webp', 'images/effects/sakura/petal-02.webp',
@@ -1063,6 +1059,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   });
   let assetsReady=false;
   let width=0,height=0,frame=0,lastTime=0,running=false,departed=false;
+  let canvasViewportWidth=0,canvasPixelRatio=0;
   let introDone=!document.documentElement.classList.contains('intro-active');
   const petals=[];
   function petal(initial,spriteIndex){
@@ -1072,11 +1069,19 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
       opacity:random(.48,.72),spriteIndex,sprite:sprites[spriteIndex]};
   }
   function resize(){
+    const viewportWidth=document.documentElement.clientWidth;
+    const ratio=Math.min(window.devicePixelRatio||1,1.5);
+    const mobile=window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    // Mobile browser bars/keyboard change height during scrolling. Keep the canvas stable.
+    if(mobile && width && viewportWidth===canvasViewportWidth && ratio===canvasPixelRatio) return;
+    if(mobile) canvas.style.height='';
     const bounds=canvas.getBoundingClientRect(),oldWidth=width,oldHeight=height;
     if(!bounds.width || !bounds.height) return;
+    if(mobile) canvas.style.height=bounds.height+'px';
+    if(bounds.width===width && bounds.height===height && ratio===canvasPixelRatio) return;
+    canvasViewportWidth=viewportWidth;canvasPixelRatio=ratio;
     width=bounds.width;height=bounds.height;
     // Small decorative shapes do not need the device's full retina resolution.
-    const ratio=Math.min(window.devicePixelRatio||1,1.5);
     canvas.width=Math.round(width*ratio);canvas.height=Math.round(height*ratio);
     context.setTransform(ratio,0,0,ratio,0,0);
     if(!petals.length) for(let i=0;i<8;i++) petals.push(petal(true,i));
@@ -1100,7 +1105,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     });
   }
   function update(){
-    const enabled=assetsReady && introDone && !motion.matches && !document.hidden && !departed
+    const enabled=assetsReady && introDone && !document.hidden && !departed
       && !document.querySelector('#lightboxRoot .lightbox')
       && !document.getElementById('rsvpSheetBackdrop')?.classList.contains('open');
     canvas.classList.toggle('is-running',enabled);
@@ -1111,7 +1116,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   }
   document.addEventListener('paperintrocomplete',()=>{introDone=true;update();},{once:true});
   document.addEventListener('visibilitychange',update);
-  motion.addEventListener('change',update);
   const lightbox=document.getElementById('lightboxRoot');
   if(lightbox) new MutationObserver(update).observe(lightbox,{childList:true});
   const backdrop=document.getElementById('rsvpSheetBackdrop');
@@ -1456,22 +1460,29 @@ function layoutGalleryTiles(photoIndices){
 }
 
 function renderGalleryLayout(target, layout, tiles){
-  target.innerHTML = '';
-  let maxRow = -1;
   const width = target.clientWidth || (target.parentElement && target.parentElement.clientWidth) || 0;
   const unit = (width - (layout.columns - 1) * 4) / layout.columns;
   if(!Number.isFinite(unit) || unit <= 0) return;
-  tiles.forEach(tile=>{
-    const photoIndex = tile.index;
-    const el = createGalleryGridTile(galleryPhotos[photoIndex], photoIndex, tile.size);
-    const span = tile.size;
+  const signature=tiles.map(tile=>`${tile.index}:${tile.size}`).join(',');
+  const unchanged=target.dataset.tileSignature===signature && target.childElementCount===tiles.length;
+  if(unchanged && Math.abs(Number(target.dataset.layoutWidth)-width)<.5) return;
+  // Reuse decoded images when resizing/reopening; only changed photo selections need new elements.
+  if(!unchanged){
+    const fragment=document.createDocumentFragment();
+    tiles.forEach(tile=>fragment.appendChild(createGalleryGridTile(galleryPhotos[tile.index],tile.index,tile.size)));
+    target.replaceChildren(fragment);
+    target.dataset.tileSignature=signature;
+  }
+  let maxRow = -1;
+  tiles.forEach((tile,i)=>{
+    const el=target.children[i],span=tile.size;
     el.style.left = `${tile.col * (unit + 4)}px`;
     el.style.top = `${tile.row * (unit + 4)}px`;
     el.style.width = `${span * unit + (span - 1) * 4}px`;
     el.style.height = `${span * unit + (span - 1) * 4}px`;
     maxRow = Math.max(maxRow, tile.row + span - 1);
-    target.appendChild(el);
   });
+  target.dataset.layoutWidth=String(width);
   target.style.height = maxRow < 0 ? '0px' : `${(maxRow + 1) * unit + maxRow * 4}px`;
 }
 
@@ -1555,15 +1566,19 @@ function scheduleGallerySlideWarmup(){
   });
 }
 buildGallery();
-window.addEventListener('resize', ()=>{
-  const grid = document.getElementById('galleryGrid');
-  const extra = document.getElementById('galleryExtra');
-  if(!grid || !extra) return;
-  if(galleryMainLayout) renderGalleryLayout(grid, galleryMainLayout, galleryMainLayout.tiles);
-  if(galleryExtraLayout && extra.classList.contains('expanded')) renderGalleryLayout(extra, galleryExtraLayout, galleryExtraLayout.tiles);
-  scheduleGallerySlideWarmup();
-});
-document.addEventListener('invitationlayoutchange',scheduleGallerySlideWarmup);
+let galleryLayoutFrame=0;
+function scheduleGalleryLayout(){
+  if(galleryLayoutFrame) return;
+  galleryLayoutFrame=requestAnimationFrame(()=>{
+    galleryLayoutFrame=0;
+    const grid=document.getElementById('galleryGrid'),extra=document.getElementById('galleryExtra');
+    if(galleryMainLayout) renderGalleryLayout(grid,galleryMainLayout,galleryMainLayout.tiles);
+    if(galleryExtraLayout && extra.classList.contains('expanded')) renderGalleryLayout(extra,galleryExtraLayout,galleryExtraLayout.tiles);
+    scheduleGallerySlideWarmup();
+  });
+}
+window.addEventListener('resize',scheduleGalleryLayout,{passive:true});
+document.addEventListener('invitationlayoutchange',scheduleGalleryLayout);
 
 function toggleGalleryMore(){
   const extra = document.getElementById('galleryExtra');
@@ -2205,6 +2220,7 @@ let bgmAudio = null;
 function getBgmAudio(){
   if(!bgmAudio){
     bgmAudio = new Audio('bgm.mp3');
+    bgmAudio.preload = 'auto';
     bgmAudio.loop = true;
     bgmAudio.volume = 1; // 기본 음량
     bgmAudio.addEventListener('play', ()=> document.getElementById('bgmBtn').classList.add('playing'));
@@ -2229,8 +2245,18 @@ function tryAutoplayBgm(){
     document.addEventListener('click', resume, { once:true });
   });
 }
-if(document.readyState === 'complete'){ tryAutoplayBgm(); }
-else { window.addEventListener('load', tryAutoplayBgm); }
+// Prepare audio during intro asset loading; request playback on the intro's first animation frame.
+getBgmAudio();
+let bgmIntroPlaybackRequested=false;
+function startBgmWithIntro(){
+  if(bgmIntroPlaybackRequested) return;
+  bgmIntroPlaybackRequested=true;
+  tryAutoplayBgm();
+}
+document.addEventListener('paperintrostart',startBgmWithIntro,{once:true});
+// Also handles an intro skipped by reduced-motion or terminated by the decoding watchdog.
+document.addEventListener('paperintrocomplete',startBgmWithIntro,{once:true});
+if(!document.documentElement.classList.contains('intro-active')) startBgmWithIntro();
 
 /* 화면이 백그라운드로 가면(잠금, 앱 전환, 다른 탭 이동 등) 자동으로 멈춤 */
 let bgmWasPlayingBeforeHidden = false;
