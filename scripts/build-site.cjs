@@ -57,6 +57,10 @@ const output = path.join(root, 'deploy');
   }
   // Allows the same static bundle to be used by GitHub Pages.
   await fs.writeFile(path.join(output, '.nojekyll'), '');
+  // GitHub Pages publishes main/docs; keep it identical to the public bundle.
+  const pagesOutput = path.join(root, 'docs');
+  await fs.rm(pagesOutput, { recursive: true, force: true });
+  await fs.cp(output, pagesOutput, { recursive: true });
   const archive = path.join(root, 'deploy.zip');
   await fs.rm(archive, { force: true });
   await execFile('zip', ['-qr', archive, '.'], { cwd: output });
