@@ -161,7 +161,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
     display:flex;flex-direction:column;justify-content:space-between;gap:24px;}
   .hero-quote{position:relative;color:#fff;text-align:center;flex-shrink:0;
     font-family:'Caveat',cursive;font-weight:500;font-size:min(clamp(4.1rem,18vw,5.4rem),calc((min(100vw,430px) - 48px)*.26));line-height:.93;letter-spacing:-.055em;
-    transform:rotate(-7deg);text-shadow:0 1px 5px rgba(0,0,0,.08);pointer-events:none;}
+    transform:translateY(10px) rotate(-7deg);text-shadow:0 1px 5px rgba(0,0,0,.08);pointer-events:none;}
   .hero-quote span{display:block;}
   .hero-info{color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.45);flex-shrink:0;}
   .hero-info .hero-names{display:flex;justify-content:center;align-items:center;gap:14px;font-size:1.375rem;font-weight:700;line-height:1.5;}
@@ -947,7 +947,7 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){ document.doc
   const ready = images.map(img => img.decode ? img.decode().catch(()=>{}) : Promise.resolve());
   if(document.fonts){
     ready.push(document.fonts.load('400 17px Cafe24Oneprettynight','We are getting Married! 연준 유진').catch(()=>[]));
-    ready.push(document.fonts.load('500 72px Caveat','Happy Wedding Day').catch(()=>[]));
+    ready.push(document.fonts.load('500 40px Caveat','Happy Wedding Day').catch(()=>[]));
   }
   Promise.all(ready).then(()=>{
     if(finished) return;
