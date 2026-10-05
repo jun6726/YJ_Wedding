@@ -1815,11 +1815,13 @@ function getDeviceToken(){
 }
 
 /* ---------------- 접속 로그 (접속 횟수) ---------------- */
-async function logVisit(){
+async function logVisit(attempt){
+  attempt = attempt || 1;
   const count = parseInt(localStorage.getItem('wedding_visit_count') || '1', 10);
   const mode = 'normal';
   const debugEl = document.getElementById('visitDebug');
   const modeLabel = '일반모드';
+  const referrer = document.referrer || null;
 
   if(!sb){
     if(debugEl) debugEl.textContent = `${count}번째 접속 · ${modeLabel} · DB 연결 안 됨`;
@@ -1827,16 +1829,19 @@ async function logVisit(){
   }
   try{
     const token = getDeviceToken();
-    const { error } = await sb.from('visit_log').insert({ device_token: token, visit_count: count, mode: mode, audience: audienceMode });
+    const { error } = await sb.from('visit_log').insert({ device_token: token, visit_count: count, mode: mode, audience: audienceMode, referrer: referrer });
     if(error){
       console.warn('방문 로그 저장 실패:', error.message);
       if(debugEl) debugEl.textContent = `${count}번째 접속 · ${modeLabel} · DB 저장 실패 (${error.message})`;
+      /* 네이버 QR 등 인앱 브라우저에서 첫 시도가 네트워크 지연으로 끊기는 경우를 대비해 1회 재시도 */
+      if(attempt < 2) setTimeout(()=> logVisit(attempt + 1), 1000);
     } else {
       if(debugEl) debugEl.textContent = `${count}번째 접속 · ${modeLabel} · DB 저장 완료`;
     }
   }catch(e){
     console.warn('방문 로그 저장 실패:', e);
     if(debugEl) debugEl.textContent = `${count}번째 접속 · ${modeLabel} · DB 저장 실패`;
+    if(attempt < 2) setTimeout(()=> logVisit(attempt + 1), 1000);
   }
 }
 logVisit();
